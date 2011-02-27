@@ -3,78 +3,14 @@ import sys
 import pygtk
 pygtk.require('2.0')
 import gtk
-import gtk.gtkgl
 
-from OpenGL.GL import *
-from OpenGL.GLU import *
+from glwidget import GLDrawingArea
+
+from scene.scene import Scene
+from scene.node import Node
+from geom.torus import Torus
 
 ui_file = "torrusador.ui"
-
-class SimpleDrawingArea(gtk.DrawingArea, gtk.gtkgl.Widget):
-	"""OpenGL drawing area for simple demo."""
-	def __init__(self, glconfig):
-		gtk.DrawingArea.__init__(self)
-
-		# Set OpenGL-capability to the drawing area
-		self.set_gl_capability(glconfig)
-
-		# Connect the relevant signals.
-		self.connect_after('realize',   self._on_realize)
-		self.connect('configure_event', self._on_configure_event)
-		self.connect('expose_event',    self._on_expose_event)
-
-	def _on_realize(self, *args):
-		# Obtain a reference to the OpenGL drawable
-		# and rendering context.
-		gldrawable = self.get_gl_drawable()
-		glcontext = self.get_gl_context()
-
-		# OpenGL begin.
-		if not gldrawable.gl_begin(glcontext):
-			return
-
-		# OpenGL end
-		gldrawable.gl_end()
-
-	def _on_configure_event(self, *args):
-		# Obtain a reference to the OpenGL drawable
-		# and rendering context.
-		gldrawable = self.get_gl_drawable()
-		glcontext = self.get_gl_context()
-
-		self.width = self.allocation.width
-		self.height = self.allocation.height
-
-		# OpenGL begin
-		if not gldrawable.gl_begin(glcontext):
-			return False
-
-		glViewport(0, 0, self.allocation.width, self.allocation.height)
-
-		# OpenGL end
-		gldrawable.gl_end()
-
-		return False
-
-	def _on_expose_event(self, *args):
-		# Obtain a reference to the OpenGL drawable
-		# and rendering context.
-		gldrawable = self.get_gl_drawable()
-		glcontext = self.get_gl_context()
-
-		# OpenGL begin
-		if not gldrawable.gl_begin(glcontext):
-			return False
-
-		if gldrawable.is_double_buffered():
-			gldrawable.swap_buffers()
-		else:
-			glFlush()
-
-		# OpenGL end
-		gldrawable.gl_end()
-
-		return False
 
 class App(object):
 	"""Application main class"""
@@ -83,20 +19,27 @@ class App(object):
 		builder = gtk.Builder()
 		builder.add_from_file(ui_file)
 
-		vbox = builder.get_object("vbox_main")
+		vbox = builder.get_object("box_main")
 
 		glconfig = self.init_glext()
 
-		self.drawing_area = SimpleDrawingArea(glconfig)
+		self.drawing_area = GLDrawingArea(glconfig)
 		self.drawing_area.set_size_request(800, 800)
 
 		vbox.pack_start(self.drawing_area)
 
-		hbox = builder.get_object("vbox_chart")
-
 		builder.connect_signals(self)
 
 		builder.get_object("win_main").show_all()
+
+		self.init_scene()
+	
+	def init_scene( self ) :
+		self.torus = Torus()
+
+		self.scene = Scene( Node( self.torus ) )
+
+		self.drawing_area.add( self.scene )
 
 	def init_glext(self):
 		# Query the OpenGL extension version.
@@ -131,6 +74,25 @@ class App(object):
 	def on_but_quit_clicked(self,widget,data=None):
 		gtk.main_quit()
 
+	def on_sp_R_value_changed(self,widget,data=None):
+		self.torus.R = widget.get_value()
+		self.torus.refresh()
+		self.drawing_area.queue_draw()
+
+	def on_sp_r_value_changed(self,widget,data=None):
+		self.torus.r = widget.get_value()
+		self.torus.refresh()
+		self.drawing_area.queue_draw()
+
+	def on_sp_N_value_changed(self,widget,data=None):
+		self.torus.N = widget.get_value()
+		self.torus.refresh()
+		self.drawing_area.queue_draw()
+
+	def on_sp_n_value_changed(self,widget,data=None):
+		self.torus.n = widget.get_value()
+		self.torus.refresh()
+		self.drawing_area.queue_draw()
 
 if __name__ == '__main__':
 	app = App()

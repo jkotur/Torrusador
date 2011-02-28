@@ -8,6 +8,7 @@ from glwidget import GLDrawingArea
 
 from scene.scene import Scene
 from scene.node import Node
+from scene.camera import Camera
 from geom.torus import Torus
 
 ui_file = "torrusador.ui"
@@ -35,9 +36,18 @@ class App(object):
 		self.init_scene()
 	
 	def init_scene( self ) :
+		self.camera = Camera()
+		self.camera.projection( 60 , 1 , 1 , 10000 )
+		self.camera.lookat( (10,0,5) , (0,0,0) , (-1,0,0) )
+
 		self.torus = Torus()
 
-		self.scene = Scene( Node( self.torus ) )
+		node = Node( self.torus )
+#        node.m = [ [1,0,0,0] , [0,1,0,0] , [0,0,1,0] , [0,0,-5,1] ]
+
+		self.camera.add_child( node )
+
+		self.scene = Scene( self.camera )
 
 		self.drawing_area.add( self.scene )
 

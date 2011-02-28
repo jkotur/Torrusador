@@ -59,6 +59,7 @@ class GLDrawingArea(gtk.DrawingArea, gtk.gtkgl.Widget):
 		glMatrixMode(GL_PROJECTION)
 		glLoadIdentity()
 		glOrtho( -1 , 1 , -1 , 1 , -1 , 1 )
+		glMatrixMode(GL_MODELVIEW)
 
 		# OpenGL end
 		gldrawable.gl_end()
@@ -76,6 +77,8 @@ class GLDrawingArea(gtk.DrawingArea, gtk.gtkgl.Widget):
 			return False
 
 		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
+		glMatrixMode(GL_MODELVIEW)
+		glLoadIdentity()
 
 		for p in self.todraw :
 			p.draw()

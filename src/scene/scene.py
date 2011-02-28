@@ -10,7 +10,8 @@ class Scene :
 		if not node :
 			node = self.root
 
-		node.geom.draw()
+		node.multmatrix()
+		node.draw()
 
 		for c in node.childs :
 			self.draw( c )

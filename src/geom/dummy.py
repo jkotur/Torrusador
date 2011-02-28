@@ -13,7 +13,8 @@ class Dummy :
 		self.mode = 0
 
 	def __del__( self ) :
-		glDeleteBuffers( 1 , self.bid )
+#        glDeleteBuffers( 1 , self.bid )
+		pass
 
 	def geometry( self ) :
 		return []
@@ -26,9 +27,9 @@ class Dummy :
 			self.geom = numpy.array(self.geometry())
 			self.count = len(self.geom)/3
 
-			glBindBuffer(GL_ARRAY_BUFFER,self.bid)
-			glBufferData(GL_ARRAY_BUFFER,self.geom,GL_DYNAMIC_DRAW)
-			glBindBuffer(GL_ARRAY_BUFFER,0)
+#            glBindBuffer(GL_ARRAY_BUFFER,self.bid)
+#            glBufferData(GL_ARRAY_BUFFER,self.geom,GL_DYNAMIC_DRAW)
+#            glBindBuffer(GL_ARRAY_BUFFER,0)
 			self.mode = 1
 
 		glEnableClientState(GL_VERTEX_ARRAY)

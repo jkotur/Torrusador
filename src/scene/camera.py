@@ -16,17 +16,31 @@ class Camera(Node) :
 	def __init__( self ) :
 		Node.__init__( self )
 
-	def multmatrix( self ) :
-		glMultMatrixf( np.concatenate(tuple(self.p )) )
-		glMultMatrixf( np.concatenate(tuple(self.la)) )
-		glMultMatrixf( np.concatenate(tuple(self.lb)) )
+		self.p = self.la = self.lb = self.m
 
-	def projection( self , fov , aspect , near , far ) :
+	def refresh( self ) :
+		glMatrixMode(GL_MODELVIEW)
+		glPushMatrix()
+		glLoadIdentity()
+		glMultMatrixf( self.p  )
+		glMultMatrixf( self.la )
+		glMultMatrixf( self.lb )
+		self.m = glGetFloatv(GL_MODELVIEW_MATRIX)
+		glPopMatrix()
+
+	def multmatrix( self ) :
+		glMultMatrixf( self.m )
+
+	def perspective( self , fov , aspect , near , far ) :
 		f = 1.0/m.tan( fov*m.pi / 180.0 / 2.0 )
-		self.p = [ [ f / aspect , 0 ,           0           ,  0 ] ,
-				   [   0        , f ,           0           ,  0 ] ,
+		self.p = [ [ f / aspect , 0 ,           0                ,  0 ] ,
+				   [   0        , f ,           0                ,  0 ] ,
 				   [   0        , 0 , float(far+near)/(near-far) , -1 ] ,
-				   [   0        , 0 , 2.0*far*near/(near-far) ,  0 ] ]
+				   [   0        , 0 ,   2.0*far*near /(near-far) ,  0 ] ]
+
+		np.concatenate(tuple(self.p))
+
+		self.refresh()
 
 	def lookat( self , eye , center , up ) :
 		look  = map( op.sub , center , eye )
@@ -48,4 +62,9 @@ class Camera(Node) :
 			  [ -eye[0] , -eye[1] , -eye[2] , 1 ] ]
 		self.la = a
 		self.lb = b
+
+		np.concatenate(tuple(self.la))
+		np.concatenate(tuple(self.lb))
+
+		self.refresh()
 

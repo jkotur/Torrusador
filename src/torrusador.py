@@ -4,6 +4,8 @@ import pygtk
 pygtk.require('2.0')
 import gtk
 
+import operator as op
+
 from glwidget import GLDrawingArea
 
 from scene.scene import Scene
@@ -25,6 +27,7 @@ class App(object):
 		glconfig = self.init_glext()
 
 		self.drawing_area = GLDrawingArea(glconfig)
+		self.drawing_area.set_events( gtk.gdk.BUTTON_PRESS_MASK | gtk.gdk.BUTTON_RELEASE_MASK | gtk.gdk.BUTTON1_MOTION_MASK)
 		self.drawing_area.set_size_request(800, 800)
 
 		vbox.pack_start(self.drawing_area)
@@ -34,18 +37,59 @@ class App(object):
 		builder.get_object("win_main").show_all()
 
 		self.init_scene()
+
+		self.drawing_area.connect('motion_notify_event',self._on_mouse_motion)
+		self.drawing_area.connect('button_press_event',self._on_button_pressed)
+		self.drawing_area.connect('configure_event',self._on_reshape)
+
+		self.rbut_trans = builder.get_object('rbut_trans')
+		self.rbut_scale = builder.get_object('rbut_scale')
+		self.rbut_rotate = builder.get_object('rbut_rotate')
+
+		self.sp_fov = builder.get_object('sp_fov')
+		self.sp_fov.set_value(60)
+
+	def _on_reshape( self , widget , data=None ) :
+
+		width = self.drawing_area.allocation.width
+		height = self.drawing_area.allocation.height
+
+		ratio = float(width)/float(height)
+
+		self.camera.perspective( self.sp_fov.get_value() , ratio , 1 , 10000 )
+
+	def _on_button_pressed( self , widget , data=None ) :
+		if data.button != 1 :
+			return
+		self.node.pos = data.x , -data.y
+
+	def _on_mouse_motion( self , widget , data=None ) :
+		if self.rbut_trans.get_active() :
+			self.node.translate( *map(lambda x:x*.01,(map( op.sub , self.node.pos , (data.x , -data.y) ) + [0] ) ))
+		elif self.rbut_scale.get_active() :
+			self.node.scale( *map(lambda x:1+x*.01,(map( op.sub , self.node.pos , (data.x , -data.y) ) + [0] ) ))
+		elif self.rbut_rotate.get_active():
+			self.node.rotate( (self.node.pos[0] - data.x)*.001 , 0 , 0 , 1 )
+			self.node.rotate( (self.node.pos[1] + data.y)*.001 , 1 , 0 , 0 )
+
+		self.node.pos = data.x , -data.y
+		self.drawing_area.queue_draw()
 	
 	def init_scene( self ) :
 		self.camera = Camera()
-		self.camera.projection( 60 , 1 , 1 , 10000 )
-		self.camera.lookat( (10,0,5) , (0,0,0) , (-1,0,0) )
+
+		width = self.drawing_area.allocation.width
+		height = self.drawing_area.allocation.height
+		ratio = float(width)/float(height)
+
+		self.camera.perspective( 60 , ratio , 1 , 10000 )
+		self.camera.lookat( (0,10,5) , (0,0,0) , (0,-1,0) )
 
 		self.torus = Torus()
 
-		node = Node( self.torus )
-#        node.m = [ [1,0,0,0] , [0,1,0,0] , [0,0,1,0] , [0,0,-5,1] ]
+		self.node = Node( self.torus )
 
-		self.camera.add_child( node )
+		self.camera.add_child( self.node )
 
 		self.scene = Scene( self.camera )
 
@@ -102,6 +146,15 @@ class App(object):
 	def on_sp_n_value_changed(self,widget,data=None):
 		self.torus.n = widget.get_value()
 		self.torus.refresh()
+		self.drawing_area.queue_draw()
+
+	def on_sp_fov_value_changed(self,widget,data=None):
+		width = self.drawing_area.allocation.width
+		height = self.drawing_area.allocation.height
+
+		ratio = float(width)/float(height)
+
+		self.camera.perspective( widget.get_value() , ratio , 1 , 10000 )
 		self.drawing_area.queue_draw()
 
 if __name__ == '__main__':

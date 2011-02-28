@@ -43,6 +43,7 @@ class App(object):
 		self.drawing_area.connect('configure_event',self._on_reshape)
 
 		self.rbut_trans = builder.get_object('rbut_trans')
+		self.rbut_isoscale = builder.get_object('rbut_isoscale')
 		self.rbut_scale = builder.get_object('rbut_scale')
 		self.rbut_rotate = builder.get_object('rbut_rotate')
 
@@ -68,6 +69,8 @@ class App(object):
 			self.node.translate( *map(lambda x:x*.01,(map( op.sub , self.node.pos , (data.x , -data.y) ) + [0] ) ))
 		elif self.rbut_scale.get_active() :
 			self.node.scale( *map(lambda x:1+x*.01,(map( op.sub , self.node.pos , (data.x , -data.y) ) + [0] ) ))
+		elif self.rbut_isoscale.get_active() :
+			self.node.scale( *[1+.01*(reduce( op.add , map( op.sub , self.node.pos , (data.x , -data.y) ) ) ) ] * 3 )
 		elif self.rbut_rotate.get_active():
 			self.node.rotate( (self.node.pos[0] - data.x)*.001 , 0 , 0 , 1 )
 			self.node.rotate( (self.node.pos[1] + data.y)*.001 , 1 , 0 , 0 )

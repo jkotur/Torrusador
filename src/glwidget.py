@@ -58,7 +58,7 @@ class GLDrawingArea(gtk.DrawingArea, gtk.gtkgl.Widget):
 
 		glMatrixMode(GL_PROJECTION)
 		glLoadIdentity()
-		glOrtho( -1 , 1 , -1 , 1 , -1 , 1 )
+		glOrtho( -1 , 1 , -1 , 1 , -100 , 100 )
 		glMatrixMode(GL_MODELVIEW)
 
 		# OpenGL end

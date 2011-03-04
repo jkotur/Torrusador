@@ -19,6 +19,7 @@ class App(object):
 	"""Application main class"""
 
 	def __init__(self):
+
 		builder = gtk.Builder()
 		builder.add_from_file(ui_file)
 
@@ -49,6 +50,8 @@ class App(object):
 
 		self.sp_fov = builder.get_object('sp_fov')
 		self.sp_fov.set_value(60)
+
+		builder.get_object('sp_near').set_value(1)
 
 	def _on_reshape( self , widget , data=None ) :
 
@@ -85,8 +88,11 @@ class App(object):
 		height = self.drawing_area.allocation.height
 		ratio = float(width)/float(height)
 
+		self.camera.fov = 60
+		self.camera.near = 1
+
 		self.camera.perspective( 60 , ratio , 1 , 10000 )
-		self.camera.lookat( (0,10,5) , (0,0,0) , (0,-1,0) )
+		self.camera.lookat( (0,10,1) , (0,0,0) , (0,-1,0) )
 
 		self.torus = Torus()
 
@@ -157,7 +163,20 @@ class App(object):
 
 		ratio = float(width)/float(height)
 
-		self.camera.perspective( widget.get_value() , ratio , 1 , 10000 )
+		self.camera.fov = widget.get_value()
+
+		self.camera.perspective( self.camera.fov , ratio , self.camera.near , 10000 )
+		self.drawing_area.queue_draw()
+
+	def on_sp_near_value_changed( self, widget , data=None ):
+		width = self.drawing_area.allocation.width
+		height = self.drawing_area.allocation.height
+
+		ratio = float(width)/float(height)
+
+		self.camera.near = widget.get_value()
+
+		self.camera.perspective( self.camera.fov , ratio , self.camera.near , 10000 )
 		self.drawing_area.queue_draw()
 
 if __name__ == '__main__':

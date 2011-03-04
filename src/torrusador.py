@@ -175,6 +175,7 @@ class App(object):
 		ratio = float(width)/float(height)
 
 		self.camera.near = widget.get_value()
+		self.torus.P0  = -widget.get_value()
 
 		self.camera.perspective( self.camera.fov , ratio , self.camera.near , 10000 )
 		self.drawing_area.queue_draw()

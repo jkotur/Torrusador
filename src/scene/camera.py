@@ -22,13 +22,16 @@ class Camera(Node) :
 		glMatrixMode(GL_MODELVIEW)
 		glPushMatrix()
 		glLoadIdentity()
-		glMultMatrixf( self.p  )
+#        glMultMatrixf( self.p  )
 		glMultMatrixf( self.la )
 		glMultMatrixf( self.lb )
 		self.m = glGetFloatv(GL_MODELVIEW_MATRIX)
 		glPopMatrix()
 
 	def multmatrix( self ) :
+		glMatrixMode(GL_PROJECTION)
+		glLoadMatrixf( self.p )
+		glMatrixMode(GL_MODELVIEW)
 		glMultMatrixf( self.m )
 
 	def perspective( self , fov , aspect , near , far ) :

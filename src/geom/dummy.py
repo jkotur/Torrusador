@@ -58,7 +58,7 @@ class Dummy :
 			w/= w[3]
 			ng += list(w)[0:3]
 
-		ng = [ ng[i:i+3] for i in range(0,len(self.geom),3) if ng[i+2] ]
+#        ng = [ ng[i:i+3] for i in range(0,len(self.geom),3) if ng[i+2] ]
 
 		glPushMatrix()
 		glLoadIdentity()

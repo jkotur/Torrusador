@@ -49,11 +49,15 @@ class Node :
 	def scale( self , x , y , z ) :
 		self._mulandget( [ x,0,0,0 , 0,y,0,0 , 0,0,z,0 , 0,0,0,1 ] )
 
-	def _mulandget( self , m ) :
+	def _mulandget( self , m , inverted = False ) :
 		glMatrixMode(GL_MODELVIEW)
 		glPushMatrix()
-		glLoadMatrixf( m )
-		glMultMatrixf( self.m )
+		if not inverted :
+			glLoadMatrixf( m )
+			glMultMatrixf( self.m )
+		else :
+			glLoadMatrixf( self.m )
+			glMultMatrixf( m )
 		self.m = glGetFloatv(GL_MODELVIEW_MATRIX)
 		glPopMatrix()
 

@@ -48,6 +48,10 @@ class App(object):
 		self.rbut_scale = builder.get_object('rbut_scale')
 		self.rbut_rotate = builder.get_object('rbut_rotate')
 
+		self.rbut_xy = builder.get_object('rbut_xy')
+		self.rbut_xz = builder.get_object('rbut_xz')
+		self.rbut_yz = builder.get_object('rbut_yz')
+
 		self.sp_fov = builder.get_object('sp_fov')
 		self.sp_fov.set_value(60)
 
@@ -65,20 +69,37 @@ class App(object):
 	def _on_button_pressed( self , widget , data=None ) :
 		if data.button != 1 :
 			return
-		self.node.pos = data.x , -data.y
+		self.node.pos = -data.x , data.y
 
 	def _on_mouse_motion( self , widget , data=None ) :
+		if self.rbut_xy.get_active() :
+			diff = map( op.sub , self.node.pos , (-data.x , data.y) )
+			diff[2:2] = [0]
+			axis1= ( 0 , 1 , 0 )
+			axis2= ( 1 , 0 , 0 )
+		elif self.rbut_xz.get_active() :
+			diff = map( op.sub , self.node.pos , (-data.x , data.y) )
+			diff[1:1] = [0]
+			axis1= ( 0 , 0 , 1 )
+			axis2= ( 1 , 0 , 0 )
+		elif self.rbut_yz.get_active() :
+			diff = map( op.sub , self.node.pos , (-data.x , data.y) )
+			diff.reverse();
+			diff[0:0] = [0]
+			axis1= ( 0 , 1 , 0 )
+			axis2= ( 0 , 0 , 1 )
+
 		if self.rbut_trans.get_active() :
-			self.node.translate( *map(lambda x:x*.01,(map( op.sub , self.node.pos , (data.x , -data.y) ) + [0] ) ))
+			self.node.translate( *map(lambda x:x*.01,diff) )
 		elif self.rbut_scale.get_active() :
-			self.node.scale( *map(lambda x:1+x*.01,(map( op.sub , self.node.pos , (data.x , -data.y) ) + [0] ) ))
+			self.node.scale( *map(lambda x:1+x*.01,diff) )
 		elif self.rbut_isoscale.get_active() :
 			self.node.scale( *[1+.01*(reduce( op.add , map( op.sub , self.node.pos , (data.x , -data.y) ) ) ) ] * 3 )
 		elif self.rbut_rotate.get_active():
-			self.node.rotate( (self.node.pos[0] - data.x)*.001 , 0 , 0 , 1 )
-			self.node.rotate( (self.node.pos[1] + data.y)*.001 , 1 , 0 , 0 )
+			self.node.rotate(-(self.node.pos[0] + data.x)*.001 , *axis1 )
+			self.node.rotate( (self.node.pos[1] - data.y)*.001 , *axis2 )
 
-		self.node.pos = data.x , -data.y
+		self.node.pos = -data.x , data.y
 		self.drawing_area.queue_draw()
 	
 	def init_scene( self ) :
@@ -92,7 +113,7 @@ class App(object):
 		self.camera.near = 1
 
 		self.camera.perspective( 60 , ratio , 1 , 10000 )
-		self.camera.lookat( (0,10,1) , (0,0,0) , (0,-1,0) )
+		self.camera.lookat( (0,0,0) , (0,0,-1) , (0,1,0) )
 
 		self.torus = Torus()
 

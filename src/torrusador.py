@@ -64,7 +64,7 @@ class App(object):
 
 		ratio = float(width)/float(height)
 
-		self.camera.perspective( self.sp_fov.get_value() , ratio , 1 , 10000 )
+		self.camera.perspective( self.sp_fov.get_value() , ratio , .1 , 100 )
 
 	def _on_button_pressed( self , widget , data=None ) :
 		if data.button != 1 :

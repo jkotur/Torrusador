@@ -6,11 +6,15 @@ import gtk
 
 import operator as op
 
+from OpenGL.GL import *
+
 from glwidget import GLDrawingArea
 
 from scene.scene import Scene
 from scene.node import Node
 from scene.camera import Camera
+from scene.color import Color
+from scene.projection import Projection
 from geom.torus import Torus
 
 ui_file = "torrusador.ui"
@@ -23,19 +27,20 @@ class App(object):
 		builder = gtk.Builder()
 		builder.add_from_file(ui_file)
 
-		vbox = builder.get_object("box_main")
-
 		glconfig = self.init_glext()
 
 		self.drawing_area = GLDrawingArea(glconfig)
 		self.drawing_area.set_events( gtk.gdk.BUTTON_PRESS_MASK | gtk.gdk.BUTTON_RELEASE_MASK | gtk.gdk.BUTTON1_MOTION_MASK)
 		self.drawing_area.set_size_request(800, 800)
 
-		vbox.pack_start(self.drawing_area)
+		self.box3d = builder.get_object("hbox_3d")
+
+		builder.get_object("vbox4").pack_start(self.drawing_area)
 
 		builder.connect_signals(self)
 
 		builder.get_object("win_main").show_all()
+		self.box3d.hide();
 
 		self.init_scene()
 
@@ -64,7 +69,8 @@ class App(object):
 
 		ratio = float(width)/float(height)
 
-		self.camera.perspective( self.sp_fov.get_value() , ratio , 1 , 10000 )
+		self.proj  .perspective( self.sp_fov.get_value() , ratio , 1 , 10000 )
+		self.proj3d.perspective( self.sp_fov.get_value() , ratio , 1 , 10000 )
 
 	def _on_button_pressed( self , widget , data=None ) :
 		if data.button != 1 :
@@ -72,29 +78,33 @@ class App(object):
 		self.node.pos = -data.x , data.y
 
 	def _on_mouse_motion( self , widget , data=None ) :
+		diff = map( op.sub , self.node.pos , (-data.x , data.y) )
+
 		if self.rbut_xy.get_active() :
-			diff = map( op.sub , self.node.pos , (-data.x , data.y) )
 			diff[2:2] = [0]
 			axis1= ( 0 , 1 , 0 )
 			axis2= ( 1 , 0 , 0 )
 		elif self.rbut_xz.get_active() :
-			diff = map( op.sub , self.node.pos , (-data.x , data.y) )
 			diff[1:1] = [0]
 			axis1= ( 0 , 0 , 1 )
 			axis2= ( 1 , 0 , 0 )
 		elif self.rbut_yz.get_active() :
-			diff = map( op.sub , self.node.pos , (-data.x , data.y) )
 			diff.reverse();
 			diff[0:0] = [0]
 			axis1= ( 0 , 1 , 0 )
 			axis2= ( 0 , 0 , 1 )
+
+#        print diff
+#        print reduce( op.add , diff ) 
+#        print [ 1+.01*reduce( op.add , diff ) ] * 3
+#        print map(lambda x:1+x*.01,diff)
 
 		if self.rbut_trans.get_active() :
 			self.node.translate( *map(lambda x:x*.01,diff) )
 		elif self.rbut_scale.get_active() :
 			self.node.scale( *map(lambda x:1+x*.01,diff) )
 		elif self.rbut_isoscale.get_active() :
-			self.node.scale( *[1+.01*(reduce( op.add , map( op.sub , self.node.pos , (data.x , -data.y) ) ) ) ] * 3 )
+			self.node.scale( *([1+.01*reduce( op.add , diff ) ] * 3 ) )
 		elif self.rbut_rotate.get_active():
 			self.node.rotate(-(self.node.pos[0] + data.x)*.001 , *axis1 )
 			self.node.rotate( (self.node.pos[1] - data.y)*.001 , *axis2 )
@@ -104,26 +114,59 @@ class App(object):
 	
 	def init_scene( self ) :
 		self.camera = Camera()
+		self.proj   = Projection()
 
 		width = self.drawing_area.allocation.width
 		height = self.drawing_area.allocation.height
 		ratio = float(width)/float(height)
 
-		self.camera.fov = 60
-		self.camera.near = 1
-
-		self.camera.perspective( 60 , ratio , 1 , 10000 )
-		self.camera.lookat( (0,0,0) , (0,0,-1) , (0,1,0) )
-
+		#
+		# Craete torus
+		#
 		self.torus = Torus()
 
 		self.node = Node( self.torus )
+		self.node.rotate( 3.1415926/2.0 , 1, 0 , 0 )
+		self.camera.fov = 60
+		self.camera.near = 1
 
-		self.camera.add_child( self.node )
+		#
+		# Craete normal scene
+		#
+		self.proj  .perspective( 60 , ratio , 1 , 10000 )
+		self.camera.lookat( (0,0,0) , (0,0,-1) , (0,1,0) )
 
-		self.scene = Scene( self.camera )
+		self.proj  .add_child( self.camera )
+		self.camera.add_child( self.node   )
 
-		self.drawing_area.add( self.scene )
+		self.scn_one    = Scene( self.proj )
+
+		#
+		# Create 3d scene
+		#
+		self.cam_left  = Camera()
+		self.cam_right = Camera()
+		self.proj3d    = Projection()
+
+		self.cam_left .lookat( (0,0,0) , (0,0,-1) , (0,1,0) )
+		self.cam_right.lookat( (0,0,0) , (0,0,-1) , (0,1,0) )
+		self.proj3d.perspective( 60 , ratio , 1 , 10000 )
+
+		self.proj3d.add_child( self.cam_left  )
+		self.proj3d.add_child( self.cam_right )
+
+		self.color_left  = Color( (1,0,0) )
+		self.color_right = Color( (0,1,0) )
+
+		self.cam_left .add_child( self.color_left  )
+		self.cam_right.add_child( self.color_right )
+
+		self.color_left .add_child( self.node )
+		self.color_right.add_child( self.node )
+
+		self.scn_double = Scene( self.proj3d )
+
+		self.drawing_area.add( self.scn_one )
 
 	def init_glext(self):
 		# Query the OpenGL extension version.
@@ -186,7 +229,8 @@ class App(object):
 
 		self.camera.fov = widget.get_value()
 
-		self.camera.perspective( self.camera.fov , ratio , self.camera.near , 10000 )
+		self.proj  .perspective( self.camera.fov , ratio , self.camera.near , 10000 )
+		self.proj3d.perspective( self.camera.fov , ratio , self.camera.near , 10000 )
 		self.drawing_area.queue_draw()
 
 	def on_sp_near_value_changed( self, widget , data=None ):
@@ -198,7 +242,52 @@ class App(object):
 		self.camera.near = widget.get_value()
 		self.torus.P0  = -widget.get_value()
 
-		self.camera.perspective( self.camera.fov , ratio , self.camera.near , 10000 )
+		self.proj  .perspective( self.camera.fov , ratio , self.camera.near , 10000 )
+		self.proj3d.perspective( self.camera.fov , ratio , self.camera.near , 10000 )
+		self.drawing_area.queue_draw()
+
+	def set_2d( self ) :
+		self.drawing_area.remove( self.scn_double )
+		self.drawing_area.add   ( self.scn_one    )
+
+		glDisable(GL_BLEND)
+	
+	def set_3d( self ) :
+		self.drawing_area.remove( self.scn_one    )
+		self.drawing_area.add   ( self.scn_double )
+
+		glEnable(GL_BLEND)
+		glBlendFunc(GL_ONE,GL_ONE)
+
+	def on_chbut_3d_toggled( self , widget , data=None ):
+		if self.box3d.get_property("visible") :
+			self.box3d.hide()
+			self.set_2d()
+		else:
+			self.box3d.show()
+			self.set_3d()
+		self.drawing_area.queue_draw()
+
+	def on_colbut_right_color_set( self , widget , data=None ):
+		c = widget.get_color()
+		c.red   /= 65535
+		c.green /= 65535
+		c.blue  /= 65535
+		self.color_right.set_color( ( c.red , c.green , c.blue ))
+		self.drawing_area.queue_draw()
+
+	def on_colbut_left_color_set( self , widget , data=None ):
+		c = widget.get_color()
+		c.red   /= 65535
+		c.green /= 65535
+		c.blue  /= 65535
+		self.color_left.set_color( ( c.red , c.green , c.blue ))
+		self.drawing_area.queue_draw()
+
+	def on_hs_3d_value_changed( self , widget , data=None ):
+		v = widget.get_value() / 2.0
+		self.cam_left .lookat( ( v,0,0) , ( v,0,-1) , (0,1,0) )
+		self.cam_right.lookat( (-v,0,0) , (-v,0,-1) , (0,1,0) )
 		self.drawing_area.queue_draw()
 
 if __name__ == '__main__':

@@ -28,23 +28,6 @@ class Camera(Node) :
 		self.m = glGetFloatv(GL_MODELVIEW_MATRIX)
 		glPopMatrix()
 
-	def multmatrix( self ) :
-		glMatrixMode(GL_PROJECTION)
-		glLoadMatrixf( self.p )
-		glMatrixMode(GL_MODELVIEW)
-		glMultMatrixf( self.m )
-
-	def perspective( self , fov , aspect , near , far ) :
-		f = 1.0/m.tan( fov*m.pi / 180.0 / 2.0 )
-		self.p = [ [ f / aspect , 0 ,           0                ,  0 ] ,
-				   [   0        , f ,           0                ,  0 ] ,
-				   [   0        , 0 , float(far+near)/(near-far) , -1 ] ,
-				   [   0        , 0 ,   2.0*far*near /(near-far) ,  0 ] ]
-
-		np.concatenate(tuple(self.p))
-
-		self.refresh()
-
 	def lookat( self , eye , center , up ) :
 		look  = map( op.sub , center , eye )
 		right = np.cross( look  , up   )

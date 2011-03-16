@@ -1,4 +1,6 @@
 
+from OpenGL.GL import *
+
 class Scene :
 	def __init__( self , root = None ) :
 		self.root = root
@@ -13,6 +15,9 @@ class Scene :
 		node.multmatrix()
 		node.draw()
 
+		m = glGetFloatv(GL_MODELVIEW_MATRIX)
+
 		for c in node.childs :
+			glLoadMatrixf(m)
 			self.draw( c )
 

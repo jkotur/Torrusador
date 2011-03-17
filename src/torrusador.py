@@ -69,8 +69,9 @@ class App(object):
 
 		ratio = float(width)/float(height)
 
-		self.proj  .perspective( self.sp_fov.get_value() , ratio , 1 , 10000 )
-		self.proj3d.perspective( self.sp_fov.get_value() , ratio , 1 , 10000 )
+		self.proj   .perspective( self.sp_fov.get_value() , ratio , 10 , 100 )
+		self.p_left .perspective( self.sp_fov.get_value() , ratio , 10 , 100 )
+		self.p_right.perspective( self.sp_fov.get_value() , ratio , 10 , 100 )
 
 	def _on_button_pressed( self , widget , data=None ) :
 		if data.button != 1 :
@@ -146,17 +147,29 @@ class App(object):
 		#
 		self.cam_left  = Camera()
 		self.cam_right = Camera()
-		self.proj3d    = Projection()
+		self.p_left    = Projection()
+		self.p_right   = Projection()
+		self.t_left    = Node()
+		self.t_right   = Node()
+
+		root = Node()
+		root.add_child( self.t_left  )
+		root.add_child( self.t_right )
 
 		self.cam_left .lookat( (0,0,0) , (0,0,-1) , (0,1,0) )
 		self.cam_right.lookat( (0,0,0) , (0,0,-1) , (0,1,0) )
-		self.proj3d.perspective( 60 , ratio , 1 , 10000 )
 
-		self.proj3d.add_child( self.cam_left  )
-		self.proj3d.add_child( self.cam_right )
+		self.p_left .perspective( 60 , ratio , 1 , 10000 )
+		self.p_right.perspective( 60 , ratio , 1 , 10000 )
 
 		self.color_left  = Color( (1,0,0) )
 		self.color_right = Color( (0,1,0) )
+
+		self.t_left .add_child( self.p_left  )
+		self.t_right.add_child( self.p_right )
+
+		self.p_left .add_child( self.cam_left  )
+		self.p_right.add_child( self.cam_right )
 
 		self.cam_left .add_child( self.color_left  )
 		self.cam_right.add_child( self.color_right )
@@ -164,7 +177,7 @@ class App(object):
 		self.color_left .add_child( self.node )
 		self.color_right.add_child( self.node )
 
-		self.scn_double = Scene( self.proj3d )
+		self.scn_double = Scene( root )
 
 		self.drawing_area.add( self.scn_one )
 
@@ -229,8 +242,9 @@ class App(object):
 
 		self.camera.fov = widget.get_value()
 
-		self.proj  .perspective( self.camera.fov , ratio , self.camera.near , 10000 )
-		self.proj3d.perspective( self.camera.fov , ratio , self.camera.near , 10000 )
+		self.proj   .perspective( self.camera.fov , ratio , self.camera.near , 10000 )
+		self.p_left .perspective( self.camera.fov , ratio , self.camera.near , 10000 )
+		self.p_right.perspective( self.camera.fov , ratio , self.camera.near , 10000 )
 		self.drawing_area.queue_draw()
 
 	def on_sp_near_value_changed( self, widget , data=None ):
@@ -242,8 +256,9 @@ class App(object):
 		self.camera.near = widget.get_value()
 		self.torus.P0  = -widget.get_value()
 
-		self.proj  .perspective( self.camera.fov , ratio , self.camera.near , 10000 )
-		self.proj3d.perspective( self.camera.fov , ratio , self.camera.near , 10000 )
+		self.proj   .perspective( self.camera.fov , ratio , self.camera.near , 10000 )
+		self.p_left .perspective( self.camera.fov , ratio , self.camera.near , 10000 )
+		self.p_right.perspective( self.camera.fov , ratio , self.camera.near , 10000 )
 		self.drawing_area.queue_draw()
 
 	def set_2d( self ) :
@@ -269,25 +284,27 @@ class App(object):
 		self.drawing_area.queue_draw()
 
 	def on_colbut_right_color_set( self , widget , data=None ):
+		CMAX = 65535.0
 		c = widget.get_color()
-		c.red   /= 65535
-		c.green /= 65535
-		c.blue  /= 65535
-		self.color_right.set_color( ( c.red , c.green , c.blue ))
+		c = ( c.red / CMAX , c.green / CMAX , c.blue / CMAX )
+		self.color_right.set_color( c )
 		self.drawing_area.queue_draw()
 
 	def on_colbut_left_color_set( self , widget , data=None ):
+		CMAX = 65535.0
 		c = widget.get_color()
-		c.red   /= 65535
-		c.green /= 65535
-		c.blue  /= 65535
-		self.color_left.set_color( ( c.red , c.green , c.blue ))
+		c = ( c.red / CMAX , c.green / CMAX , c.blue / CMAX )
+		self.color_left.set_color( c )
 		self.drawing_area.queue_draw()
 
 	def on_hs_3d_value_changed( self , widget , data=None ):
-		v = widget.get_value() / 2.0
-		self.cam_left .lookat( ( v,0,0) , ( v,0,-1) , (0,1,0) )
-		self.cam_right.lookat( (-v,0,0) , (-v,0,-1) , (0,1,0) )
+		v = widget.get_value() / 2.0 #/ 20.0
+		self.cam_left .lookat( (-v,0,0) , (-v,0,-1) , (0,1,0) )
+		self.cam_right.lookat( ( v,0,0) , ( v,0,-1) , (0,1,0) )
+		self.p_left .loadIdentity()
+		self.p_right.loadIdentity()
+		self.p_left .translate( -v , 0 , 0 )
+		self.p_right.translate(  v , 0 , 0 )
 		self.drawing_area.queue_draw()
 
 if __name__ == '__main__':

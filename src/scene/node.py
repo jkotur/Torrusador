@@ -11,11 +11,13 @@ class Node :
 
 	def __init__( self , geom = None ) :
 
-		self.m = [ [1,0,0,0] , [0,1,0,0] , [0,0,1,0] , [0,0,0,1] ]
-		self.m = np.concatenate(tuple(self.m)) 
+		self.loadIdentity()
 		self.childs = []
 		self.geom = geom 
 
+	def loadIdentity( self ) :
+		self.m = [ [1,0,0,0] , [0,1,0,0] , [0,0,1,0] , [0,0,0,1] ]
+		self.m = np.concatenate(tuple(self.m)) 
 
 	def add_child( self , child ) :
 		if child not in self.childs :

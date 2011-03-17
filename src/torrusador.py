@@ -136,9 +136,11 @@ class App(object):
 		#
 		self.proj  .perspective( 60 , ratio , 1 , 10000 )
 		self.camera.lookat( (0,0,0) , (0,0,-1) , (0,1,0) )
+		col = Color( (1,1,1) )
 
 		self.proj  .add_child( self.camera )
-		self.camera.add_child( self.node   )
+		self.camera.add_child(      col    )
+		col        .add_child( self.node   )
 
 		self.scn_one    = Scene( self.proj )
 

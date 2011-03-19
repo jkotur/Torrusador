@@ -1,0 +1,14 @@
+Kursor do sceny trójwymiarowy.
+
+mozna go poruszać w 3 osiach, związanych z kamerą.
+
+też jest stereoskopowy.
+
+wyświetlanie współżędnych kursora na scenie
+
+współżędne kursora na ekranie
+
+do sceny można dodawać obiekty - punkty
+
+punkty można kasować/przesuwać/dodawać/chwytać kursorem
+

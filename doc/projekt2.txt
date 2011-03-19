@@ -1,0 +1,37 @@
+Zwizualizowanie powierzchni implicite z oświetleniem.
+
+Obiektem ma być 
+
+                      | a       |
+forma nieliniowa: A = |   b     |
+                      |     c   |
+		      |      -1 |
+
+Wyświetlić należy $x^TA_x = 0$ x = [ x_1 , x_2 , x_3 , 1 ]
+
+Obroty i translacje itd.
+
+Rzutowanie ortogonalne.
+
+Interfejs ma być identyczny w projekcie torusa a zachowanie ma być identyczne.
+
+Wyświetlanie ma być raycastwane.
+
+Tło czarne elipsoida biała.
+
+W punkcie przecięcią liczymy wektor normalny.
+
+Iluminacja piksela to: 
+
+	I = <N,E>^m
+
+m użytkownik może zmieniać.
+
+SZCZEGÓŁY:
+
+przeliczamy promień w układ elipsoidy
+
+rysowanie adaptacyjne.
+
+rysowanie może być przerwane obrotem.
+

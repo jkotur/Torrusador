@@ -1,0 +1,13 @@
+stereoskopia
+
+stereoskopia jest opcją - można wyłączyć
+
+definiowale koloru dla oczu i tła  - domyślnie jak okulary
+
+modyfikowalna odległość między oczami płynna, suwakiem 
+
+
+WNĘTRZE:
+
+dwie macierze projekcji
+

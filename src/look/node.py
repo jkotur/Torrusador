@@ -7,24 +7,36 @@ import math as m
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
-class Node :
+class Node( set ) :
 
 	def __init__( self , geom = None ) :
+		set.__init__( self )
 
 		self.loadIdentity()
-		self.childs = []
 		self.geom = geom 
+		self.pos  = np.array((0.0,0.0,0.0))
+
+	def __hash__( self ) :
+		return id(self)
+
+	def __repr__( self ) :
+		return set.__repr__(self) + " -- " + str(self.geom)
+
+	def __nonzero__( self ) :
+		return True
+
+	def get_pos( self ) :
+		return self.pos
 
 	def loadIdentity( self ) :
 		self.m = [ [1,0,0,0] , [0,1,0,0] , [0,0,1,0] , [0,0,0,1] ]
 		self.m = np.concatenate(tuple(self.m)) 
 
 	def add_child( self , child ) :
-		if child not in self.childs :
-			self.childs.append( child )
+		self.add( child )
 
 	def del_child( self , child ) :
-		self.childs.remove( child )
+		self.remove( child )
 
 	def draw( self ) :
 		if self.geom :
@@ -35,6 +47,8 @@ class Node :
 
 	def translate( self , x , y , z ) :
 		self._mulandget( [ 1,0,0,0 , 0,1,0,0 , 0,0,1,0 , x,y,z,1 ] )
+
+		self.pos += np.array((x,y,z))
 
 	def rotate( self , a , x , y , z ) :
 		c = m.cos( a )

@@ -15,6 +15,8 @@ class Dummy :
 		self.mode = 0
 		self.P0 = -1
 
+		self.type = GL_LINES
+
 	def __del__( self ) :
 #        glDeleteBuffers( 1 , self.bid )
 		pass
@@ -22,16 +24,24 @@ class Dummy :
 	def geometry( self ) :
 		return []
 
+	def settype( self , type ) :
+		self.type = type
+
 	def refresh( self ) :
 		self.mode = 0
 
 	def draw( self ) :
-		self.draw_by_hand()
+#        self.draw_by_hand()
+		self.draw_with_ogl()
 
 	def draw_with_ogl( self ):
 		if self.mode == 0 :
 			self.geom = np.array(self.geometry())
 			self.count = len(self.geom)/3
+
+#            print
+#            print self.geom , len(self.geom) , self.count
+#            print
 
 #            glBindBuffer(GL_ARRAY_BUFFER,self.bid)
 #            glBufferData(GL_ARRAY_BUFFER,self.geom,GL_DYNAMIC_DRAW)
@@ -41,11 +51,18 @@ class Dummy :
 		glEnableClientState(GL_VERTEX_ARRAY)
 #        glBindBuffer(GL_ARRAY_BUFFER,self.bid)
 		glVertexPointer(3,GL_FLOAT,0,self.geom)
-		glDrawArrays(GL_LINE_STRIP,0,self.count)
+		glDrawArrays(self.type,0,self.count)
 #        glBindBuffer(GL_ARRAY_BUFFER,0)
 		glDisableClientState(GL_VERTEX_ARRAY)
 
 	def draw_by_hand( self ) :
+		if self.type == GL_LINE_STRIP :
+			self.draw_lines()
+		elif self.type == GL_POINTS :
+			self.draw_points()
+
+
+	def draw_lines( self ) :
 		if self.mode == 0 :
 			self.geom = self.geometry()
 			self.geom = [ np.array(self.geom[i:i+3]+[1]) for i in range(0,len(self.geom),3) ]
@@ -81,8 +98,6 @@ class Dummy :
 				ng += multlistcut(p,(v-w)/s + w)
 				ng += multlistcut(p,w)
 
-
-#        ng = [ ng[i:i+3] for i in range(0,len(self.geom),3) if ng[i+2] ]
 
 		glMatrixMode(GL_PROJECTION)
 		glPushMatrix()

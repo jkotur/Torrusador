@@ -24,7 +24,6 @@ class Projection(Node) :
 
 	def perspective( self , fov , aspect , near , far ) :
 		f = 1.0/m.tan( fov*m.pi / 180.0 / 2.0 )
-		aspect = 1
 		self.p = [ [ f / aspect , 0 ,           0                ,  0 ] ,
 				   [   0        , f ,           0                ,  0 ] ,
 				   [   0        , 0 , float(far+near)/(near-far) , -1 ] ,

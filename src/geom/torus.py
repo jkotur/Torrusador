@@ -14,14 +14,16 @@ class Torus( Dummy ) :
 
 		Dummy.__init__(self)
 
+		self.settype( GL_LINE_STRIP )
+
 	def geometry( self ) :
 		points = []
 
-		for a in np.linspace(0,m.pi*2,self.n+1) :
+		for a in np.linspace(0,m.pi*2,self.n,False) :
 			for b in np.linspace(0,m.pi*2,self.N+1) :
 				points += [ (self.R+self.r*m.cos(a))*m.cos(b) , (self.R+self.r*m.cos(a))*m.sin(b) , self.r*m.sin(a) ]
 
-		for b in np.linspace(0,m.pi*2,self.N+1) :
+		for b in np.linspace(0,m.pi*2,self.N,False) :
 			for a in np.linspace(0,m.pi*2,self.n+1) :
 				points += [ (self.R+self.r*m.cos(a))*m.cos(b) , (self.R+self.r*m.cos(a))*m.sin(b) , self.r*m.sin(a) ]
 

@@ -1,11 +1,12 @@
 
+import operator as op
+
 from OpenGL.GL import *
 
 from look.node import Node
 from look.camera import Camera
 from look.cursor import Cursor
 from look.projection import Projection
-from look.color import Color
 
 from geom.torus import Torus
 from geom.point import Point
@@ -54,7 +55,7 @@ class Scene :
 		#
 		self.proj  .perspective( self.fov , self.ratio, self.near , 10000 )
 		self.camera.lookat( (0,0,0) , (0,0,-1) , (0,1,0) )
-		col = Color( (1,1,1) )
+		col = Node( color = (1,1,1) )
 
 
 		self.root  .add_child( self.proj   )
@@ -81,8 +82,8 @@ class Scene :
 		self.p_left .perspective( self.fov , self.ratio, self.near , 10000 )
 		self.p_right.perspective( self.fov , self.ratio, self.near , 10000 )
 
-		self.color_left  = Color( (1,0,0) )
-		self.color_right = Color( (0,1,0) )
+		self.color_left  = Node( color = (1,0,0) )
+		self.color_right = Node( color = (0,1,0) )
 
 		self.t_left .add_child( self.p_left  )
 		self.t_right.add_child( self.p_right )
@@ -176,7 +177,9 @@ class Scene :
 	def mouse_move( self , df , a1 , a2 ) :
 
 		if self.mousemode == Scene.CURSOR :
-			self.cursor.move_vec( df )
+			v = self.cursor.move_vec( df )
+			if self.points.get_curr() :
+				self.points.get_curr().translate( *v )
 
 		elif self.mousemode == Scene.TRANSLATE :
 			self.node.translate( *map(lambda x:x*.01,df) )

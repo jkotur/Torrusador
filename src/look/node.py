@@ -9,11 +9,12 @@ from OpenGL.GLU import *
 
 class Node( set ) :
 
-	def __init__( self , geom = None ) :
+	def __init__( self , geom = None , color = None ) :
 		set.__init__( self )
 
 		self.loadIdentity()
 		self.geom = geom 
+		self.color= color
 		self.pos  = np.array((0.0,0.0,0.0))
 
 	def __hash__( self ) :
@@ -38,7 +39,13 @@ class Node( set ) :
 	def del_child( self , child ) :
 		self.remove( child )
 
+	def set_color( self , c ) :
+		self.color = c
+
 	def draw( self ) :
+		if self.color :
+			glColor3f( *self.color )
+
 		if self.geom :
 			self.geom.draw()
 

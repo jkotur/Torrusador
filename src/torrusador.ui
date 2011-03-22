@@ -5,6 +5,7 @@
   <object class="GtkWindow" id="win_main">
     <property name="width_request">400</property>
     <property name="height_request">400</property>
+    <property name="icon">logo.png</property>
     <signal name="destroy" handler="on_win_main_destroy"/>
     <child>
       <object class="GtkVBox" id="vbox1">
@@ -180,13 +181,7 @@
                   <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkHSeparator" id="hseparator1">
-                    <property name="visible">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="position">2</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
                   <placeholder/>
@@ -237,7 +232,7 @@
                   </object>
                   <packing>
                     <property name="fill">False</property>
-                    <property name="position">4</property>
+                    <property name="position">5</property>
                   </packing>
                 </child>
                 <child>
@@ -246,7 +241,7 @@
                   </object>
                   <packing>
                     <property name="expand">False</property>
-                    <property name="position">5</property>
+                    <property name="position">6</property>
                   </packing>
                 </child>
                 <child>
@@ -340,7 +335,7 @@
                   </object>
                   <packing>
                     <property name="fill">False</property>
-                    <property name="position">6</property>
+                    <property name="position">7</property>
                   </packing>
                 </child>
                 <child>
@@ -349,7 +344,7 @@
                   </object>
                   <packing>
                     <property name="expand">False</property>
-                    <property name="position">7</property>
+                    <property name="position">8</property>
                   </packing>
                 </child>
                 <child>
@@ -405,11 +400,8 @@
                   </object>
                   <packing>
                     <property name="fill">False</property>
-                    <property name="position">8</property>
+                    <property name="position">9</property>
                   </packing>
-                </child>
-                <child>
-                  <placeholder/>
                 </child>
                 <child>
                   <object class="GtkHSeparator" id="hseparator5">
@@ -417,7 +409,8 @@
                   </object>
                   <packing>
                     <property name="expand">False</property>
-                    <property name="position">10</property>
+                    <property name="pack_type">end</property>
+                    <property name="position">1</property>
                   </packing>
                 </child>
                 <child>
@@ -475,12 +468,12 @@
     <property name="page_increment">10</property>
   </object>
   <object class="GtkAdjustment" id="adj_N">
-    <property name="upper">100</property>
+    <property name="upper">256</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
   </object>
   <object class="GtkAdjustment" id="adj_n">
-    <property name="upper">100</property>
+    <property name="upper">256</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
   </object>
@@ -525,7 +518,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</property>
     <property name="authors">Jakub Kotur</property>
-    <property name="wrap_license">True</property>
+    <property name="logo">logo.png</property>
     <signal name="close" handler="on_hide" object="aboutdialog1"/>
     <signal name="response" handler="on_hide"/>
     <signal name="delete_event" handler="on_hide"/>
@@ -578,7 +571,8 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                         <property name="label" translatable="yes">R</property>
                       </object>
                       <packing>
-                        <property name="x_padding">5</property>
+                        <property name="x_options">GTK_FILL</property>
+                        <property name="x_padding">10</property>
                       </packing>
                     </child>
                     <child>
@@ -589,7 +583,8 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                       <packing>
                         <property name="top_attach">1</property>
                         <property name="bottom_attach">2</property>
-                        <property name="x_padding">5</property>
+                        <property name="x_options">GTK_FILL</property>
+                        <property name="x_padding">10</property>
                       </packing>
                     </child>
                     <child>
@@ -600,7 +595,8 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                       <packing>
                         <property name="top_attach">2</property>
                         <property name="bottom_attach">3</property>
-                        <property name="x_padding">5</property>
+                        <property name="x_options">GTK_FILL</property>
+                        <property name="x_padding">10</property>
                       </packing>
                     </child>
                     <child>
@@ -611,7 +607,8 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                       <packing>
                         <property name="top_attach">3</property>
                         <property name="bottom_attach">4</property>
-                        <property name="x_padding">5</property>
+                        <property name="x_options">GTK_FILL</property>
+                        <property name="x_padding">10</property>
                       </packing>
                     </child>
                     <child>
@@ -689,7 +686,6 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
               </object>
               <packing>
                 <property name="tab_fill">False</property>
-                <property name="detachable">True</property>
               </packing>
             </child>
             <child type="tab">

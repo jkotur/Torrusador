@@ -10,6 +10,9 @@ class Points( Node ) :
 
 		self.current = None
 
+	def get_curr( self ) :
+		return self.current
+
 	def new( self , pos ) :
 		n = Node( Point() )
 		n.translate(*pos)
@@ -21,7 +24,17 @@ class Points( Node ) :
 			self.del_child( n )
 
 	def select( self , pos ) :
-		self.current = self.find_nearest( pos )
+#        if self.current :
+#            self.current.set_color( (1,1,1) )
+
+		curr = self.find_nearest( pos )
+		if curr == self.current :
+			self.current = None
+		else :
+			self.current = curr 
+
+#        if self.current :
+#            self.current.set_color( (1,.45,0) )
 
 	def find_nearest( self , pos , mindist = .05 ) :
 		def dist( a , b ) :

@@ -24,7 +24,7 @@ class Cursor(Node) :
 		axis = axis / la.norm( axis )
 		axis*= dist
 
-		self.move_vec( axis )
+		return self.move_vec( axis )
 
 	def move_vec( self , vec ) :
 		vec = np.array(vec)
@@ -32,4 +32,6 @@ class Cursor(Node) :
 		vec.resize( 4 , refcheck=False )
 		vec = la.dot(la.transpose( la.inv( np.reshape(self.node.m,(4,4)) )) , vec )
 		self.translate( *vec[0:3] )
+
+		return vec[0:3]
 

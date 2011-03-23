@@ -44,7 +44,7 @@ class Scene :
 		tn = Node( self.torus )
 		tn.rotate( 3.1415926/2.0 , 1, 0 , 0 )
 
-		self.cursor = Cursor( Point() , self.node )
+		self.cursor = Cursor( Point() )
 
 		self.node.add_child( tn )
 		self.node.add_child( self.cursor )
@@ -162,6 +162,10 @@ class Scene :
 		self.ratio = ratio
 		self._update_proj()
 
+	def set_screen_size( self , w , h ) :
+		self.width  = w 
+		self.height = h
+
 	def set_drawmode( self , mode ) :
 		self.drawmode = mode
 
@@ -173,6 +177,10 @@ class Scene :
 
 	def get_cursor_pos( self ) :
 		return self.cursor.get_pos()
+	
+	def get_cursor_screen_pos( self ) :
+		cp = self.cursor.get_clipping_pos()
+		return ( (cp[0]+1.0)/2.0 * self.width , (cp[1]+1.0)/2.0 * self.height )
 
 	def mouse_move( self , df , a1 , a2 ) :
 

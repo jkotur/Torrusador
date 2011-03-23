@@ -52,6 +52,7 @@ class App(object):
 		self.drawing_area.connect('motion_notify_event',self._on_mouse_motion)
 		self.drawing_area.connect('button_press_event',self._on_button_pressed)
 		self.drawing_area.connect('configure_event',self._on_reshape)
+		self.drawing_area.connect_after('expose_event',self._after_draw)
 
 		self.rbut_trans = builder.get_object('rbut_trans')
 		self.rbut_isoscale = builder.get_object('rbut_isoscale')
@@ -68,6 +69,13 @@ class App(object):
 		self.sp_near = builder.get_object('sp_near')
 		self.sp_near.set_value(self.near)
 
+	def _after_draw( self , widget , data=None ) :
+		self.update_statusbar()
+
+	def update_statusbar( self ) :
+		cid = self.statbar.get_context_id('cursor')
+		self.statbar.pop(cid)
+		self.statbar.push( cid , str(self.scene.get_cursor_pos()) + "  " + str(self.scene.get_cursor_screen_pos()) )
 
 	def _on_reshape( self , widget , data=None ) :
 		width = self.drawing_area.allocation.width
@@ -75,6 +83,7 @@ class App(object):
 
 		ratio = float(width)/float(height)
 
+		self.scene.set_screen_size( width , height )
 		self.scene.set_ratio( ratio )
 
 	def _on_button_pressed( self , widget , data=None ) :
@@ -102,10 +111,6 @@ class App(object):
 			axis2= ( 0 , 0 , 1 )
 
 		self.scene.mouse_move( diff , axis1 , axis2 )
-
-		cid = self.statbar.get_context_id('cursor')
-		self.statbar.pop(cid)
-		self.statbar.push( cid , str(self.scene.get_cursor_pos()) )
 
 		self.mouse_pos = -data.x , data.y
 		self.drawing_area.queue_draw()

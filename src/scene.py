@@ -9,9 +9,9 @@ from look.cursor import Cursor
 from look.projection import Projection
 
 from geom.torus import Torus
-from geom.point import Point
+from geom.cross import Cross
 
-from points import Points
+from beziers import Beziers
 
 class Scene :
 	DRAW2D , DRAW3D = range(2)
@@ -26,13 +26,16 @@ class Scene :
 		self.mousemode = Scene.NONE
 		self.cursormode = Scene.PNTADD
 
+		self.pdist = 0.025
+		self.pdist2= self.pdist*self.pdist
+
 		self.root   = Node()
 		self.root3d = Node()
 
 		self.camera = Camera()
 		self.proj   = Projection()
 
-		self.points = Points()
+		self.beziers= Beziers()
 
 		#
 		# Craete torus
@@ -44,11 +47,11 @@ class Scene :
 		tn = Node( self.torus )
 		tn.rotate( 3.1415926/2.0 , 1, 0 , 0 )
 
-		self.cursor = Cursor( Point() )
+		self.cursor = Cursor( Cross( self.pdist ) )
 
 		self.node.add_child( tn )
-		self.node.add_child( self.cursor )
-		self.node.add_child( self.points )
+		self.node.add_child( self.cursor  )
+		self.node.add_child( self.beziers )
 
 		#
 		# Craete normal scene
@@ -186,8 +189,7 @@ class Scene :
 
 		if self.mousemode == Scene.CURSOR :
 			v = self.cursor.move_vec( df )
-			if self.points.get_curr() :
-				self.points.get_curr().translate( *v )
+			self.beziers.point_move( v )
 
 		elif self.mousemode == Scene.TRANSLATE :
 			self.node.translate( *map(lambda x:x*.01,df) )
@@ -202,9 +204,21 @@ class Scene :
 
 	def activate_cursor( self ) :
 		if self.cursormode == Scene.PNTADD :
-			self.points.new( self.cursor.get_pos() )
+			self.beziers.point_new( self.cursor.get_pos() )
 		elif self.cursormode == Scene.PNTDEL :
-			self.points.delete( self.cursor.get_pos() )
+			self.beziers.point_delete( self.cursor.get_pos() , self.pdist2 )
 		elif self.cursormode == Scene.PNTEDIT :
-			self.points.select( self.cursor.get_pos() )
+			self.beziers.point_select( self.cursor.get_pos() , self.pdist2 )
+
+	def new_curve( self ) :
+		self.beziers.new( self.cursor.get_pos() )
+
+	def delete_curve( self ) :
+		self.beziers.delete( self.cursor.get_pos() , self.pdist2 )
+
+	def select_curve( self ) :
+		self.beziers.select( self.cursor.get_pos() , self.pdist2 )
+
+	def toggle_curve( self , what ) :
+		self.beziers.toggle( what )
 

@@ -8,12 +8,18 @@ class Beziers( Node ) :
 	def __init__( self ) :
 		Node.__init__( self )
 
+		self.curves = True
+		self.polygons = False
+
 		self.selected = None
 
 	def new( self , pos ) :
 		b = Bezier(None)
 		self.selected = Points( b )
 		b.set_points( self.selected )
+
+		b.set_visibility( Bezier.CURVE   , self.curves   )
+		b.set_visibility( Bezier.POLYGON , self.polygons )
 
 		self.selected.new( pos )
 		self.add_child( self.selected )
@@ -62,4 +68,15 @@ class Beziers( Node ) :
 			if self.selected.get_curr() :
 				self.selected.get_curr().translate( *v )
 				self.selected.get_geom().refresh()
+
+	def toggle( self , what ) :
+		if what == Bezier.CURVE :
+			self.curves = not self.curves
+		elif what == Bezier.POLYGON :
+			self.polygons = not self.polygons
+
+		for b in self :
+			b.get_geom().set_visibility( Bezier.CURVE   , self.curves   )
+			b.get_geom().set_visibility( Bezier.POLYGON , self.polygons )
+			b.get_geom().refresh()
 

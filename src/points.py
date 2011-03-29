@@ -5,8 +5,8 @@ from look.node import Node
 from geom.point import Point
 
 class Points( Node ) :
-	def __init__( self ) :
-		Node.__init__( self )
+	def __init__( self , geom ) :
+		Node.__init__( self , geom )
 
 		self.current = None
 
@@ -18,23 +18,17 @@ class Points( Node ) :
 		n.translate(*pos)
 		self.add_child( n )
 
-	def delete( self , pos ) :
-		n = self.find_nearest( pos )
-		if n :
-			self.del_child( n )
+	def delete( self , pos , dist = .05 ) :
+		v , p = self.find_nearest( pos , dist )
+		if p :
+			self.del_child( p )
 
-	def select( self , pos ) :
-#        if self.current :
-#            self.current.set_color( (1,1,1) )
-
-		curr = self.find_nearest( pos )
+	def select( self , pos , dist ) :
+		v , curr = self.find_nearest( pos , dist )
 		if curr == self.current :
 			self.current = None
 		else :
-			self.current = curr 
-
-#        if self.current :
-#            self.current.set_color( (1,.45,0) )
+			self.current = curr
 
 	def find_nearest( self , pos , mindist = .05 ) :
 		def dist( a , b ) :
@@ -48,7 +42,7 @@ class Points( Node ) :
 				minv = dist( pos , p.get_pos() )
 
 		if not mindist or minv <= mindist :
-			return minp
+			return ( minv , minp )
 		else :
-			return None
+			return ( float('inf') , None )
 

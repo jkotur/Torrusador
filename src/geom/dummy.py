@@ -8,6 +8,8 @@ from numpy.linalg import linalg as la
 
 class Dummy :
 
+	SELF = -1
+
 	def __init__( self ) :
 		self.bdata = []
 		self.bid = glGenBuffers(1)
@@ -31,8 +33,11 @@ class Dummy :
 		self.mode = 0
 
 	def draw( self ) :
-#        self.draw_by_hand()
-		self.draw_with_ogl()
+		if self.type == Dummy.SELF :
+			self.draw_self()
+		else :
+	#        self.draw_by_hand()
+			self.draw_with_ogl()
 
 	def draw_with_ogl( self ):
 		if self.mode == 0 :

@@ -7,34 +7,46 @@ import math as m
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
-class Node( set ) :
+class Node( list ) :
 
 	def __init__( self , geom = None , color = None ) :
-		set.__init__( self )
+		list.__init__( self )
 
 		self.loadIdentity()
 		self.geom = geom 
 		self.color= color
 		self.pos  = np.array((0.0,0.0,0.0))
 
-	def __hash__( self ) :
-		return id(self)
+	def __eq__( self , other ) :
+		return id(self) == id(other)
+
+#    def __hash__( self ) :
+#        return id(self)
 
 	def __repr__( self ) :
-		return set.__repr__(self) + " -- " + str(self.geom)
+		return list.__repr__(self) + " -- " + str(self.geom)
 
 	def __nonzero__( self ) :
 		return True
 
+	def __getitem__( self , key ) :
+		return self.pos[key]
+
+	def __setitem__( self , key , val ) :
+		self.pos[key] = val
+
 	def get_pos( self ) :
 		return self.pos
+
+	def get_geom( self ) :
+		return self.geom
 
 	def loadIdentity( self ) :
 		self.m = [ [1,0,0,0] , [0,1,0,0] , [0,0,1,0] , [0,0,0,1] ]
 		self.m = np.concatenate(tuple(self.m)) 
 
 	def add_child( self , child ) :
-		self.add( child )
+		self.append( child )
 
 	def del_child( self , child ) :
 		self.remove( child )

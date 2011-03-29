@@ -12,6 +12,8 @@ from glwidget import GLDrawingArea
 
 from scene import Scene
 
+from geom.bezier import Bezier
+
 ui_file = "torrusador.ui"
 
 class App(object):
@@ -69,6 +71,10 @@ class App(object):
 		self.sp_near = builder.get_object('sp_near')
 		self.sp_near.set_value(self.near)
 
+		self.tbut_add_curve = builder.get_object('tbut_add_curve')
+		self.tbut_del_curve = builder.get_object('tbut_del_curve')
+		self.tbut_sel_curve = builder.get_object('tbut_sel_curve')
+
 	def _after_draw( self , widget , data=None ) :
 		self.update_statusbar()
 
@@ -76,6 +82,10 @@ class App(object):
 		cid = self.statbar.get_context_id('cursor')
 		self.statbar.pop(cid)
 		self.statbar.push( cid , str(self.scene.get_cursor_pos()) + "  " + str(self.scene.get_cursor_screen_pos()) )
+
+	def on_tbut_add_curve_toggled( self , widget , data=None ) :
+		''' TODO: turn off points add/remove/edit radio buttons '''
+		pass
 
 	def _on_reshape( self , widget , data=None ) :
 		width = self.drawing_area.allocation.width
@@ -90,7 +100,17 @@ class App(object):
 		if data.button == 1 :
 			self.mouse_pos = -data.x , data.y
 		elif data.button == 3 :
-			self.scene.activate_cursor()
+			if self.tbut_add_curve.get_active() :
+				self.scene.new_curve()
+				self.tbut_add_curve.set_active(False)
+			elif self.tbut_del_curve.get_active() :
+				self.scene.delete_curve()
+				self.tbut_del_curve.set_active(False)
+			elif self.tbut_sel_curve.get_active() :
+				self.scene.select_curve()
+				self.tbut_sel_curve.set_active(False)
+			else :
+				self.scene.activate_cursor()
 			self.drawing_area.queue_draw()
 
 	def _on_mouse_motion( self , widget , data=None ) :
@@ -147,6 +167,18 @@ class App(object):
 		 
 	def on_but_quit_clicked(self,widget,data=None):
 		gtk.main_quit()
+
+	def on_cbut_draw_pts_toggled(self,widget,data=None):
+		self.scene.toggle_curve( Bezier.POINTS )
+		self.drawing_area.queue_draw()
+
+	def on_cbut_draw_curves_toggled(self,widget,data=None):
+		self.scene.toggle_curve( Bezier.CURVE )
+		self.drawing_area.queue_draw()
+
+	def on_cbut_draw_polygons_toggled(self,widget,data=None):
+		self.scene.toggle_curve( Bezier.POLYGON )
+		self.drawing_area.queue_draw()
 
 	def on_sp_R_value_changed(self,widget,data=None):
 		# FIXME: hardcoded torus

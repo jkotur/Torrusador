@@ -7,10 +7,10 @@ import math as m
 class Torus( Dummy ) :
 	
 	def __init__( self ) :
-		self.R = .5
-		self.r = .1
-		self.N = 8
-		self.n = 32
+		self.R = .0
+		self.r = .0
+		self.N = 0
+		self.n = 0
 
 		Dummy.__init__(self)
 

@@ -18,10 +18,17 @@ class Dummy :
 		self.P0 = -1
 
 		self.type = GL_LINES
+		self.is_inited = False
 
 	def __del__( self ) :
 #        glDeleteBuffers( 1 , self.bid )
 		pass
+
+	def inited( self ) :
+		return self.is_inited
+
+	def gfx_init( self ) :
+		self.is_inited = True
 
 	def geometry( self ) :
 		return []
@@ -32,9 +39,9 @@ class Dummy :
 	def refresh( self ) :
 		self.mode = 0
 
-	def draw( self ) :
+	def draw( self , data = None ) :
 		if self.type == Dummy.SELF :
-			self.draw_self()
+			self.draw_self( data )
 		else :
 	#        self.draw_by_hand()
 			self.draw_with_ogl()

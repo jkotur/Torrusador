@@ -101,7 +101,7 @@ class Scene :
 		self.color_right.add_child( self.node )
 
 	def gfx_init( self ) :
-		glPointSize(2)
+		glPointSize(3)
 
 	def draw( self ) :
 		root = None

@@ -17,6 +17,8 @@ class Node( list ) :
 		self.color= color
 		self.pos  = np.array((0.0,0.0,0.0))
 
+		self.draw_data = None
+
 	def __eq__( self , other ) :
 		return id(self) == id(other)
 
@@ -54,12 +56,17 @@ class Node( list ) :
 	def set_color( self , c ) :
 		self.color = c
 
+	def set_data( self , data ) :
+		self.draw_data = data
+
 	def draw( self ) :
 		if self.color :
 			glColor3f( *self.color )
 
 		if self.geom :
-			self.geom.draw()
+			if not self.geom.inited() :
+				self.geom.gfx_init()
+			self.geom.draw( self.draw_data )
 
 	def multmatrix( self ) :
 		glMultMatrixf( self.m )

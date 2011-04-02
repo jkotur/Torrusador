@@ -1,8 +1,12 @@
 
 from dummy import *
 
+import sys
+
 import numpy as np
 import math as m
+
+import shaders as sh
 
 from numpy.linalg import linalg as la
 
@@ -30,6 +34,19 @@ class Bezier( Dummy ) :
 		self.draw_polygon = False
 
 		self.moved = None
+
+		self.prog = None
+
+	def gfx_init( self ) :
+		if self.is_inited : return
+
+		try:
+			self.prog = sh.compile_program("shad/bez_bres",GL_POINTS,GL_LINE_STRIP)
+		except ValueError as ve:
+			print "Shader compilation failed: " + str(ve)
+			sys.exit(0)
+
+		self.is_inited = True
 
 	def refresh( self , p = None ) :
 		Dummy.refresh( self )
@@ -63,7 +80,41 @@ class Bezier( Dummy ) :
 
 		return points
 
-	def draw_self( self ) :
+	def draw_self( self , data ) :
+		self.draw_shad(data)
+
+	def draw_shad( self , data ) :
+		self.ptsx = [ p[0] for p in self.pts ]
+		self.ptsy = [ p[1] for p in self.pts ]
+		self.ptsz = [ p[2] for p in self.pts ]
+		self.dists = [ 0 for i in range(0,len(self.pts)) ]
+
+		m = glGetFloatv(GL_TRANSPOSE_MODELVIEW_MATRIX)
+		e = la.dot( la.inv(np.reshape(m,(4,4))) , (0,0,0,1) )
+
+		def norm2( v ) :
+			return - v[0] - v[1] - v[2]
+		def dist( vs ) :
+			return sum([ norm2((p[0]-e[0],p[1]-e[1],p[2]-e[2])) for p in vs])/float(len(vs))
+
+		for i in range(0,len(self.pts),3) :
+			self.dists[i/3] = dist( self.pts[i:i+4] )
+
+		self.refresh()
+
+		self.geom = np.array(self.geometry())
+		self.count = len(self.geom)/3
+
+		glUseProgram( self.prog )
+
+		glEnableClientState(GL_VERTEX_ARRAY)
+		glVertexPointer(3,GL_FLOAT,0,self.geom)
+		glDrawArrays(GL_POINTS,0,self.count)
+		glDisableClientState(GL_VERTEX_ARRAY)
+
+		glUseProgram( 0 )
+
+	def draw_old( self , data ) :
 		''' TODO: draw beziers curves in magic way '''
 		self.ptsx = [ p[0] for p in self.pts ]
 		self.ptsy = [ p[1] for p in self.pts ]

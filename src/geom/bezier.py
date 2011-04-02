@@ -1,10 +1,16 @@
 
 from dummy import *
 
+import ctypes
+
 import sys
 
 import numpy as np
 import math as m
+
+from OpenGL.GL import *
+from OpenGL.GL.ARB import *
+from OpenGL.GL.EXT import *
 
 import shaders as sh
 
@@ -37,17 +43,6 @@ class Bezier( Dummy ) :
 
 		self.prog = None
 
-	def gfx_init( self ) :
-		if self.is_inited : return
-
-		try:
-			self.prog = sh.compile_program("shad/bez_bres",GL_POINTS,GL_LINE_STRIP)
-		except ValueError as ve:
-			print "Shader compilation failed: " + str(ve)
-			sys.exit(0)
-
-		self.is_inited = True
-
 	def refresh( self , p = None ) :
 		Dummy.refresh( self )
 #        self.moved = p
@@ -72,16 +67,43 @@ class Bezier( Dummy ) :
 #                    self.moved = None
 				if self.dists[i/3] > -.1 :
 					for t in np.linspace(0,1,500.0/max(self.dists[i/3],1),True) :
-						points += [ decasteljau( self.ptsx[i:i+4] , t ) , decasteljau( self.ptsy[i:i+4], t ) , decasteljau( self.ptsz[i:i+4], t) ]
+						points += [ decasteljau( self.ptsx[i:i+4] , t ) , decasteljau( self.ptsy[i:i+4], t ) , decasteljau( self.ptsz[i:i+4], t) , 1 ]
 		
 		if self.draw_polygon :
 			for p in reversed(self.pts) :
-				points += [ p[0] , p[1] ,p[2] ]
+				points += [ p[0] , p[1] ,p[2] , 1 ]
 
 		return points
 
 	def draw_self( self , data ) :
 		self.draw_shad(data)
+
+	def get_loc( self , prog , loc ) :
+		location = glGetUniformLocation(prog,loc)
+		if location in (None,-1): raise ValueError ('No uniform: ' + loc)
+		return location                 
+
+	def gfx_init( self ) :
+		if self.is_inited : return
+
+		try:
+			self.prog = sh.compile_program("shad/bez_bres",GL_POINTS,GL_LINE_STRIP)
+		except ValueError as ve:
+			print "Shader compilation failed: " + str(ve)
+			sys.exit(0)
+
+		self.loc_mmv = self.get_loc(self.prog,'modelview' )
+		self.loc_mp  = self.get_loc(self.prog,'projection')
+		pointsid     = self.get_loc(self.prog,'points'    )
+
+		self.bid  = glGenBuffers(1)
+		self.btex = glGenTextures(1)
+
+		glUseProgram( self.prog )
+		glUniform1i( pointsid , 0 );
+		glUseProgram( 0 )
+
+		self.is_inited = True
 
 	def draw_shad( self , data ) :
 		self.ptsx = [ p[0] for p in self.pts ]
@@ -102,15 +124,36 @@ class Bezier( Dummy ) :
 
 		self.refresh()
 
-		self.geom = np.array(self.geometry())
+		self.geom = np.array(self.geometry(),np.float32)
 		self.count = len(self.geom)/3
+
+
+		glBindBuffer(GL_ARRAY_BUFFER,self.bid)
+		glBufferData(GL_ARRAY_BUFFER,self.geom,GL_STATIC_DRAW)
+		glBindBuffer(GL_ARRAY_BUFFER,0)
+
+		glBindTexture(GL_TEXTURE_BUFFER,self.btex)
+		glTexBuffer(GL_TEXTURE_BUFFER,GL_RGBA32F,self.bid)
+		glBindTexture(GL_TEXTURE_BUFFER,0)
 
 		glUseProgram( self.prog )
 
-		glEnableClientState(GL_VERTEX_ARRAY)
-		glVertexPointer(3,GL_FLOAT,0,self.geom)
-		glDrawArrays(GL_POINTS,0,self.count)
-		glDisableClientState(GL_VERTEX_ARRAY)
+		mmv = glGetFloatv(GL_MODELVIEW_MATRIX)
+		mp  = glGetFloatv(GL_PROJECTION_MATRIX)
+
+		glUniformMatrix4fv(self.loc_mmv,1,GL_FALSE,mmv)
+		glUniformMatrix4fv(self.loc_mp ,1,GL_FALSE,mp )
+
+		glBindTexture(GL_TEXTURE_BUFFER,self.btex)
+
+		nums = np.array(range(self.count),np.float32)
+
+		glEnableVertexAttribArray(0)
+		glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, 0 , nums )
+		glDrawArrays(GL_POINTS, 0, self.count)
+		glDisableVertexAttribArray(0)
+
+		glBindTexture(GL_TEXTURE_BUFFER,0)
 
 		glUseProgram( 0 )
 

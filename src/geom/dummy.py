@@ -12,7 +12,6 @@ class Dummy :
 
 	def __init__( self ) :
 		self.bdata = []
-		self.bid = glGenBuffers(1)
 		self.bsize = 0
 		self.mode = 0
 		self.P0 = -1

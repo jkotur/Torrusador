@@ -25,10 +25,9 @@ class Bezier( Dummy ) :
 
 		self.settype( Dummy.SELF )
 
-		self.draw_curve = True
+		self.draw_curve   = True
 		self.draw_polygon = False
-
-		self.moved = None
+		self.draw_points  = True
 
 		self.prog = None
 
@@ -131,5 +130,11 @@ class Bezier( Dummy ) :
 			glEnableClientState(GL_VERTEX_ARRAY)
 			glVertexPointer( 4, GL_FLOAT , 0 , self.geom )
 			glDrawArrays(GL_LINE_STRIP, 0, self.count)
+			glDisableClientState(GL_VERTEX_ARRAY)
+
+		if self.draw_points :
+			glEnableClientState(GL_VERTEX_ARRAY)
+			glVertexPointer( 4, GL_FLOAT , 0 , self.geom )
+			glDrawArrays(GL_POINTS, 0, self.count)
 			glDisableClientState(GL_VERTEX_ARRAY)
 

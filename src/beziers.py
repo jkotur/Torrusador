@@ -67,9 +67,7 @@ class Beziers( Node ) :
 
 	def point_move( self , v ) :
 		if self.selected :
-			if self.selected.get_curr() :
-				self.selected.get_curr().translate( *v )
-				self.selected.get_geom().refresh()
+			self.selected.move_current( v )
 
 	def toggle( self , what ) :
 		if what == Bezier.CURVE :

@@ -1,10 +1,14 @@
 
 from look.node import Node
 
-from points import Points
+from bezier_c0 import BezierC0 
+from bezier_c2 import BezierC2
+
 from geom.bezier import Bezier
 
 class Beziers( Node ) :
+	BEZIER_C0 , BEZIER_C2 = range(2)
+
 	def __init__( self ) :
 		Node.__init__( self )
 
@@ -13,13 +17,11 @@ class Beziers( Node ) :
 
 		self.selected = None
 
-	def new( self , pos ) :
-		b = Bezier(None)
-		self.selected = Points( b )
-		b.set_points( self.selected )
-
-		b.set_visibility( Bezier.CURVE   , self.curves   )
-		b.set_visibility( Bezier.POLYGON , self.polygons )
+	def new( self , pos , type ) :
+		if type == Beziers.BEZIER_C0 :
+			self.selected = BezierC0( self.curves , self.polygons )
+		elif type == Beziers.BEZIER_C2 :
+			self.selected = BezierC2( self.curves , self.polygons )
 
 		self.selected.new( pos )
 		self.add_child( self.selected )

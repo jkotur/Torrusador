@@ -387,16 +387,27 @@
                                     <property name="visible">True</property>
                                     <property name="orientation">vertical</property>
                                     <child>
-                                      <object class="GtkToggleButton" id="tbut_add_curve">
-                                        <property name="label">gtk-add</property>
+                                      <object class="GtkToggleButton" id="tbut_add_c0">
+                                        <property name="label">Dodaj C0</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
-                                        <property name="use_stock">True</property>
-                                        <signal name="toggled" handler="on_tbut_add_curve_toggled"/>
+                                        <signal name="toggled" handler="on_tbut_add_c0_toggled" after="yes"/>
                                       </object>
                                       <packing>
                                         <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkToggleButton" id="tbut_add_c2">
+                                        <property name="label" translatable="yes">Dodaj C2</property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">True</property>
+                                        <signal name="toggled" handler="on_tbut_add_c2_toggled" after="yes"/>
+                                      </object>
+                                      <packing>
+                                        <property name="position">1</property>
                                       </packing>
                                     </child>
                                     <child>
@@ -406,9 +417,10 @@
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
                                         <property name="use_stock">True</property>
+                                        <signal name="toggled" handler="on_tbut_del_curve_toggled" after="yes"/>
                                       </object>
                                       <packing>
-                                        <property name="position">1</property>
+                                        <property name="position">2</property>
                                       </packing>
                                     </child>
                                     <child>
@@ -418,9 +430,10 @@
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
                                         <property name="use_stock">True</property>
+                                        <signal name="toggled" handler="on_tbut_sel_curve_toggled" after="yes"/>
                                       </object>
                                       <packing>
-                                        <property name="position">2</property>
+                                        <property name="position">3</property>
                                       </packing>
                                     </child>
                                   </object>
@@ -862,8 +875,8 @@
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="use_stock">True</property>
-                    <accelerator key="c" signal="clicked" modifiers="GDK_CONTROL_MASK"/>
                     <accelerator key="q" signal="clicked" modifiers="GDK_CONTROL_MASK"/>
+                    <accelerator key="c" signal="clicked" modifiers="GDK_CONTROL_MASK"/>
                     <signal name="clicked" handler="on_but_quit_clicked"/>
                   </object>
                   <packing>
@@ -962,8 +975,8 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
     <property name="authors">Jakub Kotur</property>
     <property name="logo">logo.png</property>
     <signal name="close" handler="on_hide" object="aboutdialog1"/>
-    <signal name="response" handler="on_hide"/>
     <signal name="delete_event" handler="on_hide"/>
+    <signal name="response" handler="on_hide"/>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox1">
         <property name="visible">True</property>

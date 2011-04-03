@@ -210,8 +210,11 @@ class Scene :
 		elif self.cursormode == Scene.PNTEDIT :
 			self.beziers.point_select( self.cursor.get_pos() , self.pdist2 )
 
-	def new_curve( self ) :
-		self.beziers.new( self.cursor.get_pos() )
+	def new_curve_c0( self ) :
+		self.beziers.new( self.cursor.get_pos() , Beziers.BEZIER_C0 )
+
+	def new_curve_c2( self ) :
+		self.beziers.new( self.cursor.get_pos() , Beziers.BEZIER_C2 )
 
 	def delete_curve( self ) :
 		self.beziers.delete( self.cursor.get_pos() , self.pdist2 )

@@ -42,7 +42,7 @@ void main()
 		casz[i-id.x] = ptn.z;
 	}
 
-	for( float t=0.0 ; t<=1.0 ; t+=.00390625 )
+	for( float t=0.0 ; t<1.0+0.00390625 ; t+=.00390625 )
 	{
 		gl_Position = vec4(
 				decasteljau(t,casx,len),

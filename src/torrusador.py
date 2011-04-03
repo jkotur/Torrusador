@@ -71,7 +71,8 @@ class App(object):
 		self.sp_near = builder.get_object('sp_near')
 		self.sp_near.set_value(self.near)
 
-		self.tbut_add_curve = builder.get_object('tbut_add_curve')
+		self.tbut_add_c0    = builder.get_object('tbut_add_c0'   )
+		self.tbut_add_c2    = builder.get_object('tbut_add_c2'   )
 		self.tbut_del_curve = builder.get_object('tbut_del_curve')
 		self.tbut_sel_curve = builder.get_object('tbut_sel_curve')
 
@@ -83,9 +84,29 @@ class App(object):
 		self.statbar.pop(cid)
 		self.statbar.push( cid , str(self.scene.get_cursor_pos()) + "  " + str(self.scene.get_cursor_screen_pos()) )
 
-	def on_tbut_add_curve_toggled( self , widget , data=None ) :
-		''' TODO: turn off points add/remove/edit radio buttons '''
-		pass
+	def on_tbut_add_c0_toggled( self , widget , data=None ) :
+		if self.tbut_add_c0.get_active() :
+			self.tbut_add_c2.set_active(False)
+			self.tbut_del_curve.set_active(False)
+			self.tbut_sel_curve.set_active(False)
+
+	def on_tbut_add_c2_toggled( self , widget , data=None ) :
+		if self.tbut_add_c2.get_active() :
+			self.tbut_add_c0.set_active(False)
+			self.tbut_del_curve.set_active(False)
+			self.tbut_sel_curve.set_active(False)
+
+	def on_tbut_del_curve_toggled( self , widget , data=None ) :
+		if self.tbut_del_curve.get_active() :
+			self.tbut_add_c0.set_active(False)
+			self.tbut_add_c2.set_active(False)
+			self.tbut_sel_curve.set_active(False)
+
+	def on_tbut_sel_curve_toggled( self , widget , data=None ) :
+		if self.tbut_sel_curve.get_active() :
+			self.tbut_add_c0.set_active(False)
+			self.tbut_add_c2.set_active(False)
+			self.tbut_del_curve.set_active(False)
 
 	def _on_reshape( self , widget , data=None ) :
 		width = self.drawing_area.allocation.width
@@ -100,9 +121,12 @@ class App(object):
 		if data.button == 1 :
 			self.mouse_pos = -data.x , data.y
 		elif data.button == 3 :
-			if self.tbut_add_curve.get_active() :
-				self.scene.new_curve()
-				self.tbut_add_curve.set_active(False)
+			if self.tbut_add_c0.get_active() :
+				self.scene.new_curve_c0()
+				self.tbut_add_c0.set_active(False)
+			elif self.tbut_add_c2.get_active() :
+				self.scene.new_curve_c2()
+				self.tbut_add_c2.set_active(False)
 			elif self.tbut_del_curve.get_active() :
 				self.scene.delete_curve()
 				self.tbut_del_curve.set_active(False)

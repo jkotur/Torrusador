@@ -28,11 +28,6 @@ float decasteljau( float t , float pts[32] , int len )
 	return tmp[0];
 }
 
-uniform mat4 modelview;
-uniform mat4 projection;
-
-uniform samplerBuffer points;
-
 void main()
 {
 	ivec2 id = ivec2(gl_in[0].gl_Position.xy);

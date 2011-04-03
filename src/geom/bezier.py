@@ -106,27 +106,21 @@ class Bezier( Dummy ) :
 		self.is_inited = True
 
 	def draw_shad( self , data ) :
-		self.ptsx = [ p[0] for p in self.pts ]
-		self.ptsy = [ p[1] for p in self.pts ]
-		self.ptsz = [ p[2] for p in self.pts ]
-		self.dists = [ 0 for i in range(0,len(self.pts)) ]
+		self.geom = []
+		for p in self.pts :
+			self.geom.append(p[0])
+			self.geom.append(p[1])
+			self.geom.append(p[2])
+			self.geom.append(1)
+		self.geom = np.array(self.geom,np.float32)
+		self.count = len(self.geom)/4
 
-		m = glGetFloatv(GL_TRANSPOSE_MODELVIEW_MATRIX)
-		e = la.dot( la.inv(np.reshape(m,(4,4))) , (0,0,0,1) )
-
-		def norm2( v ) :
-			return - v[0] - v[1] - v[2]
-		def dist( vs ) :
-			return sum([ norm2((p[0]-e[0],p[1]-e[1],p[2]-e[2])) for p in vs])/float(len(vs))
-
-		for i in range(0,len(self.pts),3) :
-			self.dists[i/3] = dist( self.pts[i:i+4] )
-
-		self.refresh()
-
-		self.geom = np.array(self.geometry(),np.float32)
-		self.count = len(self.geom)/3
-
+		nums = [0]
+		for i in range(3,self.count,3) :
+			nums.append( i+1 )
+			nums.append( i )
+		nums.append(self.count)
+		nums = np.array(nums,np.float32)
 
 		glBindBuffer(GL_ARRAY_BUFFER,self.bid)
 		glBufferData(GL_ARRAY_BUFFER,self.geom,GL_STATIC_DRAW)
@@ -146,11 +140,9 @@ class Bezier( Dummy ) :
 
 		glBindTexture(GL_TEXTURE_BUFFER,self.btex)
 
-		nums = np.array(range(self.count),np.float32)
-
 		glEnableVertexAttribArray(0)
-		glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, 0 , nums )
-		glDrawArrays(GL_POINTS, 0, self.count)
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0 , nums )
+		glDrawArrays(GL_POINTS, 0, len(nums)/2)
 		glDisableVertexAttribArray(0)
 
 		glBindTexture(GL_TEXTURE_BUFFER,0)

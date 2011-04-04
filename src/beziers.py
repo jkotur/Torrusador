@@ -5,6 +5,7 @@ from bezier_c0 import BezierC0
 from bezier_c2 import BezierC2
 
 from geom.bezier import Bezier
+from geom.curve import Curve
 
 class Beziers( Node ) :
 	BEZIER_C0 , BEZIER_C2 = range(2)
@@ -12,18 +13,25 @@ class Beziers( Node ) :
 	def __init__( self ) :
 		Node.__init__( self )
 
-		self.curves = True
-		self.polygons = False
+		self.bz_points   = True
+		self.bz_curves   = True
+		self.bz_polygons = False
+
+		self.bs_points   = True
+		self.bs_curves   = False
+		self.bs_polygons = False
 
 		self.selected = None
 
-	def new( self , pos , type ) :
-		if type == Beziers.BEZIER_C0 :
-			self.selected = BezierC0( self.curves , self.polygons )
-		elif type == Beziers.BEZIER_C2 :
-			self.selected = BezierC2( self.curves , self.polygons )
+	def new( self , pos , which_cur , which_pnt ) :
+		if which_cur == Beziers.BEZIER_C0 :
+			self.selected = BezierC0( self.bz_points , self.bz_curves , self.bz_polygons )
+		elif which_cur == Beziers.BEZIER_C2 :
+			self.selected = BezierC2(
+								self.bz_points , self.bz_curves , self.bz_polygons ,
+								self.bs_points , self.bs_curves , self.bs_polygons )
 
-		self.selected.new( pos )
+		self.selected.new( pos , which_pnt )
 		self.add_child( self.selected )
 
 	def delete( self , pos , dist = .05 ) :
@@ -50,9 +58,9 @@ class Beziers( Node ) :
 		else :
 			return minv , out
 
-	def point_new( self , pos ) :
+	def point_new( self , which , pos ) :
 		if self.selected :
-			self.selected.new( pos )
+			self.selected.new( pos , which )
 			self.selected.get_geom().refresh()
 
 	def point_delete( self , pos , dist ) :
@@ -69,14 +77,24 @@ class Beziers( Node ) :
 		if self.selected :
 			self.selected.move_current( v )
 
-	def toggle( self , what ) :
-		if what == Bezier.CURVE :
-			self.curves = not self.curves
-		elif what == Bezier.POLYGON :
-			self.polygons = not self.polygons
+	def toggle( self , which , what ) :
+		if which == Curve.BEZIER :
+			if what == Curve.POINTS :
+				self.bz_points = not self.bz_points
+			elif what == Bezier.CURVE :
+				self.bz_curves = not self.bz_curves
+			elif what == Bezier.POLYGON :
+				self.bz_polygons = not self.bz_polygons
+		elif which == Curve.BSPLINE :
+			if what == Curve.POINTS :
+				self.bs_points = not self.bs_points
+			elif what == Bezier.CURVE :
+				self.bs_curves = not self.bs_curves
+			elif what == Bezier.POLYGON :
+				self.bs_polygons = not self.bs_polygons
 
 		for b in self :
-			b.get_geom().set_visibility( Bezier.CURVE   , self.curves   )
-			b.get_geom().set_visibility( Bezier.POLYGON , self.polygons )
+			b.set_visibility( Curve.BEZIER , self.bz_points , self.bz_curves , self.bz_polygons )
+			b.set_visibility( Curve.BSPLINE, self.bs_points , self.bs_curves , self.bs_polygons )
 			b.get_geom().refresh()
 

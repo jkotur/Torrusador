@@ -192,16 +192,28 @@ class App(object):
 	def on_but_quit_clicked(self,widget,data=None):
 		gtk.main_quit()
 
-	def on_cbut_draw_pts_toggled(self,widget,data=None):
-		self.scene.toggle_curve( Curve.POINTS )
+	def on_cbut_draw_bezier_pts_toggled(self,widget,data=None):
+		self.scene.toggle_curve( Curve.BEZIER , Curve.POINTS )
 		self.drawing_area.queue_draw()
 
-	def on_cbut_draw_curves_toggled(self,widget,data=None):
-		self.scene.toggle_curve( Curve.CURVE )
+	def on_cbut_draw_bezier_curves_toggled(self,widget,data=None):
+		self.scene.toggle_curve( Curve.BEZIER , Curve.CURVE )
 		self.drawing_area.queue_draw()
 
-	def on_cbut_draw_polygons_toggled(self,widget,data=None):
-		self.scene.toggle_curve( Curve.POLYGON )
+	def on_cbut_draw_bezier_polygons_toggled(self,widget,data=None):
+		self.scene.toggle_curve( Curve.BEZIER , Curve.POLYGON )
+		self.drawing_area.queue_draw()
+
+	def on_cbut_draw_bspline_pts_toggled(self,widget,data=None):
+		self.scene.toggle_curve( Curve.BSPLINE , Curve.POINTS )
+		self.drawing_area.queue_draw()
+
+	def on_cbut_draw_bspline_curves_toggled(self,widget,data=None):
+		self.scene.toggle_curve( Curve.BSPLINE , Curve.CURVE )
+		self.drawing_area.queue_draw()
+
+	def on_cbut_draw_bspline_polygons_toggled(self,widget,data=None):
+		self.scene.toggle_curve( Curve.BSPLINE , Curve.POLYGON )
 		self.drawing_area.queue_draw()
 
 	def on_sp_R_value_changed(self,widget,data=None):
@@ -279,8 +291,10 @@ class App(object):
 	def on_rbut_rotate_pressed( self , widget , data=None ) :
 		self.scene.set_mousemode( Scene.ROTATE )
 
-	def on_rbut_pnt_add_pressed( self , widget , data=None ) :
-		self.scene.set_cursormode( Scene.PNTADD )
+	def on_rbut_pnt_add_bezier_pressed( self , widget , data=None ) :
+		self.scene.set_cursormode( Scene.PNTBZADD )
+	def on_rbut_pnt_add_bspline_pressed( self , widget , data=None ) :
+		self.scene.set_cursormode( Scene.PNTBSADD )
 	def on_rbut_pnt_del_pressed( self , widget , data=None ) :
 		self.scene.set_cursormode( Scene.PNTDEL )
 	def on_rbut_pnt_edit_pressed( self , widget , data=None ) :

@@ -15,7 +15,7 @@ class Points( Node ) :
 			self.current.translate( *v )
 			self.get_geom().refresh()
 
-	def new( self , pos ) :
+	def new( self , pos , data = None ) :
 		n = Node( Point() )
 		n.translate(*pos)
 		self.add_child( n )

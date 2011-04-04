@@ -33,6 +33,12 @@ class Bspline( Curve ) :
 		self.geom = np.array(self.geom,np.float32)
 		self.count = len(self.geom)/4
 
+		if self.draw_polygon :
+			glEnableClientState(GL_VERTEX_ARRAY)
+			glVertexPointer( 4, GL_FLOAT , 0 , self.geom )
+			glDrawArrays(GL_LINE_STRIP, 0, self.count)
+			glDisableClientState(GL_VERTEX_ARRAY)
+
 		if self.draw_points :
 			glEnableClientState(GL_VERTEX_ARRAY)
 			glVertexPointer( 4, GL_FLOAT , 0 , self.geom )

@@ -12,11 +12,12 @@ from geom.torus import Torus
 from geom.cross import Cross
 
 from beziers import Beziers
+from geom.curve import Curve
 
 class Scene :
 	DRAW2D , DRAW3D = range(2)
 	NONE , CURSOR , TRANSLATE , SCALE , ISOSCALE , ROTATE = range(6)
-	PNTADD , PNTDEL , PNTEDIT = range(3)
+	PNTBZADD , PNTBSADD , PNTDEL , PNTEDIT = range(4)
 
 	def __init__( self , fov , ratio , near ) :
 		self.fov = fov
@@ -24,7 +25,7 @@ class Scene :
 		self.ratio = ratio
 		self.drawmode = Scene.DRAW2D
 		self.mousemode = Scene.NONE
-		self.cursormode = Scene.PNTADD
+		self.cursormode = Scene.PNTBZADD
 
 		self.pdist = 0.025
 		self.pdist2= self.pdist*self.pdist
@@ -203,18 +204,23 @@ class Scene :
 			self.node.rotate( df[1]*.001 , *a2 )
 
 	def activate_cursor( self ) :
-		if self.cursormode == Scene.PNTADD :
-			self.beziers.point_new( self.cursor.get_pos() )
+		if self.cursormode == Scene.PNTBZADD :
+			self.beziers.point_new( Curve.BEZIER  , self.cursor.get_pos() )
+		elif self.cursormode == Scene.PNTBSADD :
+			self.beziers.point_new( Curve.BSPLINE , self.cursor.get_pos() )
 		elif self.cursormode == Scene.PNTDEL :
 			self.beziers.point_delete( self.cursor.get_pos() , self.pdist2 )
 		elif self.cursormode == Scene.PNTEDIT :
 			self.beziers.point_select( self.cursor.get_pos() , self.pdist2 )
 
 	def new_curve_c0( self ) :
-		self.beziers.new( self.cursor.get_pos() , Beziers.BEZIER_C0 )
+		self.beziers.new( self.cursor.get_pos() , Beziers.BEZIER_C0 , Curve.BEZIER ) 
 
 	def new_curve_c2( self ) :
-		self.beziers.new( self.cursor.get_pos() , Beziers.BEZIER_C2 )
+		if self.cursormode == Scene.PNTBZADD :
+			self.beziers.new( self.cursor.get_pos() , Beziers.BEZIER_C2 , Curve.BEZIER  )
+		elif self.cursormode == Scene.PNTBSADD :
+			self.beziers.new( self.cursor.get_pos() , Beziers.BEZIER_C2 , Curve.BSPLINE )
 
 	def delete_curve( self ) :
 		self.beziers.delete( self.cursor.get_pos() , self.pdist2 )
@@ -222,6 +228,6 @@ class Scene :
 	def select_curve( self ) :
 		self.beziers.select( self.cursor.get_pos() , self.pdist2 )
 
-	def toggle_curve( self , what ) :
-		self.beziers.toggle( what )
+	def toggle_curve( self , which , what ) :
+		self.beziers.toggle( which , what )
 

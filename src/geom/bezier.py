@@ -1,5 +1,5 @@
 
-from dummy import *
+from curve import *
 
 import ctypes
 
@@ -16,32 +16,12 @@ import shaders as sh
 
 from numpy.linalg import linalg as la
 
-class Bezier( Dummy ) :
-
-	POINTS , POLYGON , CURVE = range(3)
+class Bezier( Curve ) :
 
 	def __init__( self ) :
-		Dummy.__init__(self)
-
-		self.settype( Dummy.SELF )
-
-		self.draw_curve   = True
-		self.draw_polygon = False
-		self.draw_points  = True
+		Curve.__init__(self)
 
 		self.prog = None
-
-	def refresh( self , p = None ) :
-		Dummy.refresh( self )
-
-	def set_visibility( self , what , how ) :
-		if what == Bezier.CURVE :
-			self.draw_curve = how
-		elif what == Bezier.POLYGON :
-			self.draw_polygon = how
-
-	def geometry( self ) :
-		return []
 
 	def draw_self( self , data ) :
 		self.draw_shad(data)

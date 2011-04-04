@@ -12,7 +12,7 @@ from glwidget import GLDrawingArea
 
 from scene import Scene
 
-from geom.bezier import Bezier
+from geom.curve import Curve
 
 ui_file = "torrusador.ui"
 
@@ -193,15 +193,15 @@ class App(object):
 		gtk.main_quit()
 
 	def on_cbut_draw_pts_toggled(self,widget,data=None):
-		self.scene.toggle_curve( Bezier.POINTS )
+		self.scene.toggle_curve( Curve.POINTS )
 		self.drawing_area.queue_draw()
 
 	def on_cbut_draw_curves_toggled(self,widget,data=None):
-		self.scene.toggle_curve( Bezier.CURVE )
+		self.scene.toggle_curve( Curve.CURVE )
 		self.drawing_area.queue_draw()
 
 	def on_cbut_draw_polygons_toggled(self,widget,data=None):
-		self.scene.toggle_curve( Bezier.POLYGON )
+		self.scene.toggle_curve( Curve.POLYGON )
 		self.drawing_area.queue_draw()
 
 	def on_sp_R_value_changed(self,widget,data=None):

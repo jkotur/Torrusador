@@ -22,7 +22,7 @@ class Points( Node ) :
 
 	def delete( self , pos , dist = .05 ) :
 		v , p = self.find_nearest( pos , dist )
-		if p :
+		if p != None :
 			self.del_child( p )
 
 	def select( self , pos , dist ) :

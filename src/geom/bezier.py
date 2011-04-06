@@ -35,7 +35,7 @@ class Bezier( Curve ) :
 		if self.is_inited : return
 
 		try:
-			self.prog = sh.compile_program("shad/bez_bres",GL_POINTS,GL_LINE_STRIP)
+			self.prog = sh.compile_program("shad/bez_bres")
 		except ValueError as ve:
 			print "Shader compilation failed: " + str(ve)
 			sys.exit(0)
@@ -63,14 +63,14 @@ class Bezier( Curve ) :
 		self.geom = np.array(self.geom,np.float32)
 		self.count = len(self.geom)/4
 
-		nums = [0]
-		for i in range(3,self.count,3) :
-			nums.append( i+1 )
-			nums.append( i )
-		nums.append(self.count)
-		nums = np.array(nums,np.float32)
-
 		if self.draw_curve :
+			nums = [0]
+			for i in range(3,self.count,3) :
+				nums.append( i+1 )
+				nums.append( i )
+			nums.append(self.count)
+			nums = np.array(nums,np.float32)
+
 			glBindBuffer(GL_ARRAY_BUFFER,self.bid)
 			glBufferData(GL_ARRAY_BUFFER,self.geom,GL_STATIC_DRAW)
 			glBindBuffer(GL_ARRAY_BUFFER,0)

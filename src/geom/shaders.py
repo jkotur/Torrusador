@@ -25,17 +25,17 @@ def compile_shader(source, shader_type):
 		raise ValueError, 'Shader compilation failed'
 	return shader
 
-def compile_program(name,input,output):
-	return compile_program_from_file(name+".vert",name+".geom",name+".frag",input,output)
+def compile_program(name) :
+	return compile_program_from_file(name+".vert",name+".geom",name+".frag")
 
-def compile_program_from_file(vertex_file , geometry_file ,fragment_file , input , output ):
+def compile_program_from_file(vertex_file , geometry_file ,fragment_file ) :
 	vsrc = open(vertex_file,"r")
 	gsrc = open(geometry_file,"r")
 	fsrc = open(fragment_file,"r")
 
-	return compile_program_from_source(vsrc.read(),fsrc.read(),gsrc.read(),input,output)
+	return compile_program_from_source(vsrc.read(),fsrc.read(),gsrc.read())
 
-def compile_program_from_source(vertex_source, fragment_source , geometry_source , input , output ):
+def compile_program_from_source(vertex_source, fragment_source , geometry_source ) :
 	vertex_shader = None
 	geometry_shader = None
 	fragment_shader = None

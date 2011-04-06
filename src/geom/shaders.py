@@ -3,8 +3,8 @@
 #from gtk.gtkgl.apputils import *
 
 import sys
-import pygame
-from pygame.locals import *
+#import pygame
+#from pygame.locals import *
 
 #from OpenGL.GLUT import *
 from OpenGL.GL import *

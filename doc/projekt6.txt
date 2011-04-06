@@ -1,0 +1,19 @@
+krzywe c2
+
+automatycznie 3 punkty -- użytkownik dostawia tylko jeden
+
+możliwość wyświetlania wieloboku debore'a
+
+można wyświetlać wielobok beziera
+
+automatycznie pojawiają sie punkty debore'a
+
+mozna ruszać krzywą przy użyciu punktów debore'a
+
+można budować krzywą w oparciu o krzywą debore'a
+
+wyświetlanie z funkcji bazowej bspline
+
+przełączanie pomiędzy wyświetlaniem bspline a bernsteina
+
+albo robimy krzywą C2 albo C0

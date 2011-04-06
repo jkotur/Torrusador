@@ -1,0 +1,43 @@
+krzywe beziera C0
+
+
+FUNKCJONALNOŚĆ:
+
+dodać do aplikacji wprowadzania krzywych beziera
+
+na podstawie czterech punktów wstawiana jest krzywa kubiczna beziera
+
+kolejne 3 punkty definiują kolejny segment krzywej kubicznej beziera 
+
+łączenie jest na poziomie C0 
+
+można stworzyć krzywą niższego stopnia
+
+edycja krzywej: dodawnie nowych punktów na koniec, usuwanie ze środka,
+przesuwanie punktów
+
+krzywych może być dowolnie wiele
+
+OPCJE WYŚWIETLANIA:
+
+wyświetlanie lub nie wieloboku beziera
+wyświetlanie bądź nie krzywej beziera
+
+
+CO I JAK:
+
+B(t) = [ B_x(t) , B_y(t) , B_z(t) ]'
+
+tablicowanie albo decastilio
+
+próbkowanie co jakiś czas i wyświetlanie linii
+
+próbkowanie adaptacyjne po zrzutowaniu
+
+rysowanie po zrzutowaniu
+
+
+WYMÓG DODATKOWY:
+
+odpowiedź ustna z krzywych beziera
+

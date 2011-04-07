@@ -13,26 +13,35 @@ float casy[32];
 float casz[32];
 float tmp[32];
 
-float calca( float x , float i , float k )
+#define KNOTSNUM 6
+float knots[KNOTSNUM];
+
+float calca( float t , int i , int k  , int n , float knots[KNOTSNUM] )
 {
-	return x; // x-u/u-u
+	return ( t - knots[i] ) / ( knots[i+n+1-k] - knots[i] );
 }
 
-float decasteljau( float t , float pts[32] , int len )
+float decasteljau( float t , float pts[32] , int n , float knots[KNOTSNUM] )
 {
 	for( int i=0 ; i<32 ; ++i )
 		tmp[i] = 0.0;
 
-	for( int i=len-1 ; i>=0 ; --i )
+	for( int i=n-1 ; i>=0 ; --i )
 		tmp[i] = pts[i];
+	
+	int l=0;
+	while( knots[l+1] < t ) ++l;
 
-	for( int k=len-1 ; k>0 ; --k )
-		for( int i=0 ; i<k ; ++i )
+	l = 3;
+	n = 3;
+
+	for( int k=1 ; k<n ; ++k )
+		for( int i=l-n+k ; i<l ; ++ i )
 		{
-			float a  = calca( t , i , k );
-			tmp[i] = tmp[i]*(1.0-a) + tmp[i+1]*a;
+			float a  = calca( t , i , k , n , knots );
+			tmp[i] = tmp[i-1]*(1.0-a) + tmp[i]*a;
 		}
-	return tmp[0];
+	return tmp[n-1];
 }
 
 void main()
@@ -49,16 +58,22 @@ void main()
 		casz[i-id.x] = ptn.z;
 	}
 
-	for( float t=0.0 ; t<1.0+0.00390625 ; t+=.00390625 )
+
+	float u  = 0.0;
+	float du = 1.0/KNOTSNUM;
+	for( int i=0 ; i<KNOTSNUM ; i++ )
+	{
+		knots[i] = u;
+		u += du;
+	}
+
+	float dt = du/64;
+	for( float t=knots[3] ; t<knots[4]+dt ; t+=dt )
 	{
 		gl_Position = vec4(
-				decasteljau(t,casx,len),
-				decasteljau(t,casy,len),
-				decasteljau(t,casz,len),1);
-//		gl_Position = vec4(
-//				mix(casx[0],casx[len-1],t),
-//				mix(casy[0],casy[len-1],t),
-//				mix(casz[0],casz[len-1],t),1);
+				decasteljau(t,casx,len,knots),
+				decasteljau(t,casy,len,knots),
+				decasteljau(t,casz,len,knots),1);
 		gl_Position =  projection * modelview * gl_Position;
 		EmitVertex();
 	}

@@ -3,8 +3,8 @@
   <requires lib="gtk+" version="2.16"/>
   <!-- interface-naming-policy project-wide -->
   <object class="GtkWindow" id="win_main">
-    <property name="width_request">400</property>
-    <property name="height_request">400</property>
+    <property name="width_request">800</property>
+    <property name="height_request">600</property>
     <property name="icon">logo.png</property>
     <signal name="destroy" handler="on_win_main_destroy"/>
     <child>
@@ -989,8 +989,8 @@
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="use_stock">True</property>
-                    <accelerator key="c" signal="clicked" modifiers="GDK_CONTROL_MASK"/>
                     <accelerator key="q" signal="clicked" modifiers="GDK_CONTROL_MASK"/>
+                    <accelerator key="c" signal="clicked" modifiers="GDK_CONTROL_MASK"/>
                     <signal name="clicked" handler="on_but_quit_clicked"/>
                   </object>
                   <packing>

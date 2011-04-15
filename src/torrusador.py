@@ -5,6 +5,7 @@ pygtk.require('2.0')
 import gtk
 
 import operator as op
+from copy import copy
 
 from OpenGL.GL import *
 
@@ -20,6 +21,8 @@ class App(object):
 	"""Application main class"""
 
 	def __init__(self):
+
+		self._init_keyboard() 
 
 		self.near = 1
 		self.fov  = 60
@@ -37,7 +40,8 @@ class App(object):
 
 		builder.get_object("vbox4").pack_start(self.drawing_area)
 
-		builder.get_object("win_main").show_all()
+		win_main = builder.get_object("win_main")
+		win_main.show_all()
 		self.box3d.hide();
 
 		width = self.drawing_area.allocation.width
@@ -75,6 +79,46 @@ class App(object):
 		self.tbut_add_c2    = builder.get_object('tbut_add_c2'   )
 		self.tbut_del_curve = builder.get_object('tbut_del_curve')
 		self.tbut_sel_curve = builder.get_object('tbut_sel_curve')
+
+		win_main.set_events( gtk.gdk.KEY_PRESS_MASK | gtk.gdk.KEY_RELEASE_MASK )
+         
+		win_main.connect('key-press-event'  , self._on_key_pressed  )
+		win_main.connect('key-release-event', self._on_key_released )
+
+	def _init_keyboard( self ) :
+		self.move = [0,0,0]
+		self.dirskeys = ( ( ['w'] , ['s'] ) , ( ['a'] , ['d'] ) , ( ['e'] , ['q'] ) )
+   
+		for d in self.dirskeys :
+			for e in d : 
+				for i in range(len(e)) : e[i] = ( gtk.gdk.unicode_to_keyval(ord(e[i])) , False )
+
+	def _on_key_pressed( self , widget , data=None ) :
+		if not any(self.move) :
+			gtk.timeout_add( 20 , self._move_callback )
+						  
+		for i in range(len(self.dirskeys)) :
+			if (data.keyval,False) in self.dirskeys[i][0] :
+				self.dirskeys[i][0][ self.dirskeys[i][0].index( (data.keyval,False) ) ] = (data.keyval,True)
+				self.move[i]+= 1
+			elif (data.keyval,False) in self.dirskeys[i][1] :
+				self.dirskeys[i][1][ self.dirskeys[i][1].index( (data.keyval,False) ) ] = (data.keyval,True)
+				self.move[i]-= 1
+                      
+                      
+	def _on_key_released( self , widget , data=None ) :
+		for i in range(len(self.dirskeys)) :
+			if (data.keyval,True) in self.dirskeys[i][0] :
+				self.dirskeys[i][0][ self.dirskeys[i][0].index( (data.keyval,True) ) ] = (data.keyval,False)
+				self.move[i]-= 1
+			elif (data.keyval,True) in self.dirskeys[i][1] :
+				self.dirskeys[i][1][ self.dirskeys[i][1].index( (data.keyval,True) ) ] = (data.keyval,False)
+				self.move[i]+= 1
+                      
+	def _move_callback( self ) :
+		self.scene.key_pressed( self.move )
+		self.drawing_area.queue_draw()
+		return any(self.move)
 
 	def _after_draw( self , widget , data=None ) :
 		self.update_statusbar()
@@ -139,6 +183,7 @@ class App(object):
 
 	def _on_mouse_motion( self , widget , data=None ) :
 		diff = map( op.sub , self.mouse_pos , (-data.x , data.y) )
+		rowdiff = copy(diff)
 
 		if self.rbut_xy.get_active() :
 			diff[2:2] = [0]
@@ -154,7 +199,7 @@ class App(object):
 			axis1= ( 0 , 1 , 0 )
 			axis2= ( 0 , 0 , 1 )
 
-		self.scene.mouse_move( diff , axis1 , axis2 )
+		self.scene.mouse_move( rowdiff , diff , axis1 , axis2 )
 
 		self.mouse_pos = -data.x , data.y
 		self.drawing_area.queue_draw()
@@ -290,6 +335,8 @@ class App(object):
 		self.scene.set_mousemode( Scene.TRANSLATE )
 	def on_rbut_rotate_pressed( self , widget , data=None ) :
 		self.scene.set_mousemode( Scene.ROTATE )
+	def on_rbut_camera_pressed( self , widget , data=None ) :
+		self.scene.set_mousemode( Scene.CAMERA )
 
 	def on_rbut_pnt_add_bezier_pressed( self , widget , data=None ) :
 		self.scene.set_cursormode( Scene.PNTBZADD )

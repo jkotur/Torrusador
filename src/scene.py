@@ -14,9 +14,11 @@ from geom.cross import Cross
 from beziers import Beziers
 from geom.curve import Curve
 
+STARTLOOK = ( (0,0,0) , (0,0,-1) , (0,1,0) )
+
 class Scene :
 	DRAW2D , DRAW3D = range(2)
-	NONE , CURSOR , TRANSLATE , SCALE , ISOSCALE , ROTATE = range(6)
+	NONE , CURSOR , TRANSLATE , SCALE , ISOSCALE , ROTATE , CAMERA = range(7)
 	PNTBZADD , PNTBSADD , PNTDEL , PNTEDIT = range(4)
 
 	def __init__( self , fov , ratio , near ) :
@@ -38,6 +40,11 @@ class Scene :
 
 		self.beziers= Beziers()
 
+		self.beziers.new( (-1,-1,0) , Beziers.BEZIER_C2 , Curve.BSPLINE )
+		self.beziers.point_new( Curve.BSPLINE , (-1,1,0) )
+		self.beziers.point_new( Curve.BSPLINE , (1,1,0) )
+		self.beziers.point_new( Curve.BSPLINE , (1,-1,0) )
+
 		#
 		# Craete torus
 		#
@@ -58,7 +65,7 @@ class Scene :
 		# Craete normal scene
 		#
 		self.proj  .perspective( self.fov , self.ratio, self.near , 10000 )
-		self.camera.lookat( (0,0,0) , (0,0,-1) , (0,1,0) )
+		self.camera.lookat( *STARTLOOK )
 		col = Node( color = (1,1,1) )
 
 
@@ -80,8 +87,8 @@ class Scene :
 		self.root3d.add_child( self.t_left  )
 		self.root3d.add_child( self.t_right )
 
-		self.cam_left .lookat( (0,0,0) , (0,0,-1) , (0,1,0) )
-		self.cam_right.lookat( (0,0,0) , (0,0,-1) , (0,1,0) )
+		self.cam_left .lookat( *STARTLOOK )
+		self.cam_right.lookat( *STARTLOOK )
 
 		self.p_left .perspective( self.fov , self.ratio, self.near , 10000 )
 		self.p_right.perspective( self.fov , self.ratio, self.near , 10000 )
@@ -100,6 +107,8 @@ class Scene :
 
 		self.color_left .add_child( self.node )
 		self.color_right.add_child( self.node )
+
+		self.node.translate(0,0,-2)
 
 	def gfx_init( self ) :
 		glPointSize(3)
@@ -142,8 +151,10 @@ class Scene :
 		self.color_right.set_color( color )
 
 	def set_eyes_split( self , split ) :
-		self.cam_left .lookat( (-split,0,0) , (-split,0,-1) , (0,1,0) )
-		self.cam_right.lookat( ( split,0,0) , ( split,0,-1) , (0,1,0) )
+#        self.cam_left .lookat( (-split,0,0) , (-split,0,-1) , (0,1,0) )
+#        self.cam_right.lookat( ( split,0,0) , ( split,0,-1) , (0,1,0) )
+		self.cam_left .move( -split , 0 , 0 )
+		self.cam_right.move(  split , 0 , 0 )
 		self.p_left .loadIdentity()
 		self.p_right.loadIdentity()
 		self.p_left .translate( -split , 0 , 0 )
@@ -186,7 +197,7 @@ class Scene :
 		cp = self.cursor.get_clipping_pos()
 		return ( (cp[0]+1.0)/2.0 * self.width , (cp[1]+1.0)/2.0 * self.height )
 
-	def mouse_move( self , df , a1 , a2 ) :
+	def mouse_move( self , rdf , df , a1 , a2 ) :
 
 		if self.mousemode == Scene.CURSOR :
 			v = self.cursor.move_vec( df )
@@ -202,6 +213,17 @@ class Scene :
 			df.remove(0)
 			self.node.rotate( df[0]*.001 , *a1 )
 			self.node.rotate( df[1]*.001 , *a2 )
+		elif self.mousemode == Scene.CAMERA :
+			rdf = [ x*.1 for x in rdf ]
+			self.camera.rot( rdf[0] ,-rdf[1] )
+			self.cam_left.rot( rdf[0] ,-rdf[1] )
+			self.cam_right.rot( rdf[0] ,-rdf[1] )
+	
+	def key_pressed( self , df ) :
+		if self.mousemode == Scene.CAMERA :
+			self.camera.move( *map(lambda x : x*.05 , df ) )
+			self.cam_left.move( *map(lambda x : x*.05 , df ) )
+			self.cam_right.move( *map(lambda x : x*.05 , df ) )
 
 	def activate_cursor( self ) :
 		if self.cursormode == Scene.PNTBZADD :

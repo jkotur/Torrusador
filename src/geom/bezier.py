@@ -43,6 +43,7 @@ class Bezier( Curve ) :
 		self.loc_mmv = self.get_loc(self.prog,'modelview' )
 		self.loc_mp  = self.get_loc(self.prog,'projection')
 		pointsid     = self.get_loc(self.prog,'points'    )
+		self.color   = self.get_loc(self.prog,'color'     )
 
 		self.bid  = glGenBuffers(1)
 		self.btex = glGenTextures(1)
@@ -94,6 +95,9 @@ class Bezier( Curve ) :
 
 			glUniformMatrix4fv(self.loc_mmv,1,GL_FALSE,mmv)
 			glUniformMatrix4fv(self.loc_mp ,1,GL_FALSE,mp )
+
+			color = glGetFloatv(GL_CURRENT_COLOR)
+			glUniform4f(self.color , *color )
 
 			glBindTexture(GL_TEXTURE_BUFFER,self.btex)
 

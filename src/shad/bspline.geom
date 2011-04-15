@@ -13,7 +13,7 @@ float casy[32];
 float casz[32];
 float tmp[32];
 
-#define KNOTSNUM 6
+#define KNOTSNUM 8 
 float knots[KNOTSNUM];
 
 float calca( float t , int i , int k  , int n , float knots[KNOTSNUM] )
@@ -32,11 +32,11 @@ float decasteljau( float t , float pts[32] , int n , float knots[KNOTSNUM] )
 	int l=0;
 	while( knots[l+1] < t ) ++l;
 
-	l = 3;
-	n = 3;
+	l = 4;
+	n = 4;
 
 	for( int k=1 ; k<n ; ++k )
-		for( int i=l-n+k ; i<l ; ++ i )
+		for( int i=l-n+k ; i<l ; ++i )
 		{
 			float a  = calca( t , i , k , n , knots );
 			tmp[i] = tmp[i-1]*(1.0-a) + tmp[i]*a;
@@ -67,8 +67,14 @@ void main()
 		u += du;
 	}
 
+//	knots[0] = knots[1] = knots[2] = knots[ 3] = 0;
+//	knots[4] = .25;
+//	knots[5] = .5 ;
+//	knots[6] = .75;
+//	knots[7] = knots[8] = knots[9] = knots[10] = 0;
+
 	float dt = du/64;
-	for( float t=knots[3] ; t<knots[4]+dt ; t+=dt )
+	for( float t=knots[4] ; t<knots[5]+dt ; t+=dt )
 	{
 		gl_Position = vec4(
 				decasteljau(t,casx,len,knots),

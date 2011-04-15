@@ -28,6 +28,21 @@ class Camera(Node) :
 		self.m = glGetFloatv(GL_MODELVIEW_MATRIX)
 		glPopMatrix()
 
+	def rot( self , ax , ay ) :
+		glMatrixMode(GL_MODELVIEW)
+		glPushMatrix()
+		glLoadIdentity()
+		glRotatef( ax , 0, 1, 0 )
+		glRotatef( ay , 1, 0, 0 )
+		glMultMatrixf( self.m )
+		self.m = glGetFloatv(GL_MODELVIEW_MATRIX)
+		glPopMatrix()
+
+	def move( self , fwd , right , up ) :
+		self.m[3][2] += fwd
+		self.m[3][1] += up
+		self.m[3][0] += right
+
 	def lookat( self , eye , center , up ) :
 		look  = map( op.sub , center , eye )
 		right = np.cross( look  , up   )

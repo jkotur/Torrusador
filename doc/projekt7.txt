@@ -1,0 +1,19 @@
+KRZYWE INTERPOLACYJNE 
+
+stawiamy pewne punkty, przez te punkty przechodzi krzywa
+
+każdy segment jest krzywą trzeciego stopnia
+
+segment jest od punktu do punktu 
+
+krzye łączą się ciągłoścą C2
+
+warunki brzegowe:
+
+na końcach krzywej druga pochodna jest 0
+
+każdy punkt definiuje cztery równania
+
+macież będzie pasmowa
+
+odwracanie pasmowej liniowe ze względu na ilość węzłów

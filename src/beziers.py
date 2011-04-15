@@ -23,7 +23,12 @@ class Beziers( Node ) :
 
 		self.selected = None
 
+		self.w = 0
+		self.h = 0
+
 	def set_screen_size( self , w , h ) :
+		self.w = w
+		self.h = h
 		for b in self :
 			b.set_screen_size( w , h )
 
@@ -37,6 +42,8 @@ class Beziers( Node ) :
 
 		self.selected.new( pos , which_pnt )
 		self.add_child( self.selected )
+
+		self.selected.set_screen_size( self.w , self.h )
 
 	def delete( self , pos , dist = .05 ) :
 		s = self.find_near( pos , dist )

@@ -68,7 +68,7 @@ class Bspline( Curve ) :
 
 		# for GPU rendering
 		self.base = []
-		for t in np.linspace(3,4,(256+1)/4) :
+		for t in np.linspace(3,4,256/4) :
 			for j in range(4) :
 				self.base.append( rekN( 3 , j , t ) )
 		self.base = np.array( self.base , np.float32 )
@@ -99,7 +99,7 @@ class Bspline( Curve ) :
 
 		glUseProgram( self.prog )
 		glUniform1i( pointsid , 0 );
-		glUniform1fv( self.l_base , 256+1 , self.base )
+		glUniform1fv( self.l_base , 256 , self.base )
 		glUseProgram( 0 )
 
 		self.is_inited = True

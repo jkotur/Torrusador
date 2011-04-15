@@ -245,6 +245,9 @@ class Scene :
 		elif self.cursormode == Scene.PNTBSADD :
 			self.beziers.new( self.cursor.get_pos() , Beziers.BEZIER_C2 , Curve.BSPLINE )
 
+	def new_curve_interpolation( self ) :
+		pass
+
 	def delete_curve( self ) :
 		self.beziers.delete( self.cursor.get_pos() , self.pdist2 )
 

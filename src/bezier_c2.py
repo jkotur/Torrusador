@@ -19,6 +19,10 @@ class MultiGeom( Dummy ) :
 
 		self.geoms = cont
 
+	def set_screen_size( self , w , h ) :
+		for g in self.geoms :
+			g.set_screen_size( w , h )
+
 	def set_visibility( self , what , how ) :
 		for g in self.geoms :
 			g.set_visibility( what , how )

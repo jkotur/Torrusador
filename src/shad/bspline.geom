@@ -5,6 +5,7 @@ layout(line_strip , max_vertices = 256 ) out;
 
 uniform mat4 modelview;
 uniform mat4 projection;
+uniform ivec2 screen;
 
 uniform samplerBuffer points;
 
@@ -57,7 +58,6 @@ void main()
 		casy[i-id.x] = ptn.y;
 		casz[i-id.x] = ptn.z;
 	}
-
 
 	float u  = 0.0;
 	float du = 1.0/KNOTSNUM;

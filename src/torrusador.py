@@ -41,6 +41,12 @@ class App(object):
 		builder.get_object("vbox4").pack_start(self.drawing_area)
 
 		win_main = builder.get_object("win_main")
+
+		win_main.set_events( gtk.gdk.KEY_PRESS_MASK | gtk.gdk.KEY_RELEASE_MASK )
+         
+		win_main.connect('key-press-event'  , self._on_key_pressed  )
+		win_main.connect('key-release-event', self._on_key_released )
+
 		win_main.show_all()
 		self.box3d.hide();
 
@@ -79,11 +85,6 @@ class App(object):
 		self.tbut_add_c2    = builder.get_object('tbut_add_c2'   )
 		self.tbut_del_curve = builder.get_object('tbut_del_curve')
 		self.tbut_sel_curve = builder.get_object('tbut_sel_curve')
-
-		win_main.set_events( gtk.gdk.KEY_PRESS_MASK | gtk.gdk.KEY_RELEASE_MASK )
-         
-		win_main.connect('key-press-event'  , self._on_key_pressed  )
-		win_main.connect('key-release-event', self._on_key_released )
 
 	def _init_keyboard( self ) :
 		self.move = [0,0,0]

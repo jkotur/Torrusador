@@ -19,6 +19,13 @@ class Dummy :
 		self.type = GL_LINES
 		self.is_inited = False
 
+		self.w = 0
+		self.h = 0
+	
+	def set_screen_size( self , w , h ) :
+		self.w = w
+		self.h = h
+
 	def __del__( self ) :
 #        glDeleteBuffers( 1 , self.bid )
 		pass

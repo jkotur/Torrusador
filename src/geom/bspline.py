@@ -34,7 +34,7 @@ def decasteljau( t , pts , knots ) :
 
 		def alpha( t , k , i ) :
 			print 'kts: ' , i , i+n+1-k , knots[i] , knots[i+n+1-k]
-			return (t-knots[i])/(knots[i+n+1-k]-knots[i])
+			return (t-knots[i])/(knots[i+n-k+1]-knots[i])
 
 		print 'nl: ' , t , n , l 
 
@@ -60,10 +60,18 @@ class Bspline( Curve ) :
 
 		self.prog = None
 
+		# for CPU rendering
 		self.ncache = {}
 		for t in np.linspace(3,4,NUMS) :
 			for j in range(4) :
 				self.ncache[ (j,t) ] = rekN( 3 , j , t )
+
+		# for GPU rendering
+		self.base = []
+		for t in np.linspace(3,4,(256+1)/4) :
+			for j in range(4) :
+				self.base.append( rekN( 3 , j , t ) )
+		self.base = np.array( self.base , np.float32 )
 
 	def get_loc( self , prog , loc ) :
 		location = glGetUniformLocation(prog,loc)
@@ -74,7 +82,7 @@ class Bspline( Curve ) :
 		if self.is_inited : return
 
 		try:
-			self.prog = sh.compile_program("shad/bspline")
+			self.prog = sh.compile_program("shad/bspline_base")
 		except ValueError as ve:
 			print "Shader compilation failed: " + str(ve)
 			sys.exit(0)
@@ -82,13 +90,16 @@ class Bspline( Curve ) :
 		self.loc_mmv = self.get_loc(self.prog,'modelview' )
 		self.loc_mp  = self.get_loc(self.prog,'projection')
 		pointsid     = self.get_loc(self.prog,'points'    )
-		self.color   = self.get_loc(self.prog,'color'     )
+		self.l_color = self.get_loc(self.prog,'color'     )
+		self.l_screen= self.get_loc(self.prog,'screen'    )
+		self.l_base  = self.get_loc(self.prog,'base'      )
 
 		self.bid  = glGenBuffers(1)
 		self.btex = glGenTextures(1)
 
 		glUseProgram( self.prog )
 		glUniform1i( pointsid , 0 );
+		glUniform1fv( self.l_base , 256+1 , self.base )
 		glUseProgram( 0 )
 
 		self.is_inited = True
@@ -103,7 +114,7 @@ class Bspline( Curve ) :
 		self.geom = np.array(self.geom,np.float32)
 		self.count = len(self.geom)/4
 
-		if self.draw_curve :
+		if 0 :
 			ptsx = [ p[0] for p in data ]
 			ptsy = [ p[1] for p in data ]
 			ptsz = [ p[2] for p in data ]
@@ -120,7 +131,6 @@ class Bspline( Curve ) :
 						z += ptsz[i+j] * n
 					pts += [ x , y , z , 1 ]
 					
-#                    splinebasis(t,3,4,knots)
 #                    print ptsx[i:i+4]
 #                    print ptsy[i:i+4]
 #                    print ptsz[i:i+4]
@@ -137,7 +147,7 @@ class Bspline( Curve ) :
 			glDrawArrays(GL_LINE_STRIP, 0, int(len(pts)/4) )
 			glDisableClientState(GL_VERTEX_ARRAY)
 
-		if 0 :
+		if self.draw_curve :
 			nums = []
 			for i in range(0,self.count-3) :
 				nums.append( i   )
@@ -169,7 +179,9 @@ class Bspline( Curve ) :
 			glUniformMatrix4fv(self.loc_mp ,1,GL_FALSE,mp )
 
 			color = glGetFloatv(GL_CURRENT_COLOR)
-			glUniform4f(self.color , *color )
+			glUniform4f(self.l_color , *color )
+
+			glUniform2i(self.l_screen , self.w , self.h )
 
 			glBindTexture(GL_TEXTURE_BUFFER,self.btex)
 

@@ -180,6 +180,7 @@ class Scene :
 	def set_screen_size( self , w , h ) :
 		self.width  = w 
 		self.height = h
+		self.beziers.set_screen_size( w , h )
 
 	def set_drawmode( self , mode ) :
 		self.drawmode = mode

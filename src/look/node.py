@@ -19,6 +19,10 @@ class Node( list ) :
 
 		self.draw_data = None
 
+	def set_screen_size( self , w , h ) :
+		if self.geom :
+			self.geom.set_screen_size( w , h )
+
 	def __eq__( self , other ) :
 		return id(self) == id(other)
 

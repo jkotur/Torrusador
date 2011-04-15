@@ -5,6 +5,7 @@ layout(line_strip , max_vertices = 256 ) out;
 
 uniform mat4 modelview;
 uniform mat4 projection;
+uniform ivec2 screen;
 
 uniform samplerBuffer points;
 
@@ -37,12 +38,34 @@ void main()
 	for( int i=id.x ; i<id.y ; ++i )
 	{
 		vec4 ptn = texelFetch( points , i );
+
 		casx[i-id.x] = ptn.x;
 		casy[i-id.x] = ptn.y;
 		casz[i-id.x] = ptn.z;
 	}
 
-	float dt = 1.0/64;
+	int bblen = 0;
+
+	vec4 a  , b;
+
+	a = projection * modelview * vec4(casx[0],casy[0],casz[0],1);
+	a/= a.w;
+	a.x *= screen.x;
+	a.y *= screen.y;
+	for( int i=1 ; i<len ; ++i )
+	{
+		b = projection * modelview * vec4(casx[i],casy[i],casz[i],1);
+		b/= b.w;
+		b.x *= screen.x;
+		b.y *= screen.y;
+		bblen += int(distance( a , b ));
+		a = b;
+	}
+
+	bblen /= 25;
+
+	int nums = max(1,min( bblen , 255 ));
+	float dt = 1.0/nums;
 
 	for( float t=0.0 ; t<1.0+dt ; t+=dt )
 	{

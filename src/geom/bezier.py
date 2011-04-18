@@ -56,6 +56,8 @@ class Bezier( Curve ) :
 		self.is_inited = True
 
 	def draw_shad( self , data ) :
+		if len(data) == 0 : return
+
 		self.geom = []
 		for p in data :
 			self.geom.append(p[0])

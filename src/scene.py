@@ -11,7 +11,7 @@ from look.projection import Projection
 from geom.torus import Torus
 from geom.cross import Cross
 
-from beziers import Beziers
+from curves import Curves 
 from geom.curve import Curve
 
 STARTLOOK = ( (0,0,0) , (0,0,-1) , (0,1,0) )
@@ -38,12 +38,12 @@ class Scene :
 		self.camera = Camera()
 		self.proj   = Projection()
 
-		self.beziers= Beziers()
+		self.curves= Curves()
 
-		self.beziers.new( (-1,-1,0) , Beziers.BEZIER_C2 , Curve.BSPLINE )
-		self.beziers.point_new( Curve.BSPLINE , (-1,1,0) )
-		self.beziers.point_new( Curve.BSPLINE , (1,1,0) )
-		self.beziers.point_new( Curve.BSPLINE , (1,-1,0) )
+#        self.curves.new( (-1,-1,0) , Curves.BEZIER_C2 , Curve.BSPLINE )
+#        self.curves.point_new( Curve.BSPLINE , (-1,1,0) )
+#        self.curves.point_new( Curve.BSPLINE , (1,1,0) )
+#        self.curves.point_new( Curve.BSPLINE , (1,-1,0) )
 
 		#
 		# Craete torus
@@ -59,7 +59,7 @@ class Scene :
 
 		self.node.add_child( tn )
 		self.node.add_child( self.cursor  )
-		self.node.add_child( self.beziers )
+		self.node.add_child( self.curves )
 
 		#
 		# Craete normal scene
@@ -180,7 +180,7 @@ class Scene :
 	def set_screen_size( self , w , h ) :
 		self.width  = w 
 		self.height = h
-		self.beziers.set_screen_size( w , h )
+		self.curves.set_screen_size( w , h )
 
 	def set_drawmode( self , mode ) :
 		self.drawmode = mode
@@ -202,7 +202,7 @@ class Scene :
 
 		if self.mousemode == Scene.CURSOR :
 			v = self.cursor.move_vec( df )
-			self.beziers.point_move( v )
+			self.curves.point_move( v )
 
 		elif self.mousemode == Scene.TRANSLATE :
 			self.node.translate( *map(lambda x:x*.01,df) )
@@ -228,32 +228,32 @@ class Scene :
 
 	def activate_cursor( self ) :
 		if self.cursormode == Scene.PNTBZADD :
-			self.beziers.point_new( Curve.BEZIER  , self.cursor.get_pos() )
+			self.curves.point_new( Curve.BEZIER  , self.cursor.get_pos() )
 		elif self.cursormode == Scene.PNTBSADD :
-			self.beziers.point_new( Curve.BSPLINE , self.cursor.get_pos() )
+			self.curves.point_new( Curve.BSPLINE , self.cursor.get_pos() )
 		elif self.cursormode == Scene.PNTDEL :
-			self.beziers.point_delete( self.cursor.get_pos() , self.pdist2 )
+			self.curves.point_delete( self.cursor.get_pos() , self.pdist2 )
 		elif self.cursormode == Scene.PNTEDIT :
-			self.beziers.point_select( self.cursor.get_pos() , self.pdist2 )
+			self.curves.point_select( self.cursor.get_pos() , self.pdist2 )
 
 	def new_curve_c0( self ) :
-		self.beziers.new( self.cursor.get_pos() , Beziers.BEZIER_C0 , Curve.BEZIER ) 
+		self.curves.new( self.cursor.get_pos() , Curves.BEZIER_C0 , Curve.BEZIER ) 
 
 	def new_curve_c2( self ) :
 		if self.cursormode == Scene.PNTBZADD :
-			self.beziers.new( self.cursor.get_pos() , Beziers.BEZIER_C2 , Curve.BEZIER  )
+			self.curves.new( self.cursor.get_pos() , Curves.BEZIER_C2 , Curve.BEZIER  )
 		elif self.cursormode == Scene.PNTBSADD :
-			self.beziers.new( self.cursor.get_pos() , Beziers.BEZIER_C2 , Curve.BSPLINE )
+			self.curves.new( self.cursor.get_pos() , Curves.BEZIER_C2 , Curve.BSPLINE )
 
 	def new_curve_interpolation( self ) :
-		pass
+		self.curves.new( self.cursor.get_pos() , Curves.INTERPOLATION )
 
 	def delete_curve( self ) :
-		self.beziers.delete( self.cursor.get_pos() , self.pdist2 )
+		self.curves.delete( self.cursor.get_pos() , self.pdist2 )
 
 	def select_curve( self ) :
-		self.beziers.select( self.cursor.get_pos() , self.pdist2 )
+		self.curves.select( self.cursor.get_pos() , self.pdist2 )
 
 	def toggle_curve( self , which , what ) :
-		self.beziers.toggle( which , what )
+		self.curves.toggle( which , what )
 

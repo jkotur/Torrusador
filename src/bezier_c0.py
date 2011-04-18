@@ -9,6 +9,7 @@ class BezierC0( Points ) :
 
 		Points.__init__( self , b )
 
+		b.set_visibility( Bezier.POINTS  , pts_vis     )
 		b.set_visibility( Bezier.CURVE   , curve_vis   )
 		b.set_visibility( Bezier.POLYGON , polygon_vis )
 

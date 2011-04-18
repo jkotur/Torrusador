@@ -3,12 +3,13 @@ from look.node import Node
 
 from bezier_c0 import BezierC0 
 from bezier_c2 import BezierC2
+from interpolation import Interpolation
 
 from geom.bezier import Bezier
 from geom.curve import Curve
 
-class Beziers( Node ) :
-	BEZIER_C0 , BEZIER_C2 = range(2)
+class Curves( Node ) :
+	BEZIER_C0 , BEZIER_C2 , INTERPOLATION = range(3)
 
 	def __init__( self ) :
 		Node.__init__( self )
@@ -32,13 +33,16 @@ class Beziers( Node ) :
 		for b in self :
 			b.set_screen_size( w , h )
 
-	def new( self , pos , which_cur , which_pnt ) :
-		if which_cur == Beziers.BEZIER_C0 :
+	def new( self , pos , which_cur , which_pnt = None ) :
+		if which_cur == Curves.BEZIER_C0 :
 			self.selected = BezierC0( self.bz_points , self.bz_curves , self.bz_polygons )
-		elif which_cur == Beziers.BEZIER_C2 :
+		elif which_cur == Curves.BEZIER_C2 :
 			self.selected = BezierC2(
 								self.bz_points , self.bz_curves , self.bz_polygons ,
 								self.bs_points , self.bs_curves , self.bs_polygons )
+		elif which_cur == Curves.INTERPOLATION :
+			self.selected = Interpolation( )
+
 
 		self.selected.new( pos , which_pnt )
 		self.add_child( self.selected )

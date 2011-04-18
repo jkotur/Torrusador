@@ -131,8 +131,6 @@ class BezierC2( Points ) :
 
 			self.bezier2deboor( self.deboor , self.bezier)
 
-			print self.bezier
-
 		elif which == Curve.BSPLINE :
 			self.convert2bspline()
 

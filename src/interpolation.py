@@ -43,13 +43,37 @@ class Interpolation( Points ) :
 	def new( self , pos , data = None ) :
 		Points.new( self , pos , data )
 
+		self.update_matrix()
+		self.update_polynomianls() 
+
+	def move_current( self , v ) :
+		Points.move_current( self , v )
+
+		self.update_polynomianls()
+
+	def delete( self , pos , dist = .05 ) :
+		Points.delete( self , pos ,dist )
+
+		self.update_matrix()
+		self.update_polynomianls()
+
+	def set_visibility( self , type , pts , curves , polys ) :
+		if type == Curve.BEZIER :
+			self.get_geom().set_visibility( Curve.POINTS  , pts    )
+			self.get_geom().set_visibility( Curve.CURVE   , curves )
+			self.get_geom().set_visibility( Curve.POLYGON , polys  )
+
+	def update_matrix( self ) :
+		if len(self) < 2 : return
+
+		self.matrix = self.quad2bound( self.mkmatrix(len(self)), self.num2size(len(self)), 3, 3 )
+
+	def update_polynomianls( self ) :
 		if len(self) < 2 : return
 
 		self.ptsx = [ p[0] for p in self ]
 		self.ptsy = [ p[1] for p in self ]
 		self.ptsz = [ p[2] for p in self ]
-
-		self.matrix = self.quad2bound( self.mkmatrix(len(self)), self.num2size(len(self)), 3, 3 )
 
 		vx = self.mkvalues( self.ptsx , len(self) )
 		vy = self.mkvalues( self.ptsy , len(self) )
@@ -65,12 +89,6 @@ class Interpolation( Points ) :
 			self.powerz.insert( i*3+3 , self.ptsz[i] )
 
 		self.pow2bern()
-
-	def set_visibility( self , type , pts , curves , polys ) :
-		if type == Curve.BEZIER :
-			self.get_geom().set_visibility( Curve.POINTS  , pts    )
-			self.get_geom().set_visibility( Curve.CURVE   , curves )
-			self.get_geom().set_visibility( Curve.POLYGON , polys  )
 
 	def num2size( self , num ) :
 		return (num-1)*(4-1)

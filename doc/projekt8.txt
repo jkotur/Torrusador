@@ -1,0 +1,22 @@
+bikubiczne płatki beziera
+płatki łączone z ciągłością c0
+włączenie/wyłączenie siatki/płatka/punktów
+
+wstawiamy płachtę, która ma mxn płatków
+
+każdy płatek oparty na 16 punktach kontrolnych
+
+punkty graniczne wspólne
+
+wszystkimi może ruszać
+
+nie może dostawiać,usuwać
+
+płatek wyświetlamy za pomocą lini stałego parametru
+
+gęstość siatki do regulacji
+
+siatka adaptacyjna
+
+płachtę wstawić/usunąć/edytować wszystkie punkty
+

@@ -73,10 +73,6 @@ void main()
 				decasteljau(t,casx,len),
 				decasteljau(t,casy,len),
 				decasteljau(t,casz,len),1);
-//		gl_Position = vec4(
-//				mix(casx[0],casx[len-1],t),
-//				mix(casy[0],casy[len-1],t),
-//				mix(casz[0],casz[len-1],t),1);
 		gl_Position =  projection * modelview * gl_Position;
 		EmitVertex();
 	}

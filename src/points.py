@@ -14,6 +14,8 @@ class Points( Node ) :
 		if self.current :
 			self.current.translate( *v )
 			self.get_geom().refresh()
+			return True
+		return False
 
 	def new( self , pos , data = None ) :
 		n = Node( Point() )

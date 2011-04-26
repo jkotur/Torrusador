@@ -4,12 +4,13 @@ from look.node import Node
 from bezier_c0 import BezierC0 
 from bezier_c2 import BezierC2
 from interpolation import Interpolation
+from surface_c0 import SurfaceC0
 
 from geom.bezier import Bezier
 from geom.curve import Curve
 
 class Curves( Node ) :
-	BEZIER_C0 , BEZIER_C2 , INTERPOLATION = range(3)
+	BEZIER_C0 , BEZIER_C2 , INTERPOLATION , SURFACE_C0 = range(4)
 
 	def __init__( self ) :
 		Node.__init__( self )
@@ -42,7 +43,8 @@ class Curves( Node ) :
 								self.bs_points , self.bs_curves , self.bs_polygons )
 		elif which_cur == Curves.INTERPOLATION :
 			self.selected = Interpolation( )
-
+		elif which_cur == Curves.SURFACE_C0 :
+			self.selected = SurfaceC0( self.bz_points , self.bz_curves , self.bz_polygons )
 
 		self.selected.new( pos , which_pnt )
 		self.add_child( self.selected )

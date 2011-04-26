@@ -248,6 +248,9 @@ class Scene :
 	def new_curve_interpolation( self ) :
 		self.curves.new( self.cursor.get_pos() , Curves.INTERPOLATION )
 
+	def new_surface_c0( self ) :
+		self.curves.new( self.cursor.get_pos() , Curves.SURFACE_C0 )
+
 	def delete_curve( self ) :
 		self.curves.delete( self.cursor.get_pos() , self.pdist2 )
 

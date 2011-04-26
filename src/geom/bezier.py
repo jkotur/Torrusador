@@ -18,8 +18,10 @@ from numpy.linalg import linalg as la
 
 class Bezier( Curve ) :
 
-	def __init__( self ) :
+	def __init__( self , breakpoint = 0 ) :
 		Curve.__init__(self)
+
+		self.breakpoint = breakpoint*3 + 1 if breakpoint != 0 else 0
 
 		self.prog = None
 
@@ -69,19 +71,14 @@ class Bezier( Curve ) :
 
 		if self.draw_curve :
 			nums = [0]
-			for i in range(3,self.count,3) :
+			i = 3
+			while i<self.count :
 				nums.append( i+1 )
+				if self.breakpoint != 0 and (i+1)%self.breakpoint == 0 : i+=1
 				nums.append( i )
+				i += 3
 			nums.append(self.count)
 			nums = np.array(nums,np.float32)
-
-			glBindBuffer(GL_ARRAY_BUFFER,self.bid)
-			glBufferData(GL_ARRAY_BUFFER,self.geom,GL_STATIC_DRAW)
-			glBindBuffer(GL_ARRAY_BUFFER,0)
-
-			glBindTexture(GL_TEXTURE_BUFFER,self.btex)
-			glTexBuffer(GL_TEXTURE_BUFFER,GL_RGBA32F,self.bid)
-			glBindTexture(GL_TEXTURE_BUFFER,0)
 
 			glBindBuffer(GL_ARRAY_BUFFER,self.bid)
 			glBufferData(GL_ARRAY_BUFFER,self.geom,GL_STATIC_DRAW)

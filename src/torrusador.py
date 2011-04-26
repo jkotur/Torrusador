@@ -87,6 +87,10 @@ class App(object):
 		self.tbut_del_curve = builder.get_object('tbut_del_curve')
 		self.tbut_sel_curve = builder.get_object('tbut_sel_curve')
 
+		self.tbut_add_surf_c0 = builder.get_object('tbut_add_surf_c0' )
+
+		self.tbuts= [ self.tbut_add_c0 , self.tbut_add_c2 , self.tbut_add_inter , self.tbut_del_curve , self.tbut_sel_curve , self.tbut_add_surf_c0 ]
+
 	def _init_keyboard( self ) :
 		self.move = [0,0,0]
 		self.dirskeys = ( ( ['w'] , ['s'] ) , ( ['a'] , ['d'] ) , ( ['e'] , ['q'] ) )
@@ -130,40 +134,23 @@ class App(object):
 		self.statbar.pop(cid)
 		self.statbar.push( cid , str(self.scene.get_cursor_pos()) + "  " + str(self.scene.get_cursor_screen_pos()) )
 
+	def toggle_tbuts( self , omit = None ) :
+		for t in self.tbuts :
+			if t == omit : continue
+			t.set_active(False)
+
 	def on_tbut_add_c0_toggled( self , widget , data=None ) :
-		if self.tbut_add_c0.get_active() :
-			self.tbut_add_c2.set_active(False)
-			self.tbut_add_inter.set_active(False)
-			self.tbut_del_curve.set_active(False)
-			self.tbut_sel_curve.set_active(False)
-
+		if widget.get_active() : self.toggle_tbuts( widget )
 	def on_tbut_add_c2_toggled( self , widget , data=None ) :
-		if self.tbut_add_c2.get_active() :
-			self.tbut_add_c0.set_active(False)
-			self.tbut_add_inter.set_active(False)
-			self.tbut_del_curve.set_active(False)
-			self.tbut_sel_curve.set_active(False)
-	
+		if widget.get_active() : self.toggle_tbuts( widget )
 	def on_tbut_add_interpolation_toggled( self, widget , data=None ) :
-		if self.tbut_add_inter.get_active() :
-			self.tbut_add_c0.set_active(False)
-			self.tbut_add_c2.set_active(False)
-			self.tbut_del_curve.set_active(False)
-			self.tbut_sel_curve.set_active(False)
-
+		if widget.get_active() : self.toggle_tbuts( widget )
+	def on_tbut_add_surf_c0_toggled( self , widget , data=None ) :
+		if widget.get_active() : self.toggle_tbuts( widget )
 	def on_tbut_del_curve_toggled( self , widget , data=None ) :
-		if self.tbut_del_curve.get_active() :
-			self.tbut_add_c0.set_active(False)
-			self.tbut_add_c2.set_active(False)
-			self.tbut_add_inter.set_active(False)
-			self.tbut_sel_curve.set_active(False)
-
+		if widget.get_active() : self.toggle_tbuts( widget )
 	def on_tbut_sel_curve_toggled( self , widget , data=None ) :
-		if self.tbut_sel_curve.get_active() :
-			self.tbut_add_c0.set_active(False)
-			self.tbut_add_c2.set_active(False)
-			self.tbut_add_inter.set_active(False)
-			self.tbut_del_curve.set_active(False)
+		if widget.get_active() : self.toggle_tbuts( widget )
 
 	def _on_reshape( self , widget , data=None ) :
 		width = self.drawing_area.allocation.width
@@ -184,6 +171,9 @@ class App(object):
 			elif self.tbut_add_c2.get_active() :
 				self.scene.new_curve_c2()
 				self.tbut_add_c2.set_active(False)
+			elif self.tbut_add_surf_c0.get_active() :
+				self.scene.new_surface_c0()
+				self.tbut_add_surf_c0.set_active(False)
 			elif self.tbut_add_inter.get_active() :
 				self.scene.new_curve_interpolation()
 				self.tbut_add_inter.set_active(False)

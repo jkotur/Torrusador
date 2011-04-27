@@ -91,6 +91,12 @@ class App(object):
 
 		self.tbuts= [ self.tbut_add_c0 , self.tbut_add_c2 , self.tbut_add_inter , self.tbut_del_curve , self.tbut_sel_curve , self.tbut_add_surf_c0 ]
 
+		self.sp_surf_x = builder.get_object('sp_surf_x')
+		self.sp_surf_y = builder.get_object('sp_surf_y')
+
+		self.sp_draw_surf_x = builder.get_object('sp_draw_surf_x')
+		self.sp_draw_surf_y = builder.get_object('sp_draw_surf_y')
+
 	def _init_keyboard( self ) :
 		self.move = [0,0,0]
 		self.dirskeys = ( ( ['w'] , ['s'] ) , ( ['a'] , ['d'] ) , ( ['e'] , ['q'] ) )
@@ -152,6 +158,10 @@ class App(object):
 	def on_tbut_sel_curve_toggled( self , widget , data=None ) :
 		if widget.get_active() : self.toggle_tbuts( widget )
 
+	def on_sp_draw_surf_value_changed( self , widget , data=None ) :
+		self.scene.set_surf_density(
+				(self.sp_draw_surf_x.get_value_as_int(),self.sp_draw_surf_y.get_value_as_int() ) )
+
 	def _on_reshape( self , widget , data=None ) :
 		width = self.drawing_area.allocation.width
 		height = self.drawing_area.allocation.height
@@ -172,7 +182,11 @@ class App(object):
 				self.scene.new_curve_c2()
 				self.tbut_add_c2.set_active(False)
 			elif self.tbut_add_surf_c0.get_active() :
-				self.scene.new_surface_c0()
+				self.scene.new_surface_c0(
+						( ( self.sp_surf_x.get_value_as_int() , 
+							self.sp_surf_y.get_value_as_int() ) ,
+						  ( self.sp_draw_surf_x.get_value_as_int() , 
+							self.sp_draw_surf_y.get_value_as_int() ) ) )
 				self.tbut_add_surf_c0.set_active(False)
 			elif self.tbut_add_inter.get_active() :
 				self.scene.new_curve_interpolation()

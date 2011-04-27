@@ -34,7 +34,7 @@ class Curves( Node ) :
 		for b in self :
 			b.set_screen_size( w , h )
 
-	def new( self , pos , which_cur , which_pnt = None ) :
+	def new( self , pos , which_cur , pre_data = None , post_data = None ) :
 		if which_cur == Curves.BEZIER_C0 :
 			self.selected = BezierC0( self.bz_points , self.bz_curves , self.bz_polygons )
 		elif which_cur == Curves.BEZIER_C2 :
@@ -44,9 +44,9 @@ class Curves( Node ) :
 		elif which_cur == Curves.INTERPOLATION :
 			self.selected = Interpolation( )
 		elif which_cur == Curves.SURFACE_C0 :
-			self.selected = SurfaceC0( self.bz_points , self.bz_curves , self.bz_polygons )
+			self.selected = SurfaceC0( pre_data , self.bz_points , self.bz_curves , self.bz_polygons )
 
-		self.selected.new( pos , which_pnt )
+		self.selected.new( pos , post_data )
 		self.add_child( self.selected )
 
 		self.selected.set_screen_size( self.w , self.h )
@@ -114,4 +114,9 @@ class Curves( Node ) :
 			b.set_visibility( Curve.BEZIER , self.bz_points , self.bz_curves , self.bz_polygons )
 			b.set_visibility( Curve.BSPLINE, self.bs_points , self.bs_curves , self.bs_polygons )
 			b.get_geom().refresh()
+
+	def set_surf_density( self , dens ) :
+		for b in self :
+			if isinstance(b,SurfaceC0) :
+				b.set_density( dens )
 

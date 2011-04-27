@@ -22,9 +22,9 @@ def decasteljau( pts , t ) :
         return pts[0]
 
 class SurfaceC0( Points ) :
-	def __init__( self , pts_vis = True , curve_vis = True , polygon_vis = False ) :
-		self.size = ( 1 , 1 )
-		self.dens = ( 1 , 1 )
+	def __init__( self , data , pts_vis = True , curve_vis = True , polygon_vis = False ) :
+		self.size = data[0]
+		self.dens = data[1]
 
 		self.calc_size()
 		self.allocate()
@@ -64,7 +64,7 @@ class SurfaceC0( Points ) :
 		self.bezx , self.bezy = self.generate( self.pts , self.bezx , self.bezy , self.sizex , self.sizey , self.dens )
 
 	def new( self , pos , which ) :
-		if len(self) >= 3 : return
+		if len(self) >= 3 or len(self.pts) > 0 : return
 
 		Points.new( self , pos )
 

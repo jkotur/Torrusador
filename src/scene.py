@@ -237,19 +237,19 @@ class Scene :
 			self.curves.point_select( self.cursor.get_pos() , self.pdist2 )
 
 	def new_curve_c0( self ) :
-		self.curves.new( self.cursor.get_pos() , Curves.BEZIER_C0 , Curve.BEZIER ) 
+		self.curves.new( self.cursor.get_pos() , Curves.BEZIER_C0 , post_data=Curve.BEZIER ) 
 
 	def new_curve_c2( self ) :
 		if self.cursormode == Scene.PNTBZADD :
-			self.curves.new( self.cursor.get_pos() , Curves.BEZIER_C2 , Curve.BEZIER  )
-		elif self.cursormode == Scene.PNTBSADD :
-			self.curves.new( self.cursor.get_pos() , Curves.BEZIER_C2 , Curve.BSPLINE )
+			self.curves.new( self.cursor.get_pos() , Curves.BEZIER_C2 , post_data=Curve.BEZIER  )
+		elif self.cursormode == Scene.PNTBSADD :                      
+			self.curves.new( self.cursor.get_pos() , Curves.BEZIER_C2 , post_data=Curve.BSPLINE )
 
 	def new_curve_interpolation( self ) :
 		self.curves.new( self.cursor.get_pos() , Curves.INTERPOLATION )
 
-	def new_surface_c0( self ) :
-		self.curves.new( self.cursor.get_pos() , Curves.SURFACE_C0 )
+	def new_surface_c0( self , size ) :
+		self.curves.new( self.cursor.get_pos() , Curves.SURFACE_C0 , pre_data = size )
 
 	def delete_curve( self ) :
 		self.curves.delete( self.cursor.get_pos() , self.pdist2 )
@@ -259,4 +259,7 @@ class Scene :
 
 	def toggle_curve( self , which , what ) :
 		self.curves.toggle( which , what )
+
+	def set_surf_density( self , dens ) :
+		self.curves.set_surf_density( dens )
 

@@ -1,8 +1,6 @@
 
 from curve import *
 
-import ctypes
-
 import sys
 
 import numpy as np
@@ -61,7 +59,7 @@ class Bezier( Curve ) :
 		if len(data) == 0 : return
 
 		self.geom = []
-		for p in data :
+		for p in data[0] :
 			self.geom.append(p[0])
 			self.geom.append(p[1])
 			self.geom.append(p[2])

@@ -14,6 +14,8 @@ from geom.surface import Surface
 
 from copy import copy
 
+import csurf
+
 def decasteljau( pts , t ) :
         if len(pts) <= 0 :
                 return 0
@@ -64,7 +66,7 @@ class SurfaceC0( Points ) :
 		self.calc_size()
 		self.allocate()
 		self.set_data( (self.pts,self.bezy) )
-		self.bezx , self.bezy = self.generate( self.pts , self.bezx , self.bezy , self.sized[0] , self.sized[1] , self.dens[0] , self.dens[1] )
+		self.bezx , self.bezy = csurf.generate( self.pts , self.bezx , self.bezy , self.size[0] , self.size[1] , self.sized[0] , self.sized[1] , self.dens[0] , self.dens[1] )
 
 	def new( self , pos , which ) :
 		if len(self) >= 3 or len(self.pts) > 0 : return
@@ -90,11 +92,11 @@ class SurfaceC0( Points ) :
 				pt = corners[0] + dx * x + dy * y
 				self.pts.append( pt )
 
-		self.bezx , self.bezy = self.generate( self.pts , self.bezx , self.bezy , self.sized[0] , self.sized[1] , self.dens[0] , self.dens[1] )
+		self.bezx , self.bezy = csurf.generate( self.pts , self.bezx , self.bezy , self.size[0] , self.size[1] , self.sized[0] , self.sized[1] , self.dens[0] , self.dens[1] )
 
 		self.get_geom().set_visibility( Bezier.CURVE , True )
 
-	def generate( self , pts , bezx , bezy , sx , sy , dx , dy ) :
+	def generate( self , pts , bezx , bezy , zx , zy , sx , sy , dx , dy ) :
 		py = 0
 		for y in range(0,self.sized[1],dy) :
 			px = 0
@@ -128,14 +130,14 @@ class SurfaceC0( Points ) :
 
 		self.dv += v
 
-		if np.linalg.norm(self.dv) < .1 :
+		if np.linalg.norm(self.dv) < .05 :
 			return
 
 		self.current += self.dv
 
 		self.dv = np.zeros(3)
 
-		self.bezx , self.bezy = self.generate( self.pts , self.bezx , self.bezy , self.sized[0] , self.sized[1] , self.dens[0] , self.dens[1] )
+		self.bezx , self.bezy = csurf.generate( self.pts , self.bezx , self.bezy , self.size[0] , self.size[1] , self.sized[0] , self.sized[1] , self.dens[0] , self.dens[1] )
 
 	def find_nearest( self , pos , mindist = .05 ) :
 		return self._find_nearest( pos , self.pts , mindist )

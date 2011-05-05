@@ -1,0 +1,8 @@
+płatki c2
+
+deboora w bazie bspline
+
+rury c2, niezależnie od ruszania punktami (nie można rozspujnić)
+
+wymyślenie formatu zapisu do pliku
+

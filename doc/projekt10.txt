@@ -1,0 +1,10 @@
+Model obiektu.
+
+złożony z rur.
+
+przęcięcie rury z płaszczyzną.
+
+przecięcia mają być kątem bliskim 90°
+
+muszą mieć ostre krawędzie,e nie w płaszczyźnie symetrii
+

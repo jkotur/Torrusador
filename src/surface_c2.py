@@ -16,16 +16,13 @@ from copy import copy
 
 import csurf
 
-def decasteljau( pts , t ) :
-        if len(pts) <= 0 :
-                return 0
+def rekN( n , i ,  t ) :
+	if n == 0 : return 1 if t >= i and t < i + 1 else 0
+	n1 = rekN(n - 1, i, t)
+	n2 = rekN(n - 1, i + 1, t)
+	return n1 * float(t - i) / float(n) + n2 * float(i + n + 1 - t) / float(n)
 
-        for k in reversed(range(0,len(pts))) :
-                for i in xrange(0,k) :
-                        pts[i] = pts[i]*(1.0-t) + pts[i+1]*t
-        return pts[0]
-
-class SurfaceC0( Points ) :
+class SurfaceC2( Points ) :
 	def __init__( self , data , pts_vis = True , curve_vis = True , polygon_vis = False ) :
 		self.dv = np.zeros(3)
 
@@ -47,8 +44,14 @@ class SurfaceC0( Points ) :
 
 		self.set_data( (self.pts,self.bezy) )
 
+		self.base = []
+		for t in np.linspace(3,4,256/4) :
+			for j in range(4) :
+				self.base.append( rekN( 3 , j , t ) )
+		self.base = np.array( self.base , np.float32 )
+
 	def set_visibility( self , type , pts , curves , polys ) :
-		if type == Curve.BEZIER :
+		if type == Curve.BSPLINE :
 			self.get_geom().set_visibility( Curve.POINTS  , pts    )
 			self.get_geom().set_visibility( Curve.CURVE   , curves )
 			self.get_geom().set_visibility( Curve.POLYGON , polys )
@@ -58,17 +61,15 @@ class SurfaceC0( Points ) :
 		self.get_geom().gen_ind(self.sized[0],self.sized[1])
 
 	def allocate( self ) :
-#                self.bezx = [np.array(np.zeros(3))]*self.sized[0]*self.sized[1]
-#                self.bezy = [np.array(np.zeros(3))]*self.sized[0]*self.sized[1]
-		self.bezx = np.zeros( 3*self.sized[0]*self.sized[1] , np.float32 )
-		self.bezy = np.zeros( 3*self.sized[0]*self.sized[1] , np.float32 )
+		self.bezx = np.zeros(3*self.sized[0]*self.sized[1] , np.float32 )
+		self.bezy = np.zeros(3*self.sized[0]*self.sized[1] , np.float32 )
 
 	def set_density( self , dens ) :
 		self.dens = dens 
 		self.calc_size()
 		self.allocate()
 		self.set_data( (self.pts,self.bezy) )
-		self.bezx , self.bezy = csurf.gen_bezier( self.pts , self.bezx , self.bezy , self.size[0] , self.size[1] , self.sized[0] , self.sized[1] , self.dens[0] , self.dens[1] )
+		self.bezx , self.bezy = csurf.gen_deboor( self.pts , self.bezx , self.bezy , self.size[0] , self.size[1] , self.sized[0] , self.sized[1] , self.dens[0] , self.dens[1] , self.base )
 
 	def new( self , pos , which ) :
 		if len(self) >= 3 or len(self.pts) > 0 : return
@@ -94,37 +95,9 @@ class SurfaceC0( Points ) :
 				pt = corners[0] + dx * x + dy * y
 				self.pts.append( pt )
 
-		self.bezx , self.bezy = csurf.gen_bezier( self.pts , self.bezx , self.bezy , self.size[0] , self.size[1] , self.sized[0] , self.sized[1] , self.dens[0] , self.dens[1] )
+		self.bezx , self.bezy = csurf.gen_deboor( self.pts , self.bezx , self.bezy , self.size[0] , self.size[1] , self.sized[0] , self.sized[1] , self.dens[0] , self.dens[1] , self.base )
 
 		self.get_geom().set_visibility( Bezier.CURVE , True )
-
-	def generate( self , pts , bezx , bezy , zx , zy , sx , sy , dx , dy ) :
-		py = 0
-		for y in range(0,self.sized[1],dy) :
-			px = 0
-			for x in range(0,self.sized[0]-1,dx*3):
-				id = px+py*(self.size[0]*3+1)
-				tmp = pts[id:id+4]
-				id = x+y*sx
-				j = 0
-				for t in np.linspace(0,1,dx*3+1) :
-					bezx[id+j] = decasteljau( copy(tmp) , t )
-					j+=1
-				px += 3
-			py += 1
-
-		tmp = [0]*4
-		for x in range(self.sized[0]) :
-			for y in range(0,self.sized[1]-1,dy*3) :
-				id = y+x*sy
-				for i in range(4) :
-					tmp[i] = bezx[x+(y/dy+i)*dy*sx]
-				j = 0 
-				for t in np.linspace(0,1,dy*3+1) :
-					bezy[id+j] = decasteljau( copy(tmp) , t )
-					j+=1
-
-		return bezx , bezy
 
 	def move_current( self , v ) :
 		if self.current == None :
@@ -132,24 +105,15 @@ class SurfaceC0( Points ) :
 
 		self.dv += v
 
-#                if np.linalg.norm(self.dv) < .05 :
-#                        return
+		if np.linalg.norm(self.dv) < .05 :
+			return
 
 		self.current += self.dv
 
 		self.dv = np.zeros(3)
 
-		self.bezx , self.bezy = csurf.gen_bezier( self.pts , self.bezx , self.bezy , self.size[0] , self.size[1] , self.sized[0] , self.sized[1] , self.dens[0] , self.dens[1] )
+		self.bezx , self.bezy = csurf.gen_deboor( self.pts , self.bezx , self.bezy , self.size[0] , self.size[1] , self.sized[0] , self.sized[1] , self.dens[0] , self.dens[1] , self.base )
 
 	def find_nearest( self , pos , mindist = .05 ) :
 		return self._find_nearest( pos , self.pts , mindist )
-
-
-#        self.pts += pos
-
-#    def delete( self , pos , dist = .05 ) :
-#        return
-
-#    def find_nearest( self , pos , mindist = .05 ) :
-#        return self._find_nearest( pos , self.pts , mindist )
 

@@ -251,6 +251,9 @@ class Scene :
 	def new_surface_c0( self , size ) :
 		self.curves.new( self.cursor.get_pos() , Curves.SURFACE_C0 , pre_data = size )
 
+	def new_surface_c2( self , size ) :
+		self.curves.new( self.cursor.get_pos() , Curves.SURFACE_C2 , pre_data = size )
+
 	def delete_curve( self ) :
 		self.curves.delete( self.cursor.get_pos() , self.pdist2 )
 

@@ -5,12 +5,13 @@ from bezier_c0 import BezierC0
 from bezier_c2 import BezierC2
 from interpolation import Interpolation
 from surface_c0 import SurfaceC0
+from surface_c2 import SurfaceC2
 
 from geom.bezier import Bezier
 from geom.curve import Curve
 
 class Curves( Node ) :
-	BEZIER_C0 , BEZIER_C2 , INTERPOLATION , SURFACE_C0 = range(4)
+	BEZIER_C0 , BEZIER_C2 , INTERPOLATION , SURFACE_C0 , SURFACE_C2 = range(5)
 
 	def __init__( self ) :
 		Node.__init__( self )
@@ -45,6 +46,8 @@ class Curves( Node ) :
 			self.selected = Interpolation( )
 		elif which_cur == Curves.SURFACE_C0 :
 			self.selected = SurfaceC0( pre_data , self.bz_points , self.bz_curves , self.bz_polygons )
+		elif which_cur == Curves.SURFACE_C2 :
+			self.selected = SurfaceC2( pre_data , self.bz_points , self.bz_curves , self.bz_polygons )
 
 		self.selected.new( pos , post_data )
 		self.add_child( self.selected )
@@ -117,6 +120,6 @@ class Curves( Node ) :
 
 	def set_surf_density( self , dens ) :
 		for b in self :
-			if isinstance(b,SurfaceC0) :
+			if isinstance(b,SurfaceC0) or isinstance(b,SurfaceC2) :
 				b.set_density( dens )
 

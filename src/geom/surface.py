@@ -29,13 +29,13 @@ class Surface( Curve ) :
 
 	def draw_self( self , data ) :
 
-		geom = []
-		for p in data[1] :
-			geom.append(p[0])
-			geom.append(p[1])
-			geom.append(p[2])
-		geom = np.array(geom,np.float32)
-		count = len(geom)/3
+		geom = data[1]
+#                geom = []
+#                for p in data[1] :
+#                        geom.append(p[0])
+#                        geom.append(p[1])
+#                        geom.append(p[2])
+#                geom = np.array(geom,np.float32)
 
 		pts = []
 		for p in data[0] :

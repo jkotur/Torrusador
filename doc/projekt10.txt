@@ -6,5 +6,27 @@ przęcięcie rury z płaszczyzną.
 
 przecięcia mają być kątem bliskim 90°
 
-muszą mieć ostre krawędzie,e nie w płaszczyźnie symetrii
+muszą mieć ostre krawędzie, nie w płaszczyźnie symetrii
+
+
+obiekt: młotek
+
+młotek musi mieć płaszczyznę symetrii
+
+młotek musi być frezowalny
+
+powierzchnie mają się przecinać - musi konkretnie wejść jedna powierzchnia w
+drugą
+
+rączka lokalnie ma nie być pod kątem 90°, ale zbliżonym do 90°
+
+rączka ma mieć jakąś perforację - udziwnienie 
+
+model musi mieć krawędź C0 i nie może być ona w płaszczyźnie symetrii
+
+pionowe ściany nie mogą mieć ostrych krawędzi, inaczej krawędzie te się
+ukrzuszą
+
+
+wczytywanie i zapisywanie plików
 

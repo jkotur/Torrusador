@@ -1,0 +1,41 @@
+Pierwsza linia pliku zawiera jednego inta n, który oznacza ilość płacht lub
+rur. Następnie następuje n sekcji opisu płacht. W pierwszej linii każdej
+sekcji pojawia się trójka intów - u , v , r. Oznaczają odpowiednio ilość
+punktów w kierunku parametru u, ilość parametrów w kierunku v, oraz czy
+płachta jest rurą, czy nie. r równe 0 oznaczą płachtę, wpp. rurę. Kolejne
+(3*u+1)*(3*v+1) linii zawierają 3 floaty oznaczające odpowiednio pozycję
+x, y i z. Punkty podawane są
+najpierw wraz ze wzrostem u, następnie ze wzrostem v (wewnętrzna pętla po u).
+Rury zawijane są po u, oznacza to że dla rur punkty u_min i u_max też są
+sąsiednimi punktami na powierzchni.
+
+Do oddzielenia części ułamkowej używamy '.'. 
+
+Separatorem liczb są białe znaki (spacja).
+
+W pliku nie może być żadnych komentarzy.
+
+Przykład:
+
+2
+1 1 0
+0.0 0.0 0.0
+1.0 0.0 0.0
+2.0 0.0 0.0
+3.0 0.0 0.0
+0.0 1.0 0.0
+1.0 1.0 0.0
+2.0 1.0 0.0
+3.0 1.0 0.0
+0.0 2.0 0.0
+1.0 2.0 0.0
+2.0 2.0 0.0
+3.0 2.0 0.0
+0.0 3.0 0.0
+1.0 3.0 0.0
+2.0 3.0 0.0
+3.0 3.0 0.0
+2 2 1
+1.0 1.0 13.37
+< 48 innych trójek >
+

@@ -99,6 +99,19 @@ class App(object):
 		self.sp_draw_surf_x = builder.get_object('sp_draw_surf_x')
 		self.sp_draw_surf_y = builder.get_object('sp_draw_surf_y')
 
+		self.win_dia_load = builder.get_object('win_dia_load')
+		self.win_dia_save = builder.get_object('win_dia_save')
+
+		self.win_dia_load.set_transient_for(win_main)
+		self.win_dia_load.add_button(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL)
+		self.win_dia_load.add_button(gtk.STOCK_OPEN  ,gtk.RESPONSE_OK    )
+
+		self.win_dia_save.set_transient_for(win_main)
+		self.win_dia_save.add_button(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL)
+		self.win_dia_save.add_button(gtk.STOCK_SAVE  ,gtk.RESPONSE_OK    )
+
+		self.save_file = None
+
 	def _init_keyboard( self ) :
 		self.move = [0,0,0]
 		self.dirskeys = ( ( ['w'] , ['s'] ) , ( ['a'] , ['d'] ) , ( ['e'] , ['q'] ) )
@@ -373,6 +386,23 @@ class App(object):
 	def on_rbut_pnt_edit_pressed( self , widget , data=None ) :
 		self.scene.set_cursormode( Scene.PNTEDIT )
 
+	def on_mitem_load_activate( self , widget , data=None ) :
+		if self.win_dia_load.run() == gtk.RESPONSE_OK :
+			self.scene.load_from_file( self.win_dia_load.get_filename() )
+		self.win_dia_load.hide()
+
+	def on_mitem_save_activate( self , widget , data=None ) :
+		if self.save_file != None :
+			self.scene.dump_to_file( self.save_file )
+		else :
+			self.on_mitem_saveas_activate( widget , data )
+
+	def on_mitem_saveas_activate( self , widget , data=None ) :
+		if self.win_dia_save.run() == gtk.RESPONSE_OK :
+			self.save_file = self.win_dia_save.get_filename() 
+			self.scene.dump_to_file( self.save_file )
+		self.win_dia_save.hide()
+		
 	def on_show( self , widget , data=None ):
 		widget.show_all()
 

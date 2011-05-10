@@ -269,3 +269,9 @@ class Scene :
 	def set_surf_density( self , dens ) :
 		self.curves.set_surf_density( dens )
 
+	def load_from_file( self , path ) :
+		print 'load!' , path 
+
+	def dump_to_file( self , path ) :
+		print 'dump!' , path 
+

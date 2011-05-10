@@ -89,8 +89,9 @@ class App(object):
 
 		self.tbut_add_surf_c0 = builder.get_object('tbut_add_surf_c0' )
 		self.tbut_add_surf_c2 = builder.get_object('tbut_add_surf_c2' )
+		self.tbut_add_pipe    = builder.get_object('tbut_add_pipe' )
 
-		self.tbuts= [ self.tbut_add_c0 , self.tbut_add_c2 , self.tbut_add_inter , self.tbut_del_curve , self.tbut_sel_curve , self.tbut_add_surf_c0 , self.tbut_add_surf_c2 ]
+		self.tbuts= [ self.tbut_add_c0 , self.tbut_add_c2 , self.tbut_add_inter , self.tbut_del_curve , self.tbut_sel_curve , self.tbut_add_surf_c0 , self.tbut_add_surf_c2 , self.tbut_add_pipe ]
 
 		self.sp_surf_x = builder.get_object('sp_surf_x')
 		self.sp_surf_y = builder.get_object('sp_surf_y')
@@ -146,19 +147,7 @@ class App(object):
 			if t == omit : continue
 			t.set_active(False)
 
-	def on_tbut_add_c0_toggled( self , widget , data=None ) :
-		if widget.get_active() : self.toggle_tbuts( widget )
-	def on_tbut_add_c2_toggled( self , widget , data=None ) :
-		if widget.get_active() : self.toggle_tbuts( widget )
-	def on_tbut_add_interpolation_toggled( self, widget , data=None ) :
-		if widget.get_active() : self.toggle_tbuts( widget )
-	def on_tbut_add_surf_c0_toggled( self , widget , data=None ) :
-		if widget.get_active() : self.toggle_tbuts( widget )
-	def on_tbut_add_surf_c2_toggled( self , widget , data=None ) :
-		if widget.get_active() : self.toggle_tbuts( widget )
-	def on_tbut_del_curve_toggled( self , widget , data=None ) :
-		if widget.get_active() : self.toggle_tbuts( widget )
-	def on_tbut_sel_curve_toggled( self , widget , data=None ) :
+	def on_tbut_add_toggled( self , widget , data=None ) :
 		if widget.get_active() : self.toggle_tbuts( widget )
 
 	def on_sp_draw_surf_value_changed( self , widget , data=None ) :
@@ -198,6 +187,13 @@ class App(object):
 						  ( self.sp_draw_surf_x.get_value_as_int() , 
 							self.sp_draw_surf_y.get_value_as_int() ) ) )
 				self.tbut_add_surf_c2.set_active(False)
+			elif self.tbut_add_pipe.get_active() :
+				self.scene.new_pipe(
+						( ( self.sp_surf_x.get_value_as_int() , 
+							self.sp_surf_y.get_value_as_int() ) ,
+						  ( self.sp_draw_surf_x.get_value_as_int() , 
+							self.sp_draw_surf_y.get_value_as_int() ) ) )
+				self.tbut_add_pipe.set_active(False)
 			elif self.tbut_add_inter.get_active() :
 				self.scene.new_curve_interpolation()
 				self.tbut_add_inter.set_active(False)

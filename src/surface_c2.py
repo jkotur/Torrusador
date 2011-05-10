@@ -66,12 +66,26 @@ class SurfaceC2( Points ) :
 		self.bezx = np.zeros(3*self.sized[0]*self.sized[1] , np.float32 )
 		self.bezy = np.zeros(3*self.sized[0]*self.sized[1] , np.float32 )
 
+	def generate( self ) :
+		self.bezx , self.bezy = csurf.gen_deboor( self.pts , self.bezx , self.bezy , self.size[0] , self.size[1] , self.sized[0] , self.sized[1] , self.dens[0] , self.dens[1] , self.base )
+
+	def make_pts( self , corners ) :
+		dx = (corners[1] - corners[0]) / (self.size[0]+3-1)
+		dy = (corners[3] - corners[0]) / (self.size[1]+3-1)
+
+		del self.pts[:]
+
+		for y in range(self.size[1]+3) :
+			for x in range(self.size[0]+3):
+				pt = corners[0] + dx * x + dy * y
+				self.pts.append( pt )
+
 	def set_density( self , dens ) :
 		self.dens = dens 
 		self.calc_size()
 		self.allocate()
 		self.set_data( (self.pts,self.bezy) )
-		self.bezx , self.bezy = csurf.gen_deboor( self.pts , self.bezx , self.bezy , self.size[0] , self.size[1] , self.sized[0] , self.sized[1] , self.dens[0] , self.dens[1] , self.base )
+		self.generate()
 
 	def new( self , pos , which ) :
 		if len(self) >= 3 or len(self.pts) > 0 : return
@@ -87,17 +101,9 @@ class SurfaceC2( Points ) :
 
 		corners.append( corners[2] + corners[0] - corners[1] )
 
-		dx = (corners[1] - corners[0]) / (self.size[0]+3-1)
-		dy = (corners[3] - corners[0]) / (self.size[1]+3-1)
+		self.make_pts( corners )
 
-		del self.pts[:]
-
-		for y in range(self.size[1]+3) :
-			for x in range(self.size[0]+3):
-				pt = corners[0] + dx * x + dy * y
-				self.pts.append( pt )
-
-		self.bezx , self.bezy = csurf.gen_deboor( self.pts , self.bezx , self.bezy , self.size[0] , self.size[1] , self.sized[0] , self.sized[1] , self.dens[0] , self.dens[1] , self.base )
+		self.generate()
 
 		self.get_geom().set_visibility( Bezier.CURVE , True )
 
@@ -109,7 +115,7 @@ class SurfaceC2( Points ) :
 		self.current += self.dv
 		self.dv = np.zeros(3)
 
-		self.bezx , self.bezy = csurf.gen_deboor( self.pts , self.bezx , self.bezy , self.size[0] , self.size[1] , self.sized[0] , self.sized[1] , self.dens[0] , self.dens[1] , self.base )
+		self.generate()
 
 	def find_nearest( self , pos , mindist = .05 ) :
 		return self._find_nearest( pos , self.pts , mindist )

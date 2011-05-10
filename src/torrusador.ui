@@ -11,7 +11,7 @@
     <property name="type_hint">dialog</property>
     <property name="skip_taskbar_hint">True</property>
     <property name="program_name">Torrusador</property>
-    <property name="version">0.9</property>
+    <property name="version">0.10</property>
     <property name="copyright" translatable="yes">Jakub Kotur</property>
     <property name="license" translatable="yes">This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -110,14 +110,14 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
   <object class="GtkAdjustment" id="adj_surf_x">
     <property name="lower">1</property>
     <property name="upper">100</property>
-    <property name="value">3</property>
+    <property name="value">1</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
   </object>
   <object class="GtkAdjustment" id="adj_surf_y">
     <property name="lower">1</property>
     <property name="upper">100</property>
-    <property name="value">3</property>
+    <property name="value">1</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
   </object>
@@ -263,8 +263,8 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                     <property name="receives_default">True</property>
                     <property name="use_action_appearance">False</property>
                     <property name="use_stock">True</property>
-                    <accelerator key="q" signal="clicked" modifiers="GDK_CONTROL_MASK"/>
                     <accelerator key="c" signal="clicked" modifiers="GDK_CONTROL_MASK"/>
+                    <accelerator key="q" signal="clicked" modifiers="GDK_CONTROL_MASK"/>
                     <signal name="clicked" handler="on_but_quit_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -753,7 +753,7 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
                                                 <property name="use_action_appearance">False</property>
-                                                <signal name="toggled" handler="on_tbut_add_c0_toggled" after="yes" swapped="no"/>
+                                                <signal name="toggled" handler="on_tbut_add_toggled" after="yes" swapped="no"/>
                                               </object>
                                               <packing>
                                                 <property name="expand">True</property>
@@ -768,7 +768,7 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
                                                 <property name="use_action_appearance">False</property>
-                                                <signal name="toggled" handler="on_tbut_add_c2_toggled" after="yes" swapped="no"/>
+                                                <signal name="toggled" handler="on_tbut_add_toggled" after="yes" swapped="no"/>
                                               </object>
                                               <packing>
                                                 <property name="expand">True</property>
@@ -782,7 +782,7 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
                                                 <property name="use_action_appearance">False</property>
-                                                <signal name="toggled" handler="on_tbut_add_interpolation_toggled" swapped="no"/>
+                                                <signal name="toggled" handler="on_tbut_add_toggled" swapped="no"/>
                                                 <child>
                                                   <object class="GtkLabel" id="label15">
                                                     <property name="visible">True</property>
@@ -923,7 +923,7 @@ Interpolacje</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
                                                 <property name="use_action_appearance">False</property>
-                                                <signal name="toggled" handler="on_tbut_add_surf_c0_toggled" swapped="no"/>
+                                                <signal name="toggled" handler="on_tbut_add_toggled" swapped="no"/>
                                               </object>
                                               <packing>
                                                 <property name="expand">True</property>
@@ -938,12 +938,27 @@ Interpolacje</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
                                                 <property name="use_action_appearance">False</property>
-                                                <signal name="toggled" handler="on_tbut_add_surf_c2_toggled" swapped="no"/>
+                                                <signal name="toggled" handler="on_tbut_add_toggled" swapped="no"/>
                                               </object>
                                               <packing>
                                                 <property name="expand">True</property>
                                                 <property name="fill">True</property>
                                                 <property name="position">3</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkToggleButton" id="tbut_add_pipe">
+                                                <property name="label" translatable="yes">Dodaj Rurę</property>
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">True</property>
+                                                <property name="receives_default">True</property>
+                                                <property name="use_action_appearance">False</property>
+                                                <signal name="toggled" handler="on_tbut_add_toggled" swapped="no"/>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">True</property>
+                                                <property name="fill">True</property>
+                                                <property name="position">4</property>
                                               </packing>
                                             </child>
                                           </object>
@@ -991,7 +1006,7 @@ Interpolacje</property>
                                                 <property name="receives_default">True</property>
                                                 <property name="use_action_appearance">False</property>
                                                 <property name="use_stock">True</property>
-                                                <signal name="toggled" handler="on_tbut_del_curve_toggled" after="yes" swapped="no"/>
+                                                <signal name="toggled" handler="on_tbut_add_toggled" after="yes" swapped="no"/>
                                               </object>
                                               <packing>
                                                 <property name="expand">True</property>
@@ -1007,7 +1022,7 @@ Interpolacje</property>
                                                 <property name="receives_default">True</property>
                                                 <property name="use_action_appearance">False</property>
                                                 <property name="use_stock">True</property>
-                                                <signal name="toggled" handler="on_tbut_sel_curve_toggled" after="yes" swapped="no"/>
+                                                <signal name="toggled" handler="on_tbut_add_toggled" after="yes" swapped="no"/>
                                               </object>
                                               <packing>
                                                 <property name="expand">True</property>

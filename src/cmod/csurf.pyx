@@ -75,7 +75,9 @@ cpdef gen_bezier( pts , np.ndarray[ float , ndim=1 ] bezx , np.ndarray[ float , 
 	return bezx , bezy
 
 @cython.boundscheck(False)
-cpdef gen_deboor( pts , bezx , bezy , int zx , int zy , int sx , int sy , int dx , int dy
+@cython.cdivision(True)
+cpdef gen_deboor( pts , np.ndarray[ float , ndim=1 ] bezx , np.ndarray[ float , ndim=1 ] bezy
+		, int zx , int zy , int sx , int sy , int dx , int dy
 		, np.ndarray[ float ] N ) :
 	cdef int px = 0
 	cdef int py = 0
@@ -87,11 +89,16 @@ cpdef gen_deboor( pts , bezx , bezy , int zx , int zy , int sx , int sy , int dx
 	cdef int j
 	cdef float k , dk
 
+	cdef int l
+	cdef int idj
+	cdef int ik
+
 	cdef np.ndarray[ float ] tmp = np.empty( 4*3 , np.float32 )
 
 	for y in range(zy+3) :
 		px = 0
-		for x in range(0,sx-1,dx*3):
+		x  = 0
+		while x < sx-1 :
 			id = px+py*(zx+3)
 			tmp[0: 3] = pts[id  ][:]
 			tmp[3: 6] = pts[id+1][:]
@@ -100,9 +107,11 @@ cpdef gen_deboor( pts , bezx , bezy , int zx , int zy , int sx , int sy , int dx
 			id = x+y*dy*sx
 			j = 0
 			k = 0
-			dk = float(256)/float(dx*3);
+			dk = 256.0;
+			dk/= float(dx*3);
 			while k < 256.1 :
-				ik = int(k/4.0+.5)*4;
+				ik = int(k/4.0+.5);
+				ik*= 4;
 				idj = (id+j)*3
 				bezx[idj  ] = 0
 				bezx[idj+1] = 0
@@ -113,6 +122,7 @@ cpdef gen_deboor( pts , bezx , bezy , int zx , int zy , int sx , int sy , int dx
 					bezx[idj+2] += tmp[l*3+2] * N[ik+l]
 				j+=1
 				k+=dk
+			x  += dx*3
 			px += 1
 		py += 1
 
@@ -128,9 +138,11 @@ cpdef gen_deboor( pts , bezx , bezy , int zx , int zy , int sx , int sy , int dx
 				tmp[i*3+2] = bezx[(x+(y+i)*dy*sx)*3+2]
 			j = 0
 			k = 0
-			dk = float(256)/float(dy*3);
+			dk = 256.0;
+			dk/= float(dy*3);
 			while k < 256.1 :
-				ik = int(k/4.0+.5)*4;
+				ik = int(k/4.0+.5);
+				ik*= 4;
 				idj = (id+j)*3
 				bezy[idj  ] = 0
 				bezy[idj+1] = 0

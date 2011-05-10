@@ -44,9 +44,11 @@ class SurfaceC2( Points ) :
 
 		self.set_data( (self.pts,self.bezy) )
 
+		i=0
 		self.base = []
-		for t in np.linspace(3,4,256/4) :
+		for t in np.linspace(3,4,256/4+1) :
 			for j in range(4) :
+				i+=1
 				self.base.append( rekN( 3 , j , t ) )
 		self.base = np.array( self.base , np.float32 )
 
@@ -85,13 +87,13 @@ class SurfaceC2( Points ) :
 
 		corners.append( corners[2] + corners[0] - corners[1] )
 
-		dx = (corners[1] - corners[0]) / (self.size[0]*3)
-		dy = (corners[3] - corners[0]) / (self.size[1]*3)
+		dx = (corners[1] - corners[0]) / (self.size[0]+3-1)
+		dy = (corners[3] - corners[0]) / (self.size[1]+3-1)
 
 		del self.pts[:]
 
-		for y in range(self.size[1]*3+1) :
-			for x in range(self.size[0]*3+1):
+		for y in range(self.size[1]+3) :
+			for x in range(self.size[0]+3):
 				pt = corners[0] + dx * x + dy * y
 				self.pts.append( pt )
 
@@ -104,12 +106,7 @@ class SurfaceC2( Points ) :
 			return
 
 		self.dv += v
-
-		if np.linalg.norm(self.dv) < .05 :
-			return
-
 		self.current += self.dv
-
 		self.dv = np.zeros(3)
 
 		self.bezx , self.bezy = csurf.gen_deboor( self.pts , self.bezx , self.bezy , self.size[0] , self.size[1] , self.sized[0] , self.sized[1] , self.dens[0] , self.dens[1] , self.base )

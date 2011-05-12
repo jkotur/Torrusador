@@ -1,1 +1,21 @@
-trymowanie powierzchni powierzchnią
+Wstawiamy na scene 3 płatki beziera
+
+Aplikacja ma umożliwić takie wstawienie żeby uwspólnić rogi (posiągnięcie za
+róg pociąga oba płatki)
+
+Zaklejenie trójkątnej dziury płatkiem gregorego
+
+Trzeba wkleić 3 płatki beziera 
+
+UWAGA: sklejenie płatków ma być C1 i G2
+
+Testowanie: trójkąt równoboczny i płatki prostokątne -- zaklejenie symetryczne
+
+(3 pkt)
+
+czwarty punkt jest za uzyskanie między płatkami a płatkami gregorego ciągłości C1
+
+za kolejny punkt jest zaklejanie C2
+
+bonusowy punkt dla dziur dowolniekątnych
+

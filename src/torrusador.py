@@ -166,6 +166,7 @@ class App(object):
 	def on_sp_draw_surf_value_changed( self , widget , data=None ) :
 		self.scene.set_surf_density(
 				(self.sp_draw_surf_x.get_value_as_int(),self.sp_draw_surf_y.get_value_as_int() ) )
+		self.drawing_area.queue_draw()
 
 	def _on_reshape( self , widget , data=None ) :
 		width = self.drawing_area.allocation.width

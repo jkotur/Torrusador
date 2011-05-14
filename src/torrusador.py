@@ -389,7 +389,9 @@ class App(object):
 
 	def on_mitem_load_activate( self , widget , data=None ) :
 		if self.win_dia_load.run() == gtk.RESPONSE_OK :
-			self.scene.load_from_file( self.win_dia_load.get_filename() )
+			self.save_file = self.win_dia_load.get_filename()
+			self.scene.load_from_file( self.save_file )
+			self.drawing_area.queue_draw()
 		self.win_dia_load.hide()
 
 	def on_mitem_save_activate( self , widget , data=None ) :

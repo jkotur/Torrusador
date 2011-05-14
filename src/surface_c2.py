@@ -23,7 +23,7 @@ def rekN( n , i ,  t ) :
 	return n1 * float(t - i) / float(n) + n2 * float(i + n + 1 - t) / float(n)
 
 class SurfaceC2( Points ) :
-	def __init__( self , data , pts_vis = True , curve_vis = True , polygon_vis = False ) :
+	def __init__( self , data , pts_vis = True , curve_vis = True , polygon_vis = False , pts = [] ) :
 		self.dv = np.zeros(3)
 
 		self.size = data[0]
@@ -31,7 +31,7 @@ class SurfaceC2( Points ) :
 
 		gm = Surface()
 
-		self.pts= []
+		self.pts = pts
 
 		Points.__init__( self , gm )
 
@@ -51,6 +51,20 @@ class SurfaceC2( Points ) :
 				i+=1
 				self.base.append( rekN( 3 , j , t ) )
 		self.base = np.array( self.base , np.float32 )
+
+		if self.pts != [] :
+			self.generate()
+			self.get_geom().set_visibility( Bezier.CURVE , True )
+
+	def get_uv( self ) :
+		return self.size
+	
+	def get_pts( self ) :
+		return self.pts
+
+	def iter_pts( self ) :
+		for p in self.pts :
+			yield p
 
 	def set_visibility( self , type , pts , curves , polys ) :
 		if type == Curve.BSPLINE :

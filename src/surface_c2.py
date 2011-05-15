@@ -31,7 +31,7 @@ class SurfaceC2( Points ) :
 
 		gm = Surface()
 
-		self.pts = pts
+		self.pts = pts if pts != None else []
 
 		Points.__init__( self , gm )
 

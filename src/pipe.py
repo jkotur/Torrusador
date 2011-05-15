@@ -12,10 +12,10 @@ import transformations as tr
 import csurf
 
 class Pipe( SurfaceC2 ) :
-	def __init__( self , data , pts_vis = True , curve_vis = True , polygon_vis = False , pts = [] ) :
+	def __init__( self , data , pts_vis = True , curve_vis = True , polygon_vis = False , pts = None ) :
 		data = ( (max(data[0][0],3),data[0][1]) , data[1] )
 
-		if pts != [] :
+		if pts != None :
 			u = data[0][0]
 			for v in reversed(range(data[0][1]+3)) :
 				pts.insert( u*(v+1) , pts[u*v+2] )

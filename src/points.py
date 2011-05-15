@@ -1,5 +1,7 @@
 
 import math as m 
+import numpy as np
+from numpy.linalg import linalg as la
 
 from look.node import Node
 from geom.point import Point
@@ -39,14 +41,18 @@ class Points( Node ) :
 
 	def _find_nearest( self , pos , containter , mindist = .05 ) :
 		def dist( a , b ) :
-			return m.pow(a[0]-b[0],2) + m.pow(a[1]-b[1],2) + m.pow(a[2]-b[2],2)
+			return m.pow(a[0]-b[0],2) + m.pow(a[1]-b[1],2)
+
+		mc = la.dot( self.currp , self.currmv )
 
 		minv= None
 		minp= None
-		for p in containter :
-			if minv == None or minv > dist( pos , (p[0],p[1],p[2]) ) :
-				minp = p
-				minv = dist( pos , (p[0],p[1],p[2]) )
+		for mp in containter :
+			p = la.dot( mc , np.array((mp[0],mp[1],mp[2],1)) )
+			p = p / p[3]
+			if minv == None or minv > dist( pos , p ) :
+				minp = mp
+				minv = dist( pos , p )
 
 		if not mindist or minv <= mindist :
 			return ( minv , minp )

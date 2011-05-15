@@ -32,6 +32,9 @@ class Curves( Node ) :
 		self.w = 0
 		self.h = 0
 
+	def clear( self ) :
+		self.del_all()
+
 	def set_screen_size( self , w , h ) :
 		self.w = w
 		self.h = h

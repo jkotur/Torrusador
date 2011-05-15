@@ -110,6 +110,9 @@ class Scene :
 
 		self.node.translate(0,0,-2)
 
+	def clear( self ) :
+		self.curves.clear()
+
 	def gfx_init( self ) :
 		glPointSize(3)
 
@@ -232,9 +235,9 @@ class Scene :
 		elif self.cursormode == Scene.PNTBSADD :
 			self.curves.point_new( Curve.BSPLINE , self.cursor.get_pos() )
 		elif self.cursormode == Scene.PNTDEL :
-			self.curves.point_delete( self.cursor.get_pos() , self.pdist2 )
+			self.curves.point_delete( self.cursor.get_clipping_pos() , self.pdist2 )
 		elif self.cursormode == Scene.PNTEDIT :
-			self.curves.point_select( self.cursor.get_pos() , self.pdist2 )
+			self.curves.point_select( self.cursor.get_clipping_pos() , self.pdist2 )
 
 	def new_curve_c0( self ) :
 		self.curves.new( self.cursor.get_pos() , Curves.BEZIER_C0 , post_data=Curve.BEZIER ) 
@@ -258,10 +261,10 @@ class Scene :
 		self.curves.new( self.cursor.get_pos() , Curves.SURFACE_PIPE , pre_data = size )
 
 	def delete_curve( self ) :
-		self.curves.delete( self.cursor.get_pos() , self.pdist2 )
+		self.curves.delete( self.cursor.get_clipping_pos() , self.pdist2 )
 
 	def select_curve( self ) :
-		self.curves.select( self.cursor.get_pos() , self.pdist2 )
+		self.curves.select( self.cursor.get_clipping_pos() , self.pdist2 )
 
 	def toggle_curve( self , which , what ) :
 		self.curves.toggle( which , what )

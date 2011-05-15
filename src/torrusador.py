@@ -1,4 +1,4 @@
-import sys
+import sys , os.path
 
 import pygtk
 pygtk.require('2.0')
@@ -101,6 +101,10 @@ class App(object):
 
 		self.win_dia_load = builder.get_object('win_dia_load')
 		self.win_dia_save = builder.get_object('win_dia_save')
+
+		if os.path.isdir( '../data/' ) :
+			self.win_dia_load.set_current_folder('../data/')
+			self.win_dia_save.set_current_folder('../data/')
 
 		self.win_dia_load.set_transient_for(win_main)
 		self.win_dia_load.add_button(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL)
@@ -393,6 +397,10 @@ class App(object):
 			self.scene.load_from_file( self.save_file )
 			self.drawing_area.queue_draw()
 		self.win_dia_load.hide()
+
+	def on_mitem_new_activate( self , widget , data=None ) :
+		self.scene.clear()
+		self.drawing_area.queue_draw()
 
 	def on_mitem_save_activate( self , widget , data=None ) :
 		if self.save_file != None :

@@ -9,12 +9,13 @@ from interpolation import Interpolation
 from surface_c0 import SurfaceC0
 from surface_c2 import SurfaceC2
 from pipe import Pipe
+from gregory_gap import GregoryGap
 
 from geom.bezier import Bezier
 from geom.curve import Curve
 
 class Curves( Node ) :
-	BEZIER_C0 , BEZIER_C2 , INTERPOLATION , SURFACE_C0 , SURFACE_C2 , SURFACE_PIPE = range(6)
+	BEZIER_C0 , BEZIER_C2 , INTERPOLATION , SURFACE_C0 , SURFACE_C2 , SURFACE_PIPE , SURFACE_GREGORY = range(7)
 
 	def __init__( self ) :
 		Node.__init__( self )
@@ -56,6 +57,8 @@ class Curves( Node ) :
 			self.selected = SurfaceC2( pre_data , self.bz_points , self.bz_curves , self.bz_polygons )
 		elif which_cur == Curves.SURFACE_PIPE :
 			self.selected = Pipe( pre_data , self.bz_points , self.bz_curves , self.bz_polygons )
+		elif which_cur == Curves.SURFACE_GREGORY :
+			self.selected = GregoryGap( pre_data , self.bz_points , self.bz_curves , self.bz_polygons )
 
 		self.selected.new( pos , post_data )
 		self.add_child( self.selected )
@@ -128,7 +131,7 @@ class Curves( Node ) :
 
 	def set_surf_density( self , dens ) :
 		for b in self :
-			if isinstance(b,SurfaceC0) or isinstance(b,SurfaceC2) :
+			if isinstance(b,SurfaceC0) or isinstance(b,SurfaceC2) or isinstance(b,GregoryGap) :
 				b.set_density( dens )
 
 	def load( self , path ) :

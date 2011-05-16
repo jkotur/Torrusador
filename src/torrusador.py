@@ -90,6 +90,7 @@ class App(object):
 		self.tbut_add_surf_c0 = builder.get_object('tbut_add_surf_c0' )
 		self.tbut_add_surf_c2 = builder.get_object('tbut_add_surf_c2' )
 		self.tbut_add_pipe    = builder.get_object('tbut_add_pipe' )
+		self.tbut_add_gregory = builder.get_object('tbut_add_gregory' )
 
 		self.tbuts= [ self.tbut_add_c0 , self.tbut_add_c2 , self.tbut_add_inter , self.tbut_del_curve , self.tbut_sel_curve , self.tbut_add_surf_c0 , self.tbut_add_surf_c2 , self.tbut_add_pipe ]
 
@@ -182,6 +183,8 @@ class App(object):
 		self.scene.set_ratio( ratio )
 
 	def _on_button_pressed( self , widget , data=None ) :
+		surfdata = ( ( self.sp_surf_x.get_value_as_int() , self.sp_surf_y.get_value_as_int() ) ,
+					 ( self.sp_draw_surf_x.get_value_as_int() , self.sp_draw_surf_y.get_value_as_int() ) ) 
 		if data.button == 1 :
 			self.mouse_pos = -data.x , data.y
 		elif data.button == 3 :
@@ -192,26 +195,17 @@ class App(object):
 				self.scene.new_curve_c2()
 				self.tbut_add_c2.set_active(False)
 			elif self.tbut_add_surf_c0.get_active() :
-				self.scene.new_surface_c0(
-						( ( self.sp_surf_x.get_value_as_int() , 
-							self.sp_surf_y.get_value_as_int() ) ,
-						  ( self.sp_draw_surf_x.get_value_as_int() , 
-							self.sp_draw_surf_y.get_value_as_int() ) ) )
+				self.scene.new_surface_c0( surfdata )
 				self.tbut_add_surf_c0.set_active(False)
 			elif self.tbut_add_surf_c2.get_active() :
-				self.scene.new_surface_c2(
-						( ( self.sp_surf_x.get_value_as_int() , 
-							self.sp_surf_y.get_value_as_int() ) ,
-						  ( self.sp_draw_surf_x.get_value_as_int() , 
-							self.sp_draw_surf_y.get_value_as_int() ) ) )
+				self.scene.new_surface_c2( surfdata )
 				self.tbut_add_surf_c2.set_active(False)
 			elif self.tbut_add_pipe.get_active() :
-				self.scene.new_pipe(
-						( ( self.sp_surf_x.get_value_as_int() , 
-							self.sp_surf_y.get_value_as_int() ) ,
-						  ( self.sp_draw_surf_x.get_value_as_int() , 
-							self.sp_draw_surf_y.get_value_as_int() ) ) )
+				self.scene.new_pipe( surfdata )
 				self.tbut_add_pipe.set_active(False)
+			elif self.tbut_add_gregory.get_active() :
+				self.scene.new_gregory( surfdata )
+				self.tbut_add_gregory.set_active(False)
 			elif self.tbut_add_inter.get_active() :
 				self.scene.new_curve_interpolation()
 				self.tbut_add_inter.set_active(False)

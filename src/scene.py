@@ -260,6 +260,9 @@ class Scene :
 	def new_pipe( self , size ) :
 		self.curves.new( self.cursor.get_pos() , Curves.SURFACE_PIPE , pre_data = size )
 
+	def new_gregory( self , size ) :
+		self.curves.new( self.cursor.get_pos() , Curves.SURFACE_GREGORY , pre_data = size )
+
 	def delete_curve( self ) :
 		self.curves.delete( self.cursor.get_clipping_pos() , self.pdist2 )
 

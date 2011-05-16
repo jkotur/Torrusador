@@ -26,7 +26,7 @@ def decasteljau( pts , t ) :
         return pts[0]
 
 class SurfaceC0( Points ) :
-	def __init__( self , data , pts_vis = True , curve_vis = True , polygon_vis = False ) :
+	def __init__( self , data , pts_vis = True , curve_vis = True , polygon_vis = False , pts = None ) :
 		self.dv = np.zeros(3)
 
 		self.size = data[0]
@@ -34,7 +34,7 @@ class SurfaceC0( Points ) :
 
 		gm = Surface()
 
-		self.pts= []
+		self.pts = [] if pts == None else pts
 
 		Points.__init__( self , gm )
 
@@ -47,6 +47,10 @@ class SurfaceC0( Points ) :
 
 		self.set_data( (self.pts,self.bezy) )
 
+		if self.pts != [] :
+			self.generate()
+			self.get_geom().set_visibility( Bezier.CURVE , True )
+
 	def set_visibility( self , type , pts , curves , polys ) :
 		if type == Curve.BEZIER :
 			self.get_geom().set_visibility( Curve.POINTS  , pts    )
@@ -58,8 +62,6 @@ class SurfaceC0( Points ) :
 		self.get_geom().gen_ind(self.sized[0],self.sized[1])
 
 	def allocate( self ) :
-#                self.bezx = [np.array(np.zeros(3))]*self.sized[0]*self.sized[1]
-#                self.bezy = [np.array(np.zeros(3))]*self.sized[0]*self.sized[1]
 		self.bezx = np.zeros( 3*self.sized[0]*self.sized[1] , np.float32 )
 		self.bezy = np.zeros( 3*self.sized[0]*self.sized[1] , np.float32 )
 
@@ -68,7 +70,7 @@ class SurfaceC0( Points ) :
 		self.calc_size()
 		self.allocate()
 		self.set_data( (self.pts,self.bezy) )
-		self.bezx , self.bezy = csurf.gen_bezier( self.pts , self.bezx , self.bezy , self.size[0] , self.size[1] , self.sized[0] , self.sized[1] , self.dens[0] , self.dens[1] )
+		self.generate()
 
 	def new( self , pos , which ) :
 		if len(self) >= 3 or len(self.pts) > 0 : return
@@ -94,11 +96,15 @@ class SurfaceC0( Points ) :
 				pt = corners[0] + dx * x + dy * y
 				self.pts.append( pt )
 
-		self.bezx , self.bezy = csurf.gen_bezier( self.pts , self.bezx , self.bezy , self.size[0] , self.size[1] , self.sized[0] , self.sized[1] , self.dens[0] , self.dens[1] )
+		self.generate()
 
 		self.get_geom().set_visibility( Bezier.CURVE , True )
 
-	def generate( self , pts , bezx , bezy , zx , zy , sx , sy , dx , dy ) :
+	def generate( self ) :
+		self.bezx , self.bezy = csurf.gen_bezier( self.pts , self.bezx , self.bezy , self.size[0] , self.size[1] , self.sized[0] , self.sized[1] , self.dens[0] , self.dens[1] )
+	
+
+	def generate_python( self , pts , bezx , bezy , zx , zy , sx , sy , dx , dy ) :
 		py = 0
 		for y in range(0,self.sized[1],dy) :
 			px = 0
@@ -132,24 +138,12 @@ class SurfaceC0( Points ) :
 
 		self.dv += v
 
-#                if np.linalg.norm(self.dv) < .05 :
-#                        return
-
 		self.current += self.dv
 
 		self.dv = np.zeros(3)
 
-		self.bezx , self.bezy = csurf.gen_bezier( self.pts , self.bezx , self.bezy , self.size[0] , self.size[1] , self.sized[0] , self.sized[1] , self.dens[0] , self.dens[1] )
+		self.generate()
 
 	def find_nearest( self , pos , mindist = .05 ) :
 		return self._find_nearest( pos , self.pts , mindist )
-
-
-#        self.pts += pos
-
-#    def delete( self , pos , dist = .05 ) :
-#        return
-
-#    def find_nearest( self , pos , mindist = .05 ) :
-#        return self._find_nearest( pos , self.pts , mindist )
 

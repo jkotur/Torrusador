@@ -194,6 +194,9 @@ class Scene :
 	def set_cursormode( self , mode ) :
 		self.cursormode = mode
 
+	def set_editmode( self , mode ) :
+		self.curves.set_editmode( mode )
+
 	def get_cursor_pos( self ) :
 		return self.cursor.get_pos()
 	

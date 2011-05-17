@@ -13,6 +13,7 @@ from glwidget import GLDrawingArea
 
 from scene import Scene
 
+from points import Points
 from geom.curve import Curve
 
 ui_file = "torrusador.ui"
@@ -49,6 +50,9 @@ class App(object):
 
 		win_main.show_all()
 		self.box3d.hide();
+		
+		# TODO: implement this table in future :)
+		builder.get_object("table4").hide()
 
 		width = self.drawing_area.allocation.width
 		height = self.drawing_area.allocation.height
@@ -384,6 +388,15 @@ class App(object):
 		self.scene.set_cursormode( Scene.PNTDEL )
 	def on_rbut_pnt_edit_pressed( self , widget , data=None ) :
 		self.scene.set_cursormode( Scene.PNTEDIT )
+
+	def on_rbut_edit_point_toggled( self , widget , data=None ) :
+		self.scene.set_editmode( Points.PNT )
+	def on_rbut_edit_row_toggled( self , widget , data=None ) :
+		self.scene.set_editmode( Points.ROW )
+	def on_rbut_edit_column_toggled( self , widget , data=None ) :
+		self.scene.set_editmode( Points.COL )
+	def on_rbut_edit_symetric_toggled( self , widget , data=None ) :
+		self.scene.set_editmode( Points.SYM )
 
 	def on_mitem_load_activate( self , widget , data=None ) :
 		if self.win_dia_load.run() == gtk.RESPONSE_OK :

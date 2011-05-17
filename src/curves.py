@@ -42,6 +42,10 @@ class Curves( Node ) :
 		for b in self :
 			b.set_screen_size( w , h )
 
+	def set_editmode( self , mode ) :
+		for b in self :
+			b.set_editmode( mode )
+
 	def new( self , pos , which_cur , pre_data = None , post_data = None ) :
 		if which_cur == Curves.BEZIER_C0 :
 			self.selected = BezierC0( self.bz_points , self.bz_curves , self.bz_polygons )

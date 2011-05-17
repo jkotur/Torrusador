@@ -5,6 +5,7 @@ import math as m
 import numpy as np
 import numpy.linalg as la
 
+from points import Points
 from surface_c2 import SurfaceC2 
 
 import transformations as tr
@@ -43,6 +44,9 @@ class Pipe( SurfaceC2 ) :
 
 		ox = (corners[3] + corners[0]) / 2.0
 		rx = np.resize( ox - corners[0] , 4 )
+
+		self.axis   = ax
+		self.center = ox
 
 		del self.pts[:]
 

@@ -7,10 +7,16 @@ from look.node import Node
 from geom.point import Point
 
 class Points( Node ) :
+	PNT , ROW , COL , SYM = range(4)
+
 	def __init__( self , geom ) :
 		Node.__init__( self , geom )
 
 		self.current = None
+		self.editmode = Points.PNT
+
+	def set_editmode( self , mode ) :
+		self.editmode = mode
 
 	def move_current( self , v ) :
 		if self.current :

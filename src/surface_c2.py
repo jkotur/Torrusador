@@ -1,5 +1,6 @@
 
 import numpy as np
+import numpy.linalg as la
 
 import math as m
 
@@ -28,6 +29,8 @@ class SurfaceC2( Points ) :
 
 		self.size = data[0]
 		self.dens = data[1]
+
+		self.axis = np.array((0,1,0))
 
 		gm = Surface()
 
@@ -87,6 +90,10 @@ class SurfaceC2( Points ) :
 		dx = (corners[1] - corners[0]) / (self.size[0]+3-1)
 		dy = (corners[3] - corners[0]) / (self.size[1]+3-1)
 
+		self.axis   = np.cross(dx,dy)
+		self.axis   = self.axis / la.norm(self.axis)
+		self.center = dx*(self.size[0]+3.0)/2.0 + dy*(self.size[1]+3.0)/2.0
+
 		del self.pts[:]
 
 		for y in range(self.size[1]+3) :
@@ -121,13 +128,47 @@ class SurfaceC2( Points ) :
 
 		self.get_geom().set_visibility( Bezier.CURVE , True )
 
+	def find_pnt_index( self , pnt ) :
+		for i in range(len(self.pts)) :
+			if id(self.pts[i]) == id(pnt) :
+				return i
+
 	def move_current( self , v ) :
 		if self.current == None :
 			return
 
-		self.dv += v
-		self.current += self.dv
-		self.dv = np.zeros(3)
+		if self.editmode == Points.PNT :
+			self.current += v
+		elif self.editmode == Points.ROW :
+			sx = self.size[0]+3
+			sy = self.size[1]+3
+			ind = self.find_pnt_index( self.current )
+			for i in range(ind%sx,sx*sy,sx) :
+				self.pts[i] += v
+		elif self.editmode == Points.COL :
+			sx = self.size[0]+3
+			ind = self.find_pnt_index( self.current )
+			ind-= ind%sx
+			for i in range(ind,ind+sx) :
+				self.pts[i] += v
+		elif self.editmode == Points.SYM :
+			sx = self.size[0]+3
+			ind = self.find_pnt_index( self.current )
+			def get_ortho( o , p , fwd ) :
+				up    = o - p
+				up    = np.cross(up,fwd)
+				right = np.cross(up,fwd)
+				up    = up    / la.norm(up)
+				right = right / la.norm(right)
+				return up , right
+			up , to = get_ortho( self.center , self.pts[ind] , self.axis )
+			va = np.dot( self.axis , v ) * self.axis
+			st = np.dot( to , v )
+			ind-= ind%sx
+			for i in range(ind,ind+sx) :
+				up , to = get_ortho( self.center , self.pts[i] , self.axis )
+				self.pts[i] += va
+				self.pts[i] += to * st
 
 		self.generate()
 

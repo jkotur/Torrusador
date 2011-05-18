@@ -54,6 +54,9 @@ class Node( list ) :
 	def add_child( self , child ) :
 		self.append( child )
 
+	def del_all( self ) :
+		del self[:]
+
 	def del_child( self , child ) :
 		self.remove( child )
 
@@ -64,6 +67,10 @@ class Node( list ) :
 		self.draw_data = data
 
 	def draw( self ) :
+		# getting current matrices for picking
+		self.currp  = glGetFloatv(GL_TRANSPOSE_PROJECTION_MATRIX)
+		self.currmv = glGetFloatv(GL_TRANSPOSE_MODELVIEW_MATRIX)
+
 		if self.color :
 			glColor3f( *self.color )
 

@@ -1,6 +1,9 @@
 
 import operator as op
 
+import math as m
+import numpy as np
+
 from OpenGL.GL import *
 
 from look.node import Node
@@ -110,6 +113,9 @@ class Scene :
 
 		self.node.translate(0,0,-2)
 
+	def clear( self ) :
+		self.curves.clear()
+
 	def gfx_init( self ) :
 		glPointSize(3)
 
@@ -191,6 +197,26 @@ class Scene :
 	def set_cursormode( self , mode ) :
 		self.cursormode = mode
 
+	def set_editmode( self , mode ) :
+		self.curves.set_editmode( mode )
+
+	def set_lookat( self , pos , look ) :
+		pos = np.array(pos)
+		look = np.array(look)
+		up = np.cross(look,(1,0,0))
+		if up[0]==0 and up[1]==0 and up[2]==0 :
+			up = np.cross(look,(0,0,1))
+		if up[0]==0 and up[1]==0 and up[2]==0 :
+			up = np.cross(look,(0,1,0))
+		up = up / np.linalg.norm(up)
+		print pos
+		print look 
+		print up
+		self.camera.lookat( pos , pos+look , up )
+		self.cam_left .lookat( pos , pos+look , up )
+		self.cam_right.lookat( pos , pos+look , up )
+
+
 	def get_cursor_pos( self ) :
 		return self.cursor.get_pos()
 	
@@ -232,9 +258,9 @@ class Scene :
 		elif self.cursormode == Scene.PNTBSADD :
 			self.curves.point_new( Curve.BSPLINE , self.cursor.get_pos() )
 		elif self.cursormode == Scene.PNTDEL :
-			self.curves.point_delete( self.cursor.get_pos() , self.pdist2 )
+			self.curves.point_delete( self.cursor.get_clipping_pos() , self.pdist2 )
 		elif self.cursormode == Scene.PNTEDIT :
-			self.curves.point_select( self.cursor.get_pos() , self.pdist2 )
+			self.curves.point_select( self.cursor.get_clipping_pos() , self.pdist2 )
 
 	def new_curve_c0( self ) :
 		self.curves.new( self.cursor.get_pos() , Curves.BEZIER_C0 , post_data=Curve.BEZIER ) 
@@ -257,15 +283,24 @@ class Scene :
 	def new_pipe( self , size ) :
 		self.curves.new( self.cursor.get_pos() , Curves.SURFACE_PIPE , pre_data = size )
 
+	def new_gregory( self , size ) :
+		self.curves.new( self.cursor.get_pos() , Curves.SURFACE_GREGORY , pre_data = size )
+
 	def delete_curve( self ) :
-		self.curves.delete( self.cursor.get_pos() , self.pdist2 )
+		self.curves.delete( self.cursor.get_clipping_pos() , self.pdist2 )
 
 	def select_curve( self ) :
-		self.curves.select( self.cursor.get_pos() , self.pdist2 )
+		self.curves.select( self.cursor.get_clipping_pos() , self.pdist2 )
 
 	def toggle_curve( self , which , what ) :
 		self.curves.toggle( which , what )
 
 	def set_surf_density( self , dens ) :
 		self.curves.set_surf_density( dens )
+
+	def load_from_file( self , path ) :
+		self.curves.load( path )
+
+	def dump_to_file( self , path ) :
+		self.curves.dump( path )
 

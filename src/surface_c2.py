@@ -1,5 +1,6 @@
 
 import numpy as np
+import numpy.linalg as la
 
 import math as m
 
@@ -23,7 +24,7 @@ def rekN( n , i ,  t ) :
 	return n1 * float(t - i) / float(n) + n2 * float(i + n + 1 - t) / float(n)
 
 class SurfaceC2( Points ) :
-	def __init__( self , data , pts_vis = True , curve_vis = True , polygon_vis = False ) :
+	def __init__( self , data , pts_vis = True , curve_vis = True , polygon_vis = False , pts = [] ) :
 		self.dv = np.zeros(3)
 
 		self.size = data[0]
@@ -31,7 +32,7 @@ class SurfaceC2( Points ) :
 
 		gm = Surface()
 
-		self.pts= []
+		self.pts = pts if pts != None else []
 
 		Points.__init__( self , gm )
 
@@ -51,6 +52,20 @@ class SurfaceC2( Points ) :
 				i+=1
 				self.base.append( rekN( 3 , j , t ) )
 		self.base = np.array( self.base , np.float32 )
+
+		if self.pts != [] :
+			self.generate()
+			self.get_geom().set_visibility( Bezier.CURVE , True )
+
+	def get_uv( self ) :
+		return self.size
+	
+	def get_pts( self ) :
+		return self.pts
+
+	def iter_pts( self ) :
+		for p in self.pts :
+			yield p
 
 	def set_visibility( self , type , pts , curves , polys ) :
 		if type == Curve.BSPLINE :
@@ -107,13 +122,29 @@ class SurfaceC2( Points ) :
 
 		self.get_geom().set_visibility( Bezier.CURVE , True )
 
+	def find_pnt_index( self , pnt ) :
+		for i in range(len(self.pts)) :
+			if id(self.pts[i]) == id(pnt) :
+				return i
+
 	def move_current( self , v ) :
 		if self.current == None :
 			return
 
-		self.dv += v
-		self.current += self.dv
-		self.dv = np.zeros(3)
+		if self.editmode == Points.PNT :
+			self.current += v
+		elif self.editmode == Points.ROW :
+			sx = self.size[0]+3
+			sy = self.size[1]+3
+			ind = self.find_pnt_index( self.current )
+			for i in range(ind%sx,sx*sy,sx) :
+				self.pts[i] += v
+		elif self.editmode == Points.COL :
+			sx = self.size[0]+3
+			ind = self.find_pnt_index( self.current )
+			ind-= ind%sx
+			for i in range(ind,ind+sx) :
+				self.pts[i] += v
 
 		self.generate()
 

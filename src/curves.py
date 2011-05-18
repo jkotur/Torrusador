@@ -1,4 +1,6 @@
 
+import numpy as np
+
 from look.node import Node
 
 from bezier_c0 import BezierC0 
@@ -7,12 +9,13 @@ from interpolation import Interpolation
 from surface_c0 import SurfaceC0
 from surface_c2 import SurfaceC2
 from pipe import Pipe
+from gregory_gap import GregoryGap
 
 from geom.bezier import Bezier
 from geom.curve import Curve
 
 class Curves( Node ) :
-	BEZIER_C0 , BEZIER_C2 , INTERPOLATION , SURFACE_C0 , SURFACE_C2 , SURFACE_PIPE = range(6)
+	BEZIER_C0 , BEZIER_C2 , INTERPOLATION , SURFACE_C0 , SURFACE_C2 , SURFACE_PIPE , SURFACE_GREGORY = range(7)
 
 	def __init__( self ) :
 		Node.__init__( self )
@@ -30,11 +33,18 @@ class Curves( Node ) :
 		self.w = 0
 		self.h = 0
 
+	def clear( self ) :
+		self.del_all()
+
 	def set_screen_size( self , w , h ) :
 		self.w = w
 		self.h = h
 		for b in self :
 			b.set_screen_size( w , h )
+
+	def set_editmode( self , mode ) :
+		for b in self :
+			b.set_editmode( mode )
 
 	def new( self , pos , which_cur , pre_data = None , post_data = None ) :
 		if which_cur == Curves.BEZIER_C0 :
@@ -51,6 +61,8 @@ class Curves( Node ) :
 			self.selected = SurfaceC2( pre_data , self.bz_points , self.bz_curves , self.bz_polygons )
 		elif which_cur == Curves.SURFACE_PIPE :
 			self.selected = Pipe( pre_data , self.bz_points , self.bz_curves , self.bz_polygons )
+		elif which_cur == Curves.SURFACE_GREGORY :
+			self.selected = GregoryGap( pre_data , self.bz_points , self.bz_curves , self.bz_polygons )
 
 		self.selected.new( pos , post_data )
 		self.add_child( self.selected )
@@ -123,6 +135,33 @@ class Curves( Node ) :
 
 	def set_surf_density( self , dens ) :
 		for b in self :
-			if isinstance(b,SurfaceC0) or isinstance(b,SurfaceC2) :
+			if isinstance(b,SurfaceC0) or isinstance(b,SurfaceC2) or isinstance(b,GregoryGap) :
 				b.set_density( dens )
+
+	def load( self , path ) :
+		with open(path,"r+") as f :
+			for k in xrange(int(f.readline())) :
+				u , v , t = map( int , f.readline().split(' ') )
+				pts = []
+				for i in xrange(u*(v+3) if t != 0 else (u+3)*(v+3)) :
+					pts.append( np.array( f.readline().split(' ') , np.float32 ) )
+				if t == 0 :
+					self.add_child( SurfaceC2( ( (u,v) , (1,1) ) ,
+						self.bz_points , self.bz_curves , self.bz_polygons , pts ) )
+				else : 
+					self.add_child( Pipe(( (u,v) , (1,1) ) ,
+						self.bz_points , self.bz_curves , self.bz_polygons , pts ) )
+
+	def dump( self , path ) :
+		with open(path,"w+") as f :
+			count = 0
+			for s in self : 
+				if not isinstance(s,SurfaceC2) : continue
+				count += 1
+			f.write(str(count)+"\n")
+			for s in self :
+				if not isinstance(s,SurfaceC2) : continue
+				f.write("{1} {2} {0}\n".format(int(isinstance(s,Pipe)),*s.get_uv()))
+				for p in s.iter_pts() :
+					f.write("{0} {1} {2}\n".format(*p))
 

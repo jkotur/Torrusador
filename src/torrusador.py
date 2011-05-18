@@ -1,4 +1,4 @@
-import sys
+import sys , os.path
 
 import pygtk
 pygtk.require('2.0')
@@ -13,6 +13,7 @@ from glwidget import GLDrawingArea
 
 from scene import Scene
 
+from points import Points
 from geom.curve import Curve
 
 ui_file = "torrusador.ui"
@@ -49,7 +50,7 @@ class App(object):
 
 		win_main.show_all()
 		self.box3d.hide();
-
+		
 		width = self.drawing_area.allocation.width
 		height = self.drawing_area.allocation.height
 		ratio = float(width)/float(height)
@@ -81,6 +82,15 @@ class App(object):
 		self.sp_near = builder.get_object('sp_near')
 		self.sp_near.set_value(self.near)
 
+		self.sp_pos_x  = builder.get_object('sp_pos_x')
+		self.sp_pos_y  = builder.get_object('sp_pos_y')
+		self.sp_pos_z  = builder.get_object('sp_pos_z')
+		self.sp_look_x = builder.get_object('sp_look_x')
+		self.sp_look_y = builder.get_object('sp_look_y')
+		self.sp_look_z = builder.get_object('sp_look_z')
+
+		self.on_but_pos_appyly_clicked( None )
+
 		self.tbut_add_c0    = builder.get_object('tbut_add_c0'   )
 		self.tbut_add_c2    = builder.get_object('tbut_add_c2'   )
 		self.tbut_add_inter = builder.get_object('tbut_add_interpolation')
@@ -90,14 +100,32 @@ class App(object):
 		self.tbut_add_surf_c0 = builder.get_object('tbut_add_surf_c0' )
 		self.tbut_add_surf_c2 = builder.get_object('tbut_add_surf_c2' )
 		self.tbut_add_pipe    = builder.get_object('tbut_add_pipe' )
+		self.tbut_add_gregory = builder.get_object('tbut_add_gregory' )
 
-		self.tbuts= [ self.tbut_add_c0 , self.tbut_add_c2 , self.tbut_add_inter , self.tbut_del_curve , self.tbut_sel_curve , self.tbut_add_surf_c0 , self.tbut_add_surf_c2 , self.tbut_add_pipe ]
+		self.tbuts= [ self.tbut_add_c0 , self.tbut_add_c2 , self.tbut_add_inter , self.tbut_del_curve , self.tbut_sel_curve , self.tbut_add_surf_c0 , self.tbut_add_surf_c2 , self.tbut_add_pipe , self.tbut_add_gregory ]
 
 		self.sp_surf_x = builder.get_object('sp_surf_x')
 		self.sp_surf_y = builder.get_object('sp_surf_y')
 
 		self.sp_draw_surf_x = builder.get_object('sp_draw_surf_x')
 		self.sp_draw_surf_y = builder.get_object('sp_draw_surf_y')
+
+		self.win_dia_load = builder.get_object('win_dia_load')
+		self.win_dia_save = builder.get_object('win_dia_save')
+
+		if os.path.isdir( '../data/' ) :
+			self.win_dia_load.set_current_folder('../data/')
+			self.win_dia_save.set_current_folder('../data/')
+
+		self.win_dia_load.set_transient_for(win_main)
+		self.win_dia_load.add_button(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL)
+		self.win_dia_load.add_button(gtk.STOCK_OPEN  ,gtk.RESPONSE_OK    )
+
+		self.win_dia_save.set_transient_for(win_main)
+		self.win_dia_save.add_button(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL)
+		self.win_dia_save.add_button(gtk.STOCK_SAVE  ,gtk.RESPONSE_OK    )
+
+		self.save_file = None
 
 	def _init_keyboard( self ) :
 		self.move = [0,0,0]
@@ -153,6 +181,7 @@ class App(object):
 	def on_sp_draw_surf_value_changed( self , widget , data=None ) :
 		self.scene.set_surf_density(
 				(self.sp_draw_surf_x.get_value_as_int(),self.sp_draw_surf_y.get_value_as_int() ) )
+		self.drawing_area.queue_draw()
 
 	def _on_reshape( self , widget , data=None ) :
 		width = self.drawing_area.allocation.width
@@ -164,6 +193,8 @@ class App(object):
 		self.scene.set_ratio( ratio )
 
 	def _on_button_pressed( self , widget , data=None ) :
+		surfdata = ( ( self.sp_surf_x.get_value_as_int() , self.sp_surf_y.get_value_as_int() ) ,
+					 ( self.sp_draw_surf_x.get_value_as_int() , self.sp_draw_surf_y.get_value_as_int() ) ) 
 		if data.button == 1 :
 			self.mouse_pos = -data.x , data.y
 		elif data.button == 3 :
@@ -174,26 +205,17 @@ class App(object):
 				self.scene.new_curve_c2()
 				self.tbut_add_c2.set_active(False)
 			elif self.tbut_add_surf_c0.get_active() :
-				self.scene.new_surface_c0(
-						( ( self.sp_surf_x.get_value_as_int() , 
-							self.sp_surf_y.get_value_as_int() ) ,
-						  ( self.sp_draw_surf_x.get_value_as_int() , 
-							self.sp_draw_surf_y.get_value_as_int() ) ) )
+				self.scene.new_surface_c0( surfdata )
 				self.tbut_add_surf_c0.set_active(False)
 			elif self.tbut_add_surf_c2.get_active() :
-				self.scene.new_surface_c2(
-						( ( self.sp_surf_x.get_value_as_int() , 
-							self.sp_surf_y.get_value_as_int() ) ,
-						  ( self.sp_draw_surf_x.get_value_as_int() , 
-							self.sp_draw_surf_y.get_value_as_int() ) ) )
+				self.scene.new_surface_c2( surfdata )
 				self.tbut_add_surf_c2.set_active(False)
 			elif self.tbut_add_pipe.get_active() :
-				self.scene.new_pipe(
-						( ( self.sp_surf_x.get_value_as_int() , 
-							self.sp_surf_y.get_value_as_int() ) ,
-						  ( self.sp_draw_surf_x.get_value_as_int() , 
-							self.sp_draw_surf_y.get_value_as_int() ) ) )
+				self.scene.new_pipe( surfdata )
 				self.tbut_add_pipe.set_active(False)
+			elif self.tbut_add_gregory.get_active() :
+				self.scene.new_gregory( surfdata )
+				self.tbut_add_gregory.set_active(False)
 			elif self.tbut_add_inter.get_active() :
 				self.scene.new_curve_interpolation()
 				self.tbut_add_inter.set_active(False)
@@ -373,6 +395,48 @@ class App(object):
 	def on_rbut_pnt_edit_pressed( self , widget , data=None ) :
 		self.scene.set_cursormode( Scene.PNTEDIT )
 
+	def on_rbut_edit_point_toggled( self , widget , data=None ) :
+		self.scene.set_editmode( Points.PNT )
+	def on_rbut_edit_row_toggled( self , widget , data=None ) :
+		self.scene.set_editmode( Points.ROW )
+	def on_rbut_edit_column_toggled( self , widget , data=None ) :
+		self.scene.set_editmode( Points.COL )
+	def on_rbut_edit_symetric_toggled( self , widget , data=None ) :
+		self.scene.set_editmode( Points.SYM )
+
+	def on_but_pos_appyly_clicked( self , widget , data=None ) :
+		self.scene.set_lookat(
+				( self.sp_pos_x.get_value() ,
+				  self.sp_pos_y.get_value() ,
+				  self.sp_pos_z.get_value() ) ,
+				( self.sp_look_x.get_value() ,
+				  self.sp_look_y.get_value() ,
+				  self.sp_look_z.get_value() ) )
+		self.drawing_area.queue_draw()
+
+	def on_mitem_load_activate( self , widget , data=None ) :
+		if self.win_dia_load.run() == gtk.RESPONSE_OK :
+			self.save_file = self.win_dia_load.get_filename()
+			self.scene.load_from_file( self.save_file )
+			self.drawing_area.queue_draw()
+		self.win_dia_load.hide()
+
+	def on_mitem_new_activate( self , widget , data=None ) :
+		self.scene.clear()
+		self.drawing_area.queue_draw()
+
+	def on_mitem_save_activate( self , widget , data=None ) :
+		if self.save_file != None :
+			self.scene.dump_to_file( self.save_file )
+		else :
+			self.on_mitem_saveas_activate( widget , data )
+
+	def on_mitem_saveas_activate( self , widget , data=None ) :
+		if self.win_dia_save.run() == gtk.RESPONSE_OK :
+			self.save_file = self.win_dia_save.get_filename() 
+			self.scene.dump_to_file( self.save_file )
+		self.win_dia_save.hide()
+		
 	def on_show( self , widget , data=None ):
 		widget.show_all()
 

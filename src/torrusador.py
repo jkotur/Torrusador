@@ -51,9 +51,6 @@ class App(object):
 		win_main.show_all()
 		self.box3d.hide();
 		
-		# TODO: implement this table in future :)
-		builder.get_object("table4").hide()
-
 		width = self.drawing_area.allocation.width
 		height = self.drawing_area.allocation.height
 		ratio = float(width)/float(height)
@@ -85,6 +82,15 @@ class App(object):
 		self.sp_near = builder.get_object('sp_near')
 		self.sp_near.set_value(self.near)
 
+		self.sp_pos_x  = builder.get_object('sp_pos_x')
+		self.sp_pos_y  = builder.get_object('sp_pos_y')
+		self.sp_pos_z  = builder.get_object('sp_pos_z')
+		self.sp_look_x = builder.get_object('sp_look_x')
+		self.sp_look_y = builder.get_object('sp_look_y')
+		self.sp_look_z = builder.get_object('sp_look_z')
+
+		self.on_but_pos_appyly_clicked( None )
+
 		self.tbut_add_c0    = builder.get_object('tbut_add_c0'   )
 		self.tbut_add_c2    = builder.get_object('tbut_add_c2'   )
 		self.tbut_add_inter = builder.get_object('tbut_add_interpolation')
@@ -96,7 +102,7 @@ class App(object):
 		self.tbut_add_pipe    = builder.get_object('tbut_add_pipe' )
 		self.tbut_add_gregory = builder.get_object('tbut_add_gregory' )
 
-		self.tbuts= [ self.tbut_add_c0 , self.tbut_add_c2 , self.tbut_add_inter , self.tbut_del_curve , self.tbut_sel_curve , self.tbut_add_surf_c0 , self.tbut_add_surf_c2 , self.tbut_add_pipe ]
+		self.tbuts= [ self.tbut_add_c0 , self.tbut_add_c2 , self.tbut_add_inter , self.tbut_del_curve , self.tbut_sel_curve , self.tbut_add_surf_c0 , self.tbut_add_surf_c2 , self.tbut_add_pipe , self.tbut_add_gregory ]
 
 		self.sp_surf_x = builder.get_object('sp_surf_x')
 		self.sp_surf_y = builder.get_object('sp_surf_y')
@@ -397,6 +403,16 @@ class App(object):
 		self.scene.set_editmode( Points.COL )
 	def on_rbut_edit_symetric_toggled( self , widget , data=None ) :
 		self.scene.set_editmode( Points.SYM )
+
+	def on_but_pos_appyly_clicked( self , widget , data=None ) :
+		self.scene.set_lookat(
+				( self.sp_pos_x.get_value() ,
+				  self.sp_pos_y.get_value() ,
+				  self.sp_pos_z.get_value() ) ,
+				( self.sp_look_x.get_value() ,
+				  self.sp_look_y.get_value() ,
+				  self.sp_look_z.get_value() ) )
+		self.drawing_area.queue_draw()
 
 	def on_mitem_load_activate( self , widget , data=None ) :
 		if self.win_dia_load.run() == gtk.RESPONSE_OK :

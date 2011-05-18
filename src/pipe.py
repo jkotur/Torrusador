@@ -17,6 +17,16 @@ class Pipe( SurfaceC2 ) :
 		data = ( (max(data[0][0],3),data[0][1]) , data[1] )
 
 		if pts != None :
+			self.center = np.zeros(3)
+			for p in range(0,data[0][0]) : self.center += pts[p]
+			self.center = self.center / float(data[0][0])
+
+			self.axis = np.zeros(3)
+			for p in range(data[0][0],2*data[0][0]) : self.axis += pts[p]
+			self.axis = self.axis / float(data[0][0])
+			self.axis = self.axis - self.center
+			self.axis = self.axis / la.norm(self.axis)
+
 			u = data[0][0]
 			for v in reversed(range(data[0][1]+3)) :
 				pts.insert( u*(v+1) , pts[u*v+2] )

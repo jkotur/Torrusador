@@ -1,6 +1,9 @@
 
 import operator as op
 
+import math as m
+import numpy as np
+
 from OpenGL.GL import *
 
 from look.node import Node
@@ -196,6 +199,23 @@ class Scene :
 
 	def set_editmode( self , mode ) :
 		self.curves.set_editmode( mode )
+
+	def set_lookat( self , pos , look ) :
+		pos = np.array(pos)
+		look = np.array(look)
+		up = np.cross(look,(1,0,0))
+		if up[0]==0 and up[1]==0 and up[2]==0 :
+			up = np.cross(look,(0,0,1))
+		if up[0]==0 and up[1]==0 and up[2]==0 :
+			up = np.cross(look,(0,1,0))
+		up = up / np.linalg.norm(up)
+		print pos
+		print look 
+		print up
+		self.camera.lookat( pos , pos+look , up )
+		self.cam_left .lookat( pos , pos+look , up )
+		self.cam_right.lookat( pos , pos+look , up )
+
 
 	def get_cursor_pos( self ) :
 		return self.cursor.get_pos()

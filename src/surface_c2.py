@@ -30,8 +30,6 @@ class SurfaceC2( Points ) :
 		self.size = data[0]
 		self.dens = data[1]
 
-		self.axis = np.array((0,1,0))
-
 		gm = Surface()
 
 		self.pts = pts if pts != None else []
@@ -89,10 +87,6 @@ class SurfaceC2( Points ) :
 	def make_pts( self , corners ) :
 		dx = (corners[1] - corners[0]) / (self.size[0]+3-1)
 		dy = (corners[3] - corners[0]) / (self.size[1]+3-1)
-
-		self.axis   = np.cross(dx,dy)
-		self.axis   = self.axis / la.norm(self.axis)
-		self.center = dx*(self.size[0]+3)/2.0 + dy*(self.size[1]+3)/2.0
 
 		del self.pts[:]
 

@@ -61,3 +61,42 @@ class Pipe( SurfaceC2 ) :
 			self.pts.append( self.pts[-self.size[0]] )
 			ox += dy 
 
+	def move_current( self , v ) :
+		if self.current == None :
+			return
+
+		if self.editmode == Points.PNT :
+			self.current += v
+		elif self.editmode == Points.ROW :
+			sx = self.size[0]+3
+			sy = self.size[1]+3
+			ind = self.find_pnt_index( self.current )
+			for i in range(ind%sx,sx*sy,sx) :
+				self.pts[i] += v
+		elif self.editmode == Points.COL :
+			sx = self.size[0]+3
+			ind = self.find_pnt_index( self.current )
+			ind-= ind%sx
+			for i in range(ind,ind+sx-3) :
+				self.pts[i] += v
+		elif self.editmode == Points.SYM :
+			sx = self.size[0]+3
+			ind = self.find_pnt_index( self.current )
+			def get_ortho( o , p , fwd ) :
+				up    = o - p
+				up    = np.cross(up,fwd)
+				right = np.cross(up,fwd)
+				up    = up    / la.norm(up)
+				right = right / la.norm(right)
+				return up , right
+			up , to = get_ortho( self.center , self.pts[ind] , self.axis )
+			va = np.dot( self.axis , v ) * self.axis
+			st = np.dot( to , v )
+			ind-= ind%sx
+			for i in range(ind,ind+sx-3) :
+				up , to = get_ortho( self.center , self.pts[i] , self.axis )
+				self.pts[i] += va
+				self.pts[i] += to * st
+
+		self.generate()
+

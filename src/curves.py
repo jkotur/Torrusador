@@ -16,6 +16,7 @@ from geom.curve import Curve
 
 class Curves( Node ) :
 	BEZIER_C0 , BEZIER_C2 , INTERPOLATION , SURFACE_C0 , SURFACE_C2 , SURFACE_PIPE , SURFACE_GREGORY = range(7)
+	C0 , C1 , C2 = range(3)
 
 	def __init__( self ) :
 		Node.__init__( self )
@@ -137,6 +138,17 @@ class Curves( Node ) :
 		for b in self :
 			if isinstance(b,SurfaceC0) or isinstance(b,SurfaceC2) or isinstance(b,GregoryGap) :
 				b.set_density( dens )
+
+	def fill_gap( self , c ) :
+		if isinstance(self.selected,GregoryGap) :
+			if c == None :
+				self.selected.fill_gap_none()
+			if c == Curves.C0 :
+				self.selected.fill_gap_c0()
+			elif c == Curves.C1 :
+				self.selected.fill_gap_c1()
+			elif c == Curves.C2 :
+				self.selected.fill_gap_c2()
 
 	def load( self , path ) :
 		with open(path,"r+") as f :

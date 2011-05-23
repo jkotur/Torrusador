@@ -51,6 +51,9 @@ class SurfaceC0( Points ) :
 			self.generate()
 			self.get_geom().set_visibility( Bezier.CURVE , True )
 
+	def get_pts( self ) :
+		return self.pts
+
 	def set_visibility( self , type , pts , curves , polys ) :
 		if type == Curve.BEZIER :
 			self.get_geom().set_visibility( Curve.POINTS  , pts    )
@@ -102,7 +105,6 @@ class SurfaceC0( Points ) :
 
 	def generate( self ) :
 		self.bezx , self.bezy = csurf.gen_bezier( self.pts , self.bezx , self.bezy , self.size[0] , self.size[1] , self.sized[0] , self.sized[1] , self.dens[0] , self.dens[1] )
-	
 
 	def generate_python( self , pts , bezx , bezy , zx , zy , sx , sy , dx , dy ) :
 		py = 0

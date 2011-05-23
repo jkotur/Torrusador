@@ -23,6 +23,7 @@ class Scene :
 	DRAW2D , DRAW3D = range(2)
 	NONE , CURSOR , TRANSLATE , SCALE , ISOSCALE , ROTATE , CAMERA = range(7)
 	PNTBZADD , PNTBSADD , PNTDEL , PNTEDIT = range(4)
+	C0 , C1 , C2 = Curves.C0 , Curves.C1 , Curves.C2
 
 	def __init__( self , fov , ratio , near ) :
 		self.fov = fov
@@ -43,10 +44,12 @@ class Scene :
 
 		self.curves= Curves()
 
-#        self.curves.new( (-1,-1,0) , Curves.BEZIER_C2 , Curve.BSPLINE )
-#        self.curves.point_new( Curve.BSPLINE , (-1,1,0) )
-#        self.curves.point_new( Curve.BSPLINE , (1,1,0) )
-#        self.curves.point_new( Curve.BSPLINE , (1,-1,0) )
+		#
+		# Create Gregory's gap
+		#
+		self.curves.new( (-1,-.75,0) , Curves.SURFACE_GREGORY , pre_data = ((3,1),(1,1)) )
+		self.curves.point_new( Curve.BEZIER , (0,2*0.866-.75,0) )
+		self.curves.point_new( Curve.BEZIER , (1,-.75,0) )
 
 		#
 		# Craete torus
@@ -209,9 +212,6 @@ class Scene :
 		if up[0]==0 and up[1]==0 and up[2]==0 :
 			up = np.cross(look,(0,1,0))
 		up = up / np.linalg.norm(up)
-		print pos
-		print look 
-		print up
 		self.camera.lookat( pos , pos+look , up )
 		self.cam_left .lookat( pos , pos+look , up )
 		self.cam_right.lookat( pos , pos+look , up )
@@ -294,6 +294,9 @@ class Scene :
 
 	def toggle_curve( self , which , what ) :
 		self.curves.toggle( which , what )
+
+	def fill_gap( self , c ) :
+		self.curves.fill_gap( c )
 
 	def set_surf_density( self , dens ) :
 		self.curves.set_surf_density( dens )

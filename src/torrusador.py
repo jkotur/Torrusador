@@ -404,6 +404,19 @@ class App(object):
 	def on_rbut_edit_symetric_toggled( self , widget , data=None ) :
 		self.scene.set_editmode( Points.SYM )
 
+	def on_rbut_gap_toggled( self , widget , data=None ) :
+		self.scene.fill_gap( None )
+		self.drawing_area.queue_draw()
+	def on_rbut_gap_c0_toggled( self , widget , data=None ) :
+		self.scene.fill_gap( Scene.C0 )
+		self.drawing_area.queue_draw()
+	def on_rbut_gap_c1_toggled( self , widget , data=None ) :
+		self.scene.fill_gap( Scene.C1 )
+		self.drawing_area.queue_draw()
+	def on_rbut_gap_c2_toggled( self , widget , data=None ) :
+		self.scene.fill_gap( Scene.C2 )
+		self.drawing_area.queue_draw()
+
 	def on_but_pos_appyly_clicked( self , widget , data=None ) :
 		self.scene.set_lookat(
 				( self.sp_pos_x.get_value() ,

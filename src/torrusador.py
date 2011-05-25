@@ -146,8 +146,7 @@ class App(object):
 			elif (data.keyval,False) in self.dirskeys[i][1] :
 				self.dirskeys[i][1][ self.dirskeys[i][1].index( (data.keyval,False) ) ] = (data.keyval,True)
 				self.move[i]-= 1
-                      
-                      
+
 	def _on_key_released( self , widget , data=None ) :
 		for i in range(len(self.dirskeys)) :
 			if (data.keyval,True) in self.dirskeys[i][0] :
@@ -156,7 +155,7 @@ class App(object):
 			elif (data.keyval,True) in self.dirskeys[i][1] :
 				self.dirskeys[i][1][ self.dirskeys[i][1].index( (data.keyval,True) ) ] = (data.keyval,False)
 				self.move[i]+= 1
-                      
+
 	def _move_callback( self ) :
 		self.scene.key_pressed( self.move )
 		self.drawing_area.queue_draw()

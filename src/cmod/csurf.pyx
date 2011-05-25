@@ -1,6 +1,10 @@
 
 cimport numpy as np
 
+from scipy import interpolate
+from scipy import optimize
+import scipy.spatial.distance as dist
+
 import cython
 
 import random as rnd
@@ -342,3 +346,87 @@ cpdef gen_gregory( pts , np.ndarray[ float , ndim=1 ] bezx , np.ndarray[ float ,
 			y+=dy*3
 
 	return bezx , bezy
+
+def center( p0 , pts ) :
+	return [ dist.euclidean(p,p0) for p in pts ]
+
+def fill_gap_c0( surfs , subsurfs , snum ) :
+	pts = [ s.get_pts() for s in surfs[snum:] ]
+
+	q = np.empty( (snum,3) , np.float32 )
+
+	for i in range(snum) :
+		split_bezier_surf( surfs[i].get_pts() , subsurfs[i] )
+
+	for i in range(snum) :
+		pts[i][ 1] = subsurfs[i-1,  9]
+		pts[i][ 2] = subsurfs[i-1, 10]
+		pts[i][ 3] = subsurfs[i-1, 11]
+		pts[i][ 0] = subsurfs[i  ,  0]
+		pts[i][ 4] = subsurfs[i  ,  1]
+		pts[i][ 8] = subsurfs[i  ,  2]
+		pts[i][12] = subsurfs[i  ,  3]
+
+		pts[i][ 6] = 2*pts[i][ 1] - subsurfs[i-1,13]
+		pts[i][ 9] = 2*pts[i][ 2] - subsurfs[i-1,14]
+		pts[i][ 7] = 2*pts[i][ 3] - subsurfs[i-1,15]
+                                                
+		pts[i][ 5] = 2*pts[i][ 4] - subsurfs[i  , 5]
+		pts[i][17] = 2*pts[i][ 8] - subsurfs[i  , 6]
+		pts[i][13] = 2*pts[i][12] - subsurfs[i  , 7]
+
+		pts[i][10] = pts[i][ 9]
+		pts[i][16] = pts[i][17]
+		
+		q[i] = (3.0*pts[i][7]-1.0*pts[i][3])/2.0
+
+	p0 = np.mean(q,0)
+	p0 ,  err = optimize.leastsq( center , p0 , q )
+
+	if err > 4 :
+		print 'leastsq err' , err
+		p0 = np.mean(q,0)
+
+	for i in range(snum) :
+		pts[i][15] = p0
+		pts[i][11] = (2.0*q[i]+p0)/3.0
+
+	for i in range(snum) :
+		pts[i-1][14] = pts[i][11]
+
+	x = [ 0.0 , 1.0 , 3.0 ]
+	for i in range(snum) :
+		y = np.array(
+				( pts[i][ 2]-pts[i][ 3] ,
+				  pts[i][10]-pts[i][ 7] ,
+				  pts[i][14]-pts[i][15] ) , np.float32 )
+		pts[i][18] = pts[i][11] + interpolate.interp1d( x , y , 'quadratic' , 0 , False )(2.0)
+		pts[i][18] = np.array( pts[i][18] , np.float32 )
+		y = np.array(
+				( pts[i][ 8]-pts[i][12] ,
+				  pts[i][16]-pts[i][13] ,
+				  pts[i][11]-pts[i][15] ) , np.float32 )
+		pts[i][19] = pts[i][14] + interpolate.interp1d( x , y , 'quadratic' , 0 , False )(2.0)
+		pts[i][19] = np.array( pts[i][19] , np.float32 )
+
+	return pts
+
+def fill_gap_c1( surfs , subsurfs , snum ) :
+	pts = fill_gap_c0( surfs , subsurfs , snum )
+
+	surfs[0                ].get_pts()[4] = 3*pts[0][0]-2*pts[0][1]
+	surfs[snum-1].get_pts()[7] = 3*pts[0][0]-2*pts[0][4]
+	for i in range(1,snum) :
+		surfs[i  ].get_pts()[4] = 3*pts[i][0]-2*pts[i][1]
+		surfs[i-1].get_pts()[7] = 3*pts[i][0]-2*pts[i][4]
+
+	return pts
+
+def fill_gap_c2( surfs , subsurfs , snum ) :
+	pts = fill_gap_c1( surfs , subsurfs , snum )
+
+	for i in range(snum) :
+		p = surfs[i].get_pts()
+		p[6] = p[7]+p[2]-p[3]
+		p[5] = p[4]+p[1]-p[0]
+

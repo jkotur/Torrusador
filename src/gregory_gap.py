@@ -24,12 +24,8 @@ import csurf
 
 from OpenGL.GL import *
 
-def calc_R( p0 , pts ) :
+def center( p0 , pts ) :
 	return [ dist.euclidean(p,p0) for p in pts ]
-
-def center(c , pts ) :
-	Ri = calc_R( c , pts )
-	return Ri - np.mean(Ri)
 
 def get_array( tab , i ) :
 	return tab[i]
@@ -179,11 +175,11 @@ class GregoryGap( Points ) :
 			q[i] = (3.0*pts[i][7]-1.0*pts[i][3])/2.0
 
 		p0 = np.mean(q,0)
-#        p0 ,  err = optimize.leastsq( center , p0 , q )
+		p0 ,  err = optimize.leastsq( center , p0 , q )
 
-#        if err > 4 :
-#            print 'err' , err
-#            p0 = np.mean(q,0)
+		if err > 4 :
+			print 'leastsq err' , err
+			p0 = np.mean(q,0)
 
 		for i in range(snum) :
 			pts[i][15] = p0

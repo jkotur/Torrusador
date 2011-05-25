@@ -1823,6 +1823,24 @@ Gregory'ego</property>
                                                 <property name="position">2</property>
                                               </packing>
                                             </child>
+                                            <child>
+                                              <object class="GtkRadioButton" id="rbut_gap_c2">
+                                                <property name="label" translatable="yes">Wypełnij C2</property>
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">True</property>
+                                                <property name="receives_default">False</property>
+                                                <property name="use_action_appearance">False</property>
+                                                <property name="active">True</property>
+                                                <property name="draw_indicator">True</property>
+                                                <property name="group">rbut_gap</property>
+                                                <signal name="toggled" handler="on_rbut_gap_c2_toggled" swapped="no"/>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">True</property>
+                                                <property name="fill">True</property>
+                                                <property name="position">3</property>
+                                              </packing>
+                                            </child>
                                           </object>
                                         </child>
                                       </object>

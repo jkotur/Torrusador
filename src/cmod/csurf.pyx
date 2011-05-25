@@ -31,6 +31,8 @@ cdef void decasteljau( np.ndarray[ float , ndim=1 ] pts , float t ,
 	out[id+1] = pts[1]
 	out[id+2] = pts[2]
 
+@cython.boundscheck(False)
+@cython.cdivision(True)
 cdef void split_bezier( np.ndarray[ float , ndim=2 ] pts , int ioffset , np.ndarray[ float , ndim=2 ] out , int l , int ooffset , int stride ) :
 	cdef int k = 0
 	cdef int i = 0
@@ -48,8 +50,8 @@ cdef void split_bezier( np.ndarray[ float , ndim=2 ] pts , int ioffset , np.ndar
 		ido+= stride
 		k  -= 1
 
-#@cython.boundscheck(False)
-#@cython.cdivision(True)
+@cython.boundscheck(False)
+@cython.cdivision(True)
 cpdef int split_bezier_surf( pts , np.ndarray[ float , ndim=2 ] out ) :
 	cdef np.ndarray[ float , ndim=2 ] rows = np.zeros( (4*4,3) , np.float32 )
 

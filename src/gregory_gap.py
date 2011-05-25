@@ -2,6 +2,10 @@
 import math as m
 import numpy as np
 from scipy import interpolate
+from scipy import optimize
+import scipy as sp
+
+import scipy.spatial.distance as dist
 
 import copy as cp
 
@@ -19,6 +23,13 @@ from points import Points
 import csurf
 
 from OpenGL.GL import *
+
+def calc_R( p0 , pts ) :
+	return [ dist.euclidean(p,p0) for p in pts ]
+
+def center(c , pts ) :
+	Ri = calc_R( c , pts )
+	return Ri - np.mean(Ri)
 
 def get_array( tab , i ) :
 	return tab[i]
@@ -140,7 +151,7 @@ class GregoryGap( Points ) :
 		else :
 			pts = [ s.get_pts() for s in self.surfs[self.base_surfs:] ]
 
-		q = [None]*snum
+		q = np.empty( (snum,3) , np.float32 )
 
 		for i in range(snum) :
 			csurf.split_bezier_surf( self.surfs[i].get_pts() , self._subsurfs[i] )
@@ -167,7 +178,12 @@ class GregoryGap( Points ) :
 
 			q[i] = (3.0*pts[i][7]-1.0*pts[i][3])/2.0
 
-		p0 = sum( q ) / snum
+		p0 = np.mean(q,0)
+#        p0 ,  err = optimize.leastsq( center , p0 , q )
+
+#        if err > 4 :
+#            print 'err' , err
+#            p0 = np.mean(q,0)
 
 		for i in range(snum) :
 			pts[i][15] = p0
@@ -195,15 +211,32 @@ class GregoryGap( Points ) :
 			for i in range(snum) :
 				self.surfs.append( SurfaceGregory( ((1,1),self.dens) , pts = pts[i] ) )
 
+		return pts
+
 	def _fill_gap_c1( self ) :
-		pass
+		pts = self._fill_gap_c0()
+
+		self.surfs[0                ].get_pts()[4] = 3*pts[0][0]-2*pts[0][1]
+		self.surfs[self.base_surfs-1].get_pts()[7] = 3*pts[0][0]-2*pts[0][4]
+		for i in range(1,self.base_surfs) :
+			self.surfs[i  ].get_pts()[4] = 3*pts[i][0]-2*pts[i][1]
+			self.surfs[i-1].get_pts()[7] = 3*pts[i][0]-2*pts[i][4]
+
+		return pts
 
 	def _fill_gap_c2( self ) :
-		pass
+		pts = self._fill_gap_c1()
+
+		for i in range(self.base_surfs) :
+			p = self.surfs[i].get_pts()
+			p[6] = p[7]+p[2]-p[3]
+			p[5] = p[4]+p[1]-p[0]
 
 	def fill_gap( self ) :
 		if self._fill_gap != None :
 			self._fill_gap()
+			for i in range(self.base_surfs) :
+				self.surfs[i].generate()
 		else :
 			del self.surfs[self.base_surfs:]
 	def fill_gap_none( self ) :

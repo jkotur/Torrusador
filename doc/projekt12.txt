@@ -1,1 +1,57 @@
-zaklejanie dziur w powierzchniach przy użyciu płatków gregoriego
+Trymowanie powierzchni bspline
+
+użytkownik wybiera dwie powierzchnie
+
+program znajduje przecięcie 
+
+jeżeli jest więcej niż jedno przecięcie, pgram ma znaleźć oba, ale z pomocą użytkownika 
+
+jak jest jedno interwencja nie powinna być potrzebna
+
+1 krok:
+
+znalezienie dowolnego punktu na krzywej trymującej
+
+- metoda sprzężonych gradientów
+
+2 krok:
+
+wyświetlanie krzywą łamaną
+
+znalezienie krzywej
+
+co najmniej metoda Newtona
+ / 
+<  P(u,v) - Q(s,t) = 0
+ | <P(u_k,v_k)-P(u_{k-1},v_{k-1}),T(u_{k-1},v_{k-1})> = delta
+ \
+
+nie zmniejszać delty automatycznie
+
+po przecięciu użytkownik może wybrać widoczność poszczególnych płatków
+
+wszystko ma być ciągle tym samym bsplinem
+
+krzywa trymująca ma być dodatkową informacją o płatku
+
+trzymanie krzywej trymującej w uv
+
+może być wiele krzywych trymujących
+
+podział przestrzeni uv na rozłączne obszary
+
+deadline :  09.06.2011
+
+ PRZYPADKI DO ROZWARZENIA:
+
+ 1. dwie powierzchnie grzecznie się przecinają
+ 2. jedna z powierzchni większa od drugiej
+ 3. płaszczyzna przez rurę
+ 4. dwie rury przecinające się przez sklejenie
+
+ 5. 
+
+DEBUG:
+
+rysowanie przestrzeni uv
+

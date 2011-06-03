@@ -17,6 +17,8 @@ from copy import copy
 
 import csurf
 
+from OpenGL.GL import *
+
 def rekN( n , i ,  t ) :
 	if n == 0 : return 1 if t >= i and t < i + 1 else 0
 	n1 = rekN(n - 1, i, t)
@@ -24,7 +26,7 @@ def rekN( n , i ,  t ) :
 	return n1 * float(t - i) / float(n) + n2 * float(i + n + 1 - t) / float(n)
 
 class SurfaceC2( Points ) :
-	def __init__( self , data , pts_vis = True , curve_vis = True , polygon_vis = False , pts = [] ) :
+	def __init__( self , data , pts_vis = True , curve_vis = True , polygon_vis = False , pts = None ) :
 		self.dv = np.zeros(3)
 
 		self.size = data[0]
@@ -57,11 +59,53 @@ class SurfaceC2( Points ) :
 			self.generate()
 			self.get_geom().set_visibility( Bezier.CURVE , True )
 
+	def draw( self ) :
+		Points.draw( self )
+
+		v = 2.2
+
+		glColor3f(1,0,0,0)
+		glBegin(GL_LINES)
+		p = csurf.bspline_surf        ( 0 , v , self.array_pts )
+		dv= csurf.bspline_surf_prime_v( 0 , v , self.array_pts )
+		du= csurf.bspline_surf_prime_u( 0 , v , self.array_pts )
+		glVertex3f( p[0] , p[1] , p[2] )
+		glVertex3f(*(p+dv) )
+		glVertex3f( p[0] , p[1] , p[2] )
+		glVertex3f(*(p+du) )
+		glVertex3f( p[0] , p[1] , p[2] )
+		for i in np.linspace(float(self.size[0])/64,self.size[0],64,False) :
+			p = csurf.bspline_surf        ( i , v , self.array_pts )
+			dv= csurf.bspline_surf_prime_v( i , v , self.array_pts )
+			du= csurf.bspline_surf_prime_u( i , v , self.array_pts )
+			glVertex3f( p[0] , p[1] , p[2] )
+			glVertex3f( p[0] , p[1] , p[2] )
+			glVertex3f(*(p+dv) )
+			glVertex3f( p[0] , p[1] , p[2] )
+			glVertex3f(*(p+du) )
+			glVertex3f( p[0] , p[1] , p[2] )
+		p = csurf.bspline_surf        ( self.size[0] , v , self.array_pts )
+		dv= csurf.bspline_surf_prime_v( self.size[0] , v , self.array_pts )
+		du= csurf.bspline_surf_prime_u( self.size[0] , v , self.array_pts )
+		glVertex3f( p[0] , p[1] , p[2] )
+		glVertex3f(*(p+dv) )
+		glVertex3f( p[0] , p[1] , p[2] )
+		glVertex3f(*(p+du) )
+		glVertex3f( p[0] , p[1] , p[2] )
+		glEnd()
+		glColor3f(1,1,1,0)
+
 	def get_uv( self ) :
 		return self.size
 	
 	def get_pts( self ) :
 		return self.pts
+
+	def get_array_pts( self ) :
+		for y in range(self.size[1]+3) :
+			for x in range(self.size[0]+3):
+				self.array_pts[x,y] = self.pts[ x + y*(self.size[0]+3) ]
+		return self.array_pts 
 
 	def iter_pts( self ) :
 		for p in self.pts :
@@ -81,8 +125,11 @@ class SurfaceC2( Points ) :
 		self.bezx = np.zeros(3*self.sized[0]*self.sized[1] , np.float32 )
 		self.bezy = np.zeros(3*self.sized[0]*self.sized[1] , np.float32 )
 
+		self.array_pts = np.empty( (self.size[0]+3,self.size[1]+3,3) , np.float32 )
+
 	def generate( self ) :
 		self.bezx , self.bezy = csurf.gen_deboor( self.pts , self.bezx , self.bezy , self.size[0] , self.size[1] , self.sized[0] , self.sized[1] , self.dens[0] , self.dens[1] , self.base )
+		self.get_array_pts()
 
 	def make_pts( self , corners ) :
 		dx = (corners[1] - corners[0]) / (self.size[0]+3-1)

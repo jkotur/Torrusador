@@ -4,6 +4,8 @@ import pygtk
 pygtk.require('2.0')
 import gtk
 
+import gobject
+
 import operator as op
 from copy import copy
 
@@ -102,7 +104,18 @@ class App(object):
 		self.tbut_add_pipe    = builder.get_object('tbut_add_pipe' )
 		self.tbut_add_gregory = builder.get_object('tbut_add_gregory' )
 
-		self.tbuts= [ self.tbut_add_c0 , self.tbut_add_c2 , self.tbut_add_inter , self.tbut_del_curve , self.tbut_sel_curve , self.tbut_add_surf_c0 , self.tbut_add_surf_c2 , self.tbut_add_pipe , self.tbut_add_gregory ]
+		self.tbut_cut = builder.get_object('tbut_cut_choose')
+		self.cbox_first  = builder.get_object('cbox_first')
+		self.cbox_second = builder.get_object('cbox_second')
+
+		cell = gtk.CellRendererText()
+		self.cbox_first.pack_start(cell, True)
+		self.cbox_first.add_attribute(cell, 'text', 0)
+		cell = gtk.CellRendererText()
+		self.cbox_second.pack_start(cell, True)
+		self.cbox_second.add_attribute(cell, 'text', 0)
+
+		self.tbuts= [ self.tbut_add_c0 , self.tbut_add_c2 , self.tbut_add_inter , self.tbut_del_curve , self.tbut_sel_curve , self.tbut_add_surf_c0 , self.tbut_add_surf_c2 , self.tbut_add_pipe , self.tbut_add_gregory , self.tbut_cut ]
 
 		self.sp_surf_x = builder.get_object('sp_surf_x')
 		self.sp_surf_y = builder.get_object('sp_surf_y')
@@ -224,6 +237,9 @@ class App(object):
 			elif self.tbut_sel_curve.get_active() :
 				self.scene.select_curve()
 				self.tbut_sel_curve.set_active(False)
+			elif self.tbut_cut.get_active() :
+				self.scene.select_to_cut()
+				self.tbut_cut.set_active(False)
 			else :
 				self.scene.activate_cursor()
 			self.drawing_area.queue_draw()
@@ -424,6 +440,22 @@ class App(object):
 				( self.sp_look_x.get_value() ,
 				  self.sp_look_y.get_value() ,
 				  self.sp_look_z.get_value() ) )
+		self.drawing_area.queue_draw()
+
+	def on_but_cut_clicked( self , widget , data=None ) :
+		A , B = self.scene.cut_current()
+		fm = self.cbox_first.get_model()
+		sm = self.cbox_second.get_model()
+		if A == None :
+			fm.clear()
+		else :
+			for a in range(A) :
+				fm.append((str(a),))
+		if B == None :
+			sm.clear()
+		else :
+			for b in range(B) :
+				sm.append((str(b),))
 		self.drawing_area.queue_draw()
 
 	def on_mitem_load_activate( self , widget , data=None ) :

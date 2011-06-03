@@ -1,3 +1,4 @@
+# vim: set fileencoding=utf-8
 
 import operator as op
 
@@ -45,11 +46,10 @@ class Scene :
 		self.curves= Curves()
 
 		#
-		# Create Gregory's gap
+		# craete planes
 		#
-		self.curves.new( (-1,-.75,0) , Curves.SURFACE_GREGORY , pre_data = ((3,1),(1,1)) )
-		self.curves.point_new( Curve.BEZIER , (0,2*0.866-.75,0) )
-		self.curves.point_new( Curve.BEZIER , (1,-.75,0) )
+
+		self.load_from_file(u'../data/młotek.gpt')
 
 		#
 		# Craete torus
@@ -297,6 +297,12 @@ class Scene :
 
 	def fill_gap( self , c ) :
 		self.curves.fill_gap( c )
+
+	def cut_current( self ) :
+		return self.curves.cut()
+
+	def select_to_cut( self ) :
+		self.curves.select_to_cut( self.cursor.get_clipping_pos() , self.pdist2 )
 
 	def set_surf_density( self , dens ) :
 		self.curves.set_surf_density( dens )

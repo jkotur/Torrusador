@@ -14,6 +14,8 @@ from gregory_gap import GregoryGap
 from geom.bezier import Bezier
 from geom.curve import Curve
 
+import csurf
+
 class Curves( Node ) :
 	BEZIER_C0 , BEZIER_C2 , INTERPOLATION , SURFACE_C0 , SURFACE_C2 , SURFACE_PIPE , SURFACE_GREGORY = range(7)
 	C0 , C1 , C2 = range(3)
@@ -30,12 +32,15 @@ class Curves( Node ) :
 		self.bs_polygons = False
 
 		self.selected = None
+		self.tocut = []
 
 		self.w = 0
 		self.h = 0
 
 	def clear( self ) :
 		self.del_all()
+		self.selected = None
+		self.tocut = []
 
 	def set_screen_size( self , w , h ) :
 		self.w = w
@@ -149,6 +154,22 @@ class Curves( Node ) :
 				self.selected.fill_gap_c1()
 			elif c == Curves.C2 :
 				self.selected.fill_gap_c2()
+
+	def select_to_cut( self , pos , dist = .05 ) :
+		if len(self.tocut) >= 2 :
+			self.tocut.pop(0)
+		v , c = self.find_near( pos , dist )
+		if c != None and c not in self.tocut :
+			self.tocut.append(c)
+
+	def cut( self ) :
+		if len(self.tocut) < 2 :
+			return (None,None)
+		else :
+			res = csurf.cut_bsplines(
+					self.tocut[0].get_array_pts() ,
+					self.tocut[1].get_array_pts() )
+			return (3,5)
 
 	def load( self , path ) :
 		with open(path,"r+") as f :

@@ -1,10 +1,6 @@
 
 cimport numpy as np
 
-from scipy import interpolate
-from scipy import optimize
-import scipy.spatial.distance as dist
-
 import cython
 
 import random as rnd
@@ -13,6 +9,10 @@ import math as m
 from copy import copy
 
 import numpy as np
+import scipy as sp
+import scipy.optimize as op
+from scipy import interpolate
+import scipy.spatial.distance as dist
 
 @cython.boundscheck(False)
 @cython.cdivision(True)
@@ -34,6 +34,144 @@ cdef void decasteljau( np.ndarray[ float , ndim=1 ] pts , float t ,
 	out[id  ] = pts[0]
 	out[id+1] = pts[1]
 	out[id+2] = pts[2]
+
+@cython.cdivision(True)
+cdef rekN( int n , int i , float t ) :
+	if n == 0 : return 1 if t >= i and t < i + 1 else 0
+	n1 = rekN(n - 1, i, t)
+	n2 = rekN(n - 1, i + 1, t)
+	return n1 * float(t - i) / float(n) + n2 * float(i + n + 1 - t) / float(n)
+
+cpdef bspline_surf( float u , float v , np.ndarray[ float , ndim=3 ] pts ) : 
+	''' calculates (x,y,z) of bezier surface in point (u,v) for uniform parametrization '''
+	cdef int i
+	cdef float n
+	cdef np.ndarray[ float , ndim=1 ] q0 , q1 , q2 ,q3
+	q0 = np.zeros(3,np.float32)
+	q1 = np.zeros(3,np.float32)
+	q2 = np.zeros(3,np.float32)
+	q3 = np.zeros(3,np.float32)
+
+	cdef int xoff = int( u ) 
+	cdef int yoff = int( v )
+
+	if xoff == pts.shape[0] - 3 : 
+		xoff-= 1
+	if yoff == pts.shape[1] - 3 :
+		yoff-= 1
+
+	u = u - xoff + 3.0
+	v = v - yoff + 3.0
+
+	if u > 4.0 or v > 4.0 : return np.zeros(3,np.float32)
+
+	for i in range(4) :
+		n = rekN( 3 , i , u )
+		q0 += pts[xoff+i,yoff+0] * n
+		q1 += pts[xoff+i,yoff+1] * n 
+		q2 += pts[xoff+i,yoff+2] * n 
+		q3 += pts[xoff+i,yoff+3] * n 
+
+	cdef np.ndarray[ float , ndim=1 ] res = np.zeros(3,np.float32)
+
+	res  = rekN( 3 , 0 , v ) * q0
+	res += rekN( 3 , 1 , v ) * q1
+	res += rekN( 3 , 2 , v ) * q2
+	res += rekN( 3 , 3 , v ) * q3
+
+	return res
+
+cpdef bspline_surf_prime_u( float u , float v , np.ndarray[ float , ndim=3 ] pts ) :
+	cdef int i
+	cdef float n
+	cdef np.ndarray[ float , ndim=1 ] q0 , q1 , q2 ,q3
+	q0 = np.zeros(3,np.float32)
+	q1 = np.zeros(3,np.float32)
+	q2 = np.zeros(3,np.float32)
+	q3 = np.zeros(3,np.float32)
+
+	cdef int xoff = int( u ) 
+	cdef int yoff = int( v )
+
+	if xoff == pts.shape[0] - 3 : 
+		xoff-= 1
+	if yoff == pts.shape[1] - 3 :
+		yoff-= 1
+
+	u = u - xoff + 3.0
+	v = v - yoff + 3.0
+
+	if u > 4.0 or v > 4.0 : return np.zeros(3,np.float32)
+
+	for i in range(4) :
+		n = rekN( 3 , i , u )
+		q0 += pts[xoff+i,yoff+0] * n
+		q1 += pts[xoff+i,yoff+1] * n 
+		q2 += pts[xoff+i,yoff+2] * n 
+		q3 += pts[xoff+i,yoff+3] * n 
+	
+	q0 = q1 - q0
+	q1 = q2 - q1
+	q2 = q3 - q2
+
+	res  = rekN( 2 , 1 , v ) * q0
+	res += rekN( 2 , 2 , v ) * q1
+	res += rekN( 2 , 3 , v ) * q2
+
+	return res
+
+cpdef bspline_surf_prime_v( float u , float v , np.ndarray[ float , ndim=3 ] pts ) :
+	cdef int i
+	cdef float n
+	cdef np.ndarray[ float , ndim=1 ] q0 , q1 , q2 ,q3
+	q0 = np.zeros(3,np.float32)
+	q1 = np.zeros(3,np.float32)
+	q2 = np.zeros(3,np.float32)
+	q3 = np.zeros(3,np.float32)
+
+	cdef int xoff = int( u ) 
+	cdef int yoff = int( v )
+
+	if xoff == pts.shape[0] - 3 : 
+		xoff-= 1
+	if yoff == pts.shape[1] - 3 :
+		yoff-= 1
+
+	u = u - xoff + 3.0
+	v = v - yoff + 3.0
+
+	if u > 4.0 or v > 4.0 : return np.zeros(3,np.float32)
+
+	for i in range(4) :
+		n = rekN( 3 , i , v )
+		q0 += pts[xoff+0,yoff+i] * n
+		q1 += pts[xoff+1,yoff+i] * n 
+		q2 += pts[xoff+2,yoff+i] * n 
+		q3 += pts[xoff+3,yoff+i] * n 
+	
+	q0 = q1 - q0
+	q1 = q2 - q1
+	q2 = q3 - q2
+
+	res  = rekN( 2 , 1 , u ) * q0
+	res += rekN( 2 , 2 , u ) * q1
+	res += rekN( 2 , 3 , u ) * q2
+
+	return res
+
+def diff_surfs( p , a , b ) :
+	a = bspline_surf( p[0], p[1], a ) - bspline_surf( p[2], p[3], b )
+	return a[0]*a[0] + a[1]*a[1] + a[2]*a[2]
+
+def cut_bsplines( np.ndarray[ float , ndim=3 ] a , np.ndarray[ float , ndim=3 ] b ) :
+	res = op.fmin_cg( diff_surfs , np.array((.5,.5,.5,.5)) , args = (a,b) )
+	print res
+
+	print diff_surfs( np.array((.5,.5,.5,.5)),a,b) 
+	print diff_surfs( np.array((.5,.5,.51,.51)),a,b) 
+	print diff_surfs( np.array((.5,.5,.51,.5)),a,b) 
+	print diff_surfs( np.array((.5,.51,.5,.5)),a,b) 
+	print diff_surfs( np.array((.51,.5,.5,.5)),a,b) 
 
 @cython.boundscheck(False)
 @cython.cdivision(True)
@@ -381,7 +519,7 @@ def fill_gap_c0( surfs , subsurfs , snum ) :
 		q[i] = (3.0*pts[i][7]-1.0*pts[i][3])/2.0
 
 	p0 = np.mean(q,0)
-	p0 ,  err = optimize.leastsq( center , p0 , q )
+	p0 ,  err = op.leastsq( center , p0 , q )
 
 	if err > 4 :
 		print 'leastsq err' , err

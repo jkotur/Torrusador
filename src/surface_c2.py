@@ -59,12 +59,24 @@ class SurfaceC2( Points ) :
 			self.generate()
 			self.get_geom().set_visibility( Bezier.CURVE , True )
 
+		self.trim_p0 = None
+
 	def draw( self ) :
 		Points.draw( self )
 
-		v = 2.2
+		self.draw_debug_trim_curve()
 
-		glColor3f(1,0,0,0)
+	def draw_debug_trim_curve( self ) :
+		if self.trim_p0 != None :
+			glColor3f(1,0,0)
+			glBegin(GL_POINTS)
+			glVertex3f( *self.trim_p0 )
+			glEnd()
+			glColor3f(1,1,1)
+
+	def draw_debug_derivatives( self ) :
+		v = 11.5
+		glColor3f(1,0,0)
 		glBegin(GL_LINES)
 		p = csurf.bspline_surf        ( 0 , v , self.array_pts )
 		dv= csurf.bspline_surf_prime_v( 0 , v , self.array_pts )
@@ -104,7 +116,7 @@ class SurfaceC2( Points ) :
 	def get_array_pts( self ) :
 		for y in range(self.size[1]+3) :
 			for x in range(self.size[0]+3):
-				self.array_pts[x,y] = self.pts[ x + y*(self.size[0]+3) ]
+				self.array_pts[x,y] = np.array( self.pts[ x + y*(self.size[0]+3) ] , np.double )
 		return self.array_pts 
 
 	def iter_pts( self ) :
@@ -125,7 +137,7 @@ class SurfaceC2( Points ) :
 		self.bezx = np.zeros(3*self.sized[0]*self.sized[1] , np.float32 )
 		self.bezy = np.zeros(3*self.sized[0]*self.sized[1] , np.float32 )
 
-		self.array_pts = np.empty( (self.size[0]+3,self.size[1]+3,3) , np.float32 )
+		self.array_pts = np.empty( (self.size[0]+3,self.size[1]+3,3) , np.double )
 
 	def generate( self ) :
 		self.bezx , self.bezy = csurf.gen_deboor( self.pts , self.bezx , self.bezy , self.size[0] , self.size[1] , self.sized[0] , self.sized[1] , self.dens[0] , self.dens[1] , self.base )

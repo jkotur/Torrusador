@@ -162,13 +162,20 @@ class Curves( Node ) :
 		if c != None and c not in self.tocut :
 			self.tocut.append(c)
 
-	def cut( self ) :
+	def cut( self , pos ) :
 		if len(self.tocut) < 2 :
 			return (None,None)
 		else :
 			res = csurf.cut_bsplines(
 					self.tocut[0].get_array_pts() ,
-					self.tocut[1].get_array_pts() )
+					self.tocut[1].get_array_pts() , pos )
+
+			self.tocut[0].trim_p0 = csurf.bspline_surf( res[0], res[1], self.tocut[0].array_pts )
+			self.tocut[1].trim_p0 = csurf.bspline_surf( res[2], res[3], self.tocut[1].array_pts )
+
+			print self.tocut[0].trim_p0
+			print self.tocut[1].trim_p0
+
 			return (3,5)
 
 	def load( self , path ) :

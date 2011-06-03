@@ -36,21 +36,21 @@ cdef void decasteljau( np.ndarray[ float , ndim=1 ] pts , float t ,
 	out[id+2] = pts[2]
 
 @cython.cdivision(True)
-cdef rekN( int n , int i , float t ) :
+cdef rekN( int n , int i , double t ) :
 	if n == 0 : return 1 if t >= i and t < i + 1 else 0
-	n1 = rekN(n - 1, i, t)
-	n2 = rekN(n - 1, i + 1, t)
-	return n1 * float(t - i) / float(n) + n2 * float(i + n + 1 - t) / float(n)
+	cdef double n1 = rekN(n - 1, i, t)
+	cdef double n2 = rekN(n - 1, i + 1, t)
+	return n1 * <double>(t - i) / <double>(n) + n2 * <double>(i + n + 1 - t) / <double>(n)
 
-cpdef bspline_surf( float u , float v , np.ndarray[ float , ndim=3 ] pts ) : 
+cpdef bspline_surf( double u , double v , np.ndarray[ double , ndim=3 ] pts ) : 
 	''' calculates (x,y,z) of bezier surface in point (u,v) for uniform parametrization '''
 	cdef int i
-	cdef float n
-	cdef np.ndarray[ float , ndim=1 ] q0 , q1 , q2 ,q3
-	q0 = np.zeros(3,np.float32)
-	q1 = np.zeros(3,np.float32)
-	q2 = np.zeros(3,np.float32)
-	q3 = np.zeros(3,np.float32)
+	cdef double n
+	cdef np.ndarray[ double , ndim=1 ] q0 , q1 , q2 ,q3
+	q0 = np.zeros(3,np.double)
+	q1 = np.zeros(3,np.double)
+	q2 = np.zeros(3,np.double)
+	q3 = np.zeros(3,np.double)
 
 	cdef int xoff = int( u ) 
 	cdef int yoff = int( v )
@@ -63,7 +63,7 @@ cpdef bspline_surf( float u , float v , np.ndarray[ float , ndim=3 ] pts ) :
 	u = u - xoff + 3.0
 	v = v - yoff + 3.0
 
-	if u > 4.0 or v > 4.0 : return np.zeros(3,np.float32)
+	if u > 4.0 or v > 4.0 : return np.zeros(3,np.double)
 
 	for i in range(4) :
 		n = rekN( 3 , i , u )
@@ -72,7 +72,7 @@ cpdef bspline_surf( float u , float v , np.ndarray[ float , ndim=3 ] pts ) :
 		q2 += pts[xoff+i,yoff+2] * n 
 		q3 += pts[xoff+i,yoff+3] * n 
 
-	cdef np.ndarray[ float , ndim=1 ] res = np.zeros(3,np.float32)
+	cdef np.ndarray[ double , ndim=1 ] res = np.zeros(3,np.double)
 
 	res  = rekN( 3 , 0 , v ) * q0
 	res += rekN( 3 , 1 , v ) * q1
@@ -81,14 +81,14 @@ cpdef bspline_surf( float u , float v , np.ndarray[ float , ndim=3 ] pts ) :
 
 	return res
 
-cpdef bspline_surf_prime_u( float u , float v , np.ndarray[ float , ndim=3 ] pts ) :
+cpdef bspline_surf_prime_v( double u , double v , np.ndarray[ double , ndim=3 ] pts ) :
 	cdef int i
-	cdef float n
-	cdef np.ndarray[ float , ndim=1 ] q0 , q1 , q2 ,q3
-	q0 = np.zeros(3,np.float32)
-	q1 = np.zeros(3,np.float32)
-	q2 = np.zeros(3,np.float32)
-	q3 = np.zeros(3,np.float32)
+	cdef double n
+	cdef np.ndarray[ double , ndim=1 ] q0 , q1 , q2 ,q3
+	q0 = np.zeros(3,np.double)
+	q1 = np.zeros(3,np.double)
+	q2 = np.zeros(3,np.double)
+	q3 = np.zeros(3,np.double)
 
 	cdef int xoff = int( u ) 
 	cdef int yoff = int( v )
@@ -101,7 +101,7 @@ cpdef bspline_surf_prime_u( float u , float v , np.ndarray[ float , ndim=3 ] pts
 	u = u - xoff + 3.0
 	v = v - yoff + 3.0
 
-	if u > 4.0 or v > 4.0 : return np.zeros(3,np.float32)
+	if u > 4.0 or v > 4.0 : return np.zeros(3,np.double)
 
 	for i in range(4) :
 		n = rekN( 3 , i , u )
@@ -114,20 +114,22 @@ cpdef bspline_surf_prime_u( float u , float v , np.ndarray[ float , ndim=3 ] pts
 	q1 = q2 - q1
 	q2 = q3 - q2
 
+	cdef np.ndarray[ double , ndim=1 ] res = np.zeros(3,np.double)
+
 	res  = rekN( 2 , 1 , v ) * q0
 	res += rekN( 2 , 2 , v ) * q1
 	res += rekN( 2 , 3 , v ) * q2
 
 	return res
 
-cpdef bspline_surf_prime_v( float u , float v , np.ndarray[ float , ndim=3 ] pts ) :
+cpdef bspline_surf_prime_u( double u , double v , np.ndarray[ double , ndim=3 ] pts ) :
 	cdef int i
-	cdef float n
-	cdef np.ndarray[ float , ndim=1 ] q0 , q1 , q2 ,q3
-	q0 = np.zeros(3,np.float32)
-	q1 = np.zeros(3,np.float32)
-	q2 = np.zeros(3,np.float32)
-	q3 = np.zeros(3,np.float32)
+	cdef double n
+	cdef np.ndarray[ double , ndim=1 ] q0 , q1 , q2 ,q3
+	q0 = np.zeros(3,np.double)
+	q1 = np.zeros(3,np.double)
+	q2 = np.zeros(3,np.double)
+	q3 = np.zeros(3,np.double)
 
 	cdef int xoff = int( u ) 
 	cdef int yoff = int( v )
@@ -140,7 +142,7 @@ cpdef bspline_surf_prime_v( float u , float v , np.ndarray[ float , ndim=3 ] pts
 	u = u - xoff + 3.0
 	v = v - yoff + 3.0
 
-	if u > 4.0 or v > 4.0 : return np.zeros(3,np.float32)
+	if u > 4.0 or v > 4.0 : return np.zeros(3,np.double)
 
 	for i in range(4) :
 		n = rekN( 3 , i , v )
@@ -153,25 +155,37 @@ cpdef bspline_surf_prime_v( float u , float v , np.ndarray[ float , ndim=3 ] pts
 	q1 = q2 - q1
 	q2 = q3 - q2
 
+	cdef np.ndarray[ double , ndim=1 ] res = np.zeros(3,np.double)
+
 	res  = rekN( 2 , 1 , u ) * q0
 	res += rekN( 2 , 2 , u ) * q1
 	res += rekN( 2 , 3 , u ) * q2
 
 	return res
 
-def diff_surfs( p , a , b ) :
-	a = bspline_surf( p[0], p[1], a ) - bspline_surf( p[2], p[3], b )
+def diff_surfs( p , p1 , p2 ) :
+	a = bspline_surf( p[0], p[1], p1 ) - bspline_surf( p[2], p[3], p2 )
 	return a[0]*a[0] + a[1]*a[1] + a[2]*a[2]
 
-def cut_bsplines( np.ndarray[ float , ndim=3 ] a , np.ndarray[ float , ndim=3 ] b ) :
-	res = op.fmin_cg( diff_surfs , np.array((.5,.5,.5,.5)) , args = (a,b) )
-	print res
+def diff_grad( p , p1 , p2 ) :
+	a = bspline_surf        ( p[0], p[1], p1 ) - bspline_surf        ( p[2], p[3], p2 )
+	b = bspline_surf_prime_u( p[0], p[1], p1 )
+	c = bspline_surf_prime_v( p[0], p[1], p1 )
+	d =-bspline_surf_prime_u( p[2], p[3], p2 )
+	e =-bspline_surf_prime_v( p[2], p[3], p2 )
+	return np.array((
+		2*a[0]*b[0] + 2*a[1]*b[1] + 2*a[2]*b[2] ,
+		2*a[0]*c[0] + 2*a[1]*c[1] + 2*a[2]*c[2] ,
+		2*a[0]*d[0] + 2*a[1]*d[1] + 2*a[2]*d[2] ,
+		2*a[0]*e[0] + 2*a[1]*e[1] + 2*a[2]*e[2] )) * 10
 
-	print diff_surfs( np.array((.5,.5,.5,.5)),a,b) 
-	print diff_surfs( np.array((.5,.5,.51,.51)),a,b) 
-	print diff_surfs( np.array((.5,.5,.51,.5)),a,b) 
-	print diff_surfs( np.array((.5,.51,.5,.5)),a,b) 
-	print diff_surfs( np.array((.51,.5,.5,.5)),a,b) 
+def printer( x ) : print x
+
+def cut_bsplines( np.ndarray[ double , ndim=3 ] a , np.ndarray[ double , ndim=3 ] b , beg ) :
+	res = op.fmin_cg( diff_surfs , np.array((.5,.5,.5,.5)) , args = (a,b) , fprime = diff_grad ,
+			maxiter = 2048 )# , callback = printer )
+	print res
+	return res
 
 @cython.boundscheck(False)
 @cython.cdivision(True)

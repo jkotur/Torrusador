@@ -10,11 +10,10 @@ from surface_c0 import SurfaceC0
 from surface_c2 import SurfaceC2
 from pipe import Pipe
 from gregory_gap import GregoryGap
+from cutter import Cutter
 
 from geom.bezier import Bezier
 from geom.curve import Curve
-
-import csurf
 
 class Curves( Node ) :
 	BEZIER_C0 , BEZIER_C2 , INTERPOLATION , SURFACE_C0 , SURFACE_C2 , SURFACE_PIPE , SURFACE_GREGORY = range(7)
@@ -32,7 +31,8 @@ class Curves( Node ) :
 		self.bs_polygons = False
 
 		self.selected = None
-		self.tocut = []
+
+		self.cutter = Cutter()
 
 		self.w = 0
 		self.h = 0
@@ -40,7 +40,7 @@ class Curves( Node ) :
 	def clear( self ) :
 		self.del_all()
 		self.selected = None
-		self.tocut = []
+		self.cutter.clear()
 
 	def set_screen_size( self , w , h ) :
 		self.w = w
@@ -156,27 +156,12 @@ class Curves( Node ) :
 				self.selected.fill_gap_c2()
 
 	def select_to_cut( self , pos , dist = .05 ) :
-		if len(self.tocut) >= 2 :
-			self.tocut.pop(0)
 		v , c = self.find_near( pos , dist )
-		if c != None and c not in self.tocut :
-			self.tocut.append(c)
+		if c != None and isinstance(c,SurfaceC2) :
+			self.cutter.add( c )
 
 	def cut( self , pos ) :
-		if len(self.tocut) < 2 :
-			return (None,None)
-		else :
-			res = csurf.cut_bsplines(
-					self.tocut[0].get_array_pts() ,
-					self.tocut[1].get_array_pts() , pos )
-
-			self.tocut[0].trim_p0 = csurf.bspline_surf( res[0], res[1], self.tocut[0].array_pts )
-			self.tocut[1].trim_p0 = csurf.bspline_surf( res[2], res[3], self.tocut[1].array_pts )
-
-			print self.tocut[0].trim_p0
-			print self.tocut[1].trim_p0
-
-			return (3,5)
+		return self.cutter.cut()
 
 	def load( self , path ) :
 		with open(path,"r+") as f :

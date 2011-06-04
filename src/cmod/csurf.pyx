@@ -42,6 +42,9 @@ cdef rekN( int n , int i , double t ) :
 	cdef double n2 = rekN(n - 1, i + 1, t)
 	return n1 * <double>(t - i) / <double>(n) + n2 * <double>(i + n + 1 - t) / <double>(n)
 
+cdef double UMIN = 2.8 , UMAX = 4.2
+cdef double VMIN = 2.8 , VMAX = 4.2
+
 cpdef bspline_surf( double u , double v , np.ndarray[ double , ndim=3 ] pts ) : 
 	''' calculates (x,y,z) of bezier surface in point (u,v) for uniform parametrization '''
 	cdef int i
@@ -55,6 +58,8 @@ cpdef bspline_surf( double u , double v , np.ndarray[ double , ndim=3 ] pts ) :
 	cdef int xoff = int( u ) 
 	cdef int yoff = int( v )
 
+#    print u , v
+
 	if xoff == pts.shape[0] - 3 : 
 		xoff-= 1
 	if yoff == pts.shape[1] - 3 :
@@ -63,7 +68,13 @@ cpdef bspline_surf( double u , double v , np.ndarray[ double , ndim=3 ] pts ) :
 	u = u - xoff + 3.0
 	v = v - yoff + 3.0
 
-	if u > 4.0 or v > 4.0 : return np.zeros(3,np.double)
+#    print u , v
+#    print pts.shape[0] , pts.shape[1]
+#    print xoff , yoff
+
+	if u > UMAX or v > VMAX : return None
+	if u < UMIN or v < VMIN : return None
+
 
 	for i in range(4) :
 		n = rekN( 3 , i , u )
@@ -101,7 +112,8 @@ cpdef bspline_surf_prime_v( double u , double v , np.ndarray[ double , ndim=3 ] 
 	u = u - xoff + 3.0
 	v = v - yoff + 3.0
 
-	if u > 4.0 or v > 4.0 : return np.zeros(3,np.double)
+	if u > UMAX or v > VMAX : return None
+	if u < UMIN or v < VMIN : return None
 
 	for i in range(4) :
 		n = rekN( 3 , i , u )
@@ -142,7 +154,8 @@ cpdef bspline_surf_prime_u( double u , double v , np.ndarray[ double , ndim=3 ] 
 	u = u - xoff + 3.0
 	v = v - yoff + 3.0
 
-	if u > 4.0 or v > 4.0 : return np.zeros(3,np.double)
+	if u > UMAX or v > VMAX : return None
+	if u < UMIN or v < VMIN : return None
 
 	for i in range(4) :
 		n = rekN( 3 , i , v )
@@ -164,28 +177,56 @@ cpdef bspline_surf_prime_u( double u , double v , np.ndarray[ double , ndim=3 ] 
 	return res
 
 def diff_surfs( p , p1 , p2 ) :
-	a = bspline_surf( p[0], p[1], p1 ) - bspline_surf( p[2], p[3], p2 )
+	a = bspline_surf( p[0], p[1], p1 )
+	b = bspline_surf( p[2], p[3], p2 )
+	if a == None or b == None : return 1000000
+	a = a - b
 	return a[0]*a[0] + a[1]*a[1] + a[2]*a[2]
 
 def diff_grad( p , p1 , p2 ) :
-	a = bspline_surf        ( p[0], p[1], p1 ) - bspline_surf        ( p[2], p[3], p2 )
-	b = bspline_surf_prime_u( p[0], p[1], p1 )
-	c = bspline_surf_prime_v( p[0], p[1], p1 )
-	d =-bspline_surf_prime_u( p[2], p[3], p2 )
-	e =-bspline_surf_prime_v( p[2], p[3], p2 )
+	a = bspline_surf        ( p[0], p[1], p1 )
+	b = bspline_surf        ( p[2], p[3], p2 )
+	c = bspline_surf_prime_u( p[0], p[1], p1 )
+	d = bspline_surf_prime_v( p[0], p[1], p1 )
+	e = bspline_surf_prime_u( p[2], p[3], p2 )
+	f = bspline_surf_prime_v( p[2], p[3], p2 )
+	if a==None or b==None or c==None or d==None or e==None or f==None :
+		return np.array((1000000,1000000,1000000,1000000))
+	a = a - b
+	e =-e
+	f =-f
 	return np.array((
-		2*a[0]*b[0] + 2*a[1]*b[1] + 2*a[2]*b[2] ,
 		2*a[0]*c[0] + 2*a[1]*c[1] + 2*a[2]*c[2] ,
 		2*a[0]*d[0] + 2*a[1]*d[1] + 2*a[2]*d[2] ,
-		2*a[0]*e[0] + 2*a[1]*e[1] + 2*a[2]*e[2] )) * 10
+		2*a[0]*e[0] + 2*a[1]*e[1] + 2*a[2]*e[2] ,
+		2*a[0]*f[0] + 2*a[1]*f[1] + 2*a[2]*f[2] ))
 
 def printer( x ) : print x
 
-def cut_bsplines( np.ndarray[ double , ndim=3 ] a , np.ndarray[ double , ndim=3 ] b , beg ) :
-	res = op.fmin_cg( diff_surfs , np.array((.5,.5,.5,.5)) , args = (a,b) , fprime = diff_grad ,
-			maxiter = 2048 )# , callback = printer )
-	print res
-	return res
+def cut_bsplines( np.ndarray[ double , ndim=3 ] a , np.ndarray[ double , ndim=3 ] b , guess ) :
+	return op.fmin_cg( diff_surfs , guess , args = (a,b) , fprime = diff_grad ,
+			maxiter = 2048 , callback = printer )
+
+def delta_len( p , P , Q , p0 , delta , inv ) :
+	a = bspline_surf( p[0], p[1], P )
+	b = bspline_surf( p[2], p[3], Q )
+	p1u = bspline_surf_prime_u( p[0], p[1], P )
+	p1v = bspline_surf_prime_v( p[0], p[1], P )
+	p2u = bspline_surf_prime_u( p[2], p[3], Q )
+	p2v = bspline_surf_prime_v( p[2], p[3], Q )
+	print p
+	print p1u , p1v
+	np1 = np.cross( p1u , p1v )
+	np2 = np.cross( p2u , p2v )
+	np12 = np.cross( np1 , np2 )
+	t = np12 / np.linalg.norm( np12 ) * inv
+	o123 = a - b
+	o4   = np.dot( a - p0 , t ) - delta
+	return np.array( ( o123[0] , o123[1] , o123[2] , o4 ) )
+
+def next_cut_bsplines( np.ndarray[ double , ndim=3 ] a, np.ndarray[ double , ndim=3 ] b,
+		curr , p0 , delta , inv = False ) :
+	return op.fsolve( delta_len , curr , args = (a,b,p0,delta,-1 if inv else 1) ) 
 
 @cython.boundscheck(False)
 @cython.cdivision(True)

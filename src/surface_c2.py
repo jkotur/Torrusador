@@ -60,6 +60,7 @@ class SurfaceC2( Points ) :
 			self.get_geom().set_visibility( Bezier.CURVE , True )
 
 		self.trim_p0 = None
+		self.trimming_curve = None
 
 	def draw( self ) :
 		Points.draw( self )
@@ -71,6 +72,14 @@ class SurfaceC2( Points ) :
 			glColor3f(1,0,0)
 			glBegin(GL_POINTS)
 			glVertex3f( *self.trim_p0 )
+			glEnd()
+			glColor3f(1,1,1)
+
+		if self.trimming_curve != None :
+			glColor3f(1,0,0)
+			glBegin(GL_LINE_STRIP)
+			for p in self.trimming_curve :
+				glVertex3f(*p)
 			glEnd()
 			glColor3f(1,1,1)
 

@@ -38,8 +38,8 @@ class Cutter :
 		self.tocut[0].trim_p0 = csurf.bspline_surf( uvuv[0], uvuv[1], self.tocut[0].array_pts )
 		self.tocut[1].trim_p0 = csurf.bspline_surf( uvuv[2], uvuv[3], self.tocut[1].array_pts )
 
-		print self.tocut[0].trim_p0
-		print self.tocut[1].trim_p0
+		print uvuv[:2] , self.tocut[0].trim_p0
+		print uvuv[2:] , self.tocut[1].trim_p0
 
 		return uvuv
 
@@ -50,16 +50,16 @@ class Cutter :
 
 		trimming = [ csurf.bspline_surf( uvuv[0], uvuv[1], self.tocut[0].array_pts ) ]
 		self.tocut[0].trimming_curve = trimming
-		while all( uvuv < maxuvuv ) and all( uvuv > np.array((1,1,1,1)) ) :
-			print 'Newton (' , uvuv , ')' , '(' , maxuvuv , ')'
+		while all( uvuv < maxuvuv ) and all( uvuv > np.zeros(4) ) :
+			print 'Newton     (' , uvuv , ')' , '(' , maxuvuv , ')'
 			uvuv = csurf.next_cut_bsplines( 
 				self.tocut[0].get_array_pts() ,
 				self.tocut[1].get_array_pts() ,
 				uvuv , trimming[-1] , 0.01 )
 			trimming.append( csurf.bspline_surf( uvuv[0], uvuv[1], self.tocut[0].array_pts ) )
 		uvuv = baseuvuv
-		while all( uvuv < maxuvuv ) and all( uvuv > np.array((1,1,1,1)) ) :
-			print 'Newton (' , uvuv , ')' , '(' , maxuvuv , ')'
+		while all( uvuv < maxuvuv ) and all( uvuv > np.zeros(4) ) :
+			print 'Newton rev (' , uvuv , ')' , '(' , maxuvuv , ')'
 			uvuv = csurf.next_cut_bsplines( 
 				self.tocut[0].get_array_pts() ,
 				self.tocut[1].get_array_pts() ,

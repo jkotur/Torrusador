@@ -205,7 +205,7 @@ def printer( x ) : print x
 
 def cut_bsplines( np.ndarray[ double , ndim=3 ] a , np.ndarray[ double , ndim=3 ] b , guess ) :
 	return op.fmin_cg( diff_surfs , guess , args = (a,b) , fprime = diff_grad ,
-			maxiter = 2048 , callback = printer )
+			maxiter = 2048 )#, callback = printer )
 
 def delta_len( p , P , Q , p0 , delta , inv ) :
 	a = bspline_surf( p[0], p[1], P )
@@ -214,8 +214,8 @@ def delta_len( p , P , Q , p0 , delta , inv ) :
 	p1v = bspline_surf_prime_v( p[0], p[1], P )
 	p2u = bspline_surf_prime_u( p[2], p[3], Q )
 	p2v = bspline_surf_prime_v( p[2], p[3], Q )
-	print p
-	print p1u , p1v
+#    print p
+#    print p1u , p1v
 	np1 = np.cross( p1u , p1v )
 	np2 = np.cross( p2u , p2v )
 	np12 = np.cross( np1 , np2 )

@@ -50,17 +50,22 @@ class TrimmingCurve( TrimmingBorder ) :
 
 	def end( self ) :
 		self.a = np.array( self.l )
+		print self.a
 
 	def get_intersections_u( self , du ) :
 		for i in range(1,len(self.a)) :
-			u = self.a[i-1,0]
-			v = self.a[i-1,1]
-			nu = (self.a[i,0] - self.a[i-1,0]) / du
-			dv = (self.a[i,1] - self.a[i-1,1]) / nu
-			for i in range(int(m.fabs(nu))) :
-				yield  u , v
-				v += dv
-				u += du
+			if self.a[i,0] - self.a[i-1,0] > 0 :
+					bui , eui =  -1 ,  0
+			else :	bui , eui =   0 , -1
+			if self.a[i,1] - self.a[i-1,1] > 0 :
+					bvi , evi =  -1 ,  0
+			else :	bvi , evi =   0 , -1
+			bnu = int( m.ceil ( self.a[i+bui,0] / du ) )
+			enu = int( m.floor( self.a[i+eui,0] / du ) )
+			dv = ( self.a[i+bvi,1] - self.a[i+evi,1] ) / float(enu+1-bnu)
+			bnv = int( m.ceil ( self.a[i+bvi,1] / dv ) )
+			for i in range(enu+1-bnu) :
+				yield  (bnu+i)*du , (bnv+i)*dv
 
 	def get_intersections_v( self , dv ) :
 		for i in range(1,len(self.a)) :

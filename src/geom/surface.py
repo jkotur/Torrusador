@@ -1,5 +1,6 @@
 from OpenGL.GL import *
 
+import math as m
 import numpy as np
 
 from curve import Curve
@@ -48,7 +49,7 @@ class Surface( Curve ) :
 			glEnableClientState(GL_VERTEX_ARRAY)
 			glVertexPointer( 3, GL_FLOAT , 0 , geom )
 			glDrawElements( GL_LINES , len(self.indx) , GL_UNSIGNED_INT , self.indx )
-#            glDrawElements( GL_LINES , len(self.indy) , GL_UNSIGNED_INT , self.indy )
+			glDrawElements( GL_LINES , len(self.indy) , GL_UNSIGNED_INT , self.indy )
 			glDisableClientState(GL_VERTEX_ARRAY)
 
 		if self.draw_points :
@@ -72,41 +73,85 @@ class SurfaceTrimmed( Surface ) :
 			print trimms[i]
 			for p in trimms[i].get_intersections_v(dv) :
 				print p
-				lu.append( p[0] )
-				lv.append( p[1] )
+				lu.append( round(p[0],4) )
+				lv.append( round(p[1],4) )
 		uarr = np.array( lu ) 
 		varr = np.array( lv ) 
 
 		ind = np.lexsort( (uarr,varr) )
 
+		print 'sorted:'
 		for i in ind :
 			print uarr[i] , varr[i]
+		print 'eos'
 
 		self.indx = []
-		for i in range(1,len(ind),2) :
+		i = 1
+		while i < len(ind) :
 			u  = uarr[ind[i-1]]
 			v  = varr[ind[i-1]]
 			eu = uarr[ind[i  ]]
 			ev = varr[ind[i  ]]
-			print u , v , '|' , eu , ev
+#            print u , v , '|' , eu , ev
 #            assert( v == ev )
-			if v != ev : continue
+			if v != ev :
+				i+=1
+				continue
 			y = int(v / dv + .5)
 			x = int(u / du + .5)
 			self.indx.append( x*sy+y )
-			print u , v , '->' , x , y
+#            print u , v , '->' , x , y
 			u += du
 			while u <= eu :
 				x = int(u / du + .5)
 				self.indx.append( x*sy+y )
 				self.indx.append( x*sy+y )
-				print u , v , '->' , x , y
+#                print u , v , '->' , x , y
 				u += du
 			self.indx.append( x*sy+y )
-			print u , v , '--' , x , y
+			i+=2
+#            print u , v , '--' , x , y
 		self.indx = np.array( self.indx , np.uint32 )
 
+		lu = []
+		lv = []
+		for i in range(beg,end+1) :
+			print trimms[i]
+			for p in trimms[i].get_intersections_u(du) :
+				print p
+				lu.append( round(p[0],4) )
+				lv.append( round(p[1],4) )
+		uarr = np.array( lu ) 
+		varr = np.array( lv ) 
+
+		ind = np.lexsort( (varr,uarr) )
+
 		self.indy = []
+		i = 1
+		while i < len(ind) :
+			u  = uarr[ind[i-1]]
+			v  = varr[ind[i-1]]
+			eu = uarr[ind[i  ]]
+			ev = varr[ind[i  ]]
+#            print u , v , '|' , eu , ev
+#            assert( v == ev )
+			if u != eu :
+				i+=1
+				continue
+			y = int(v / dv + .5)
+			x = int(u / du + .5)
+			self.indy.append( x*sy+y )
+#            print u , v , '->' , x , y
+			v += dv
+			while v <= ev :
+				y = int(v / dv + .5)
+				self.indy.append( x*sy+y )
+				self.indy.append( x*sy+y )
+#                print u , v , '->' , x , y
+				v += dv
+			self.indy.append( x*sy+y )
+			i+=2
+#            print u , v , '--' , x , y
 		self.indy = np.array( self.indy , np.uint32 )
 
 

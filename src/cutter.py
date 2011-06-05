@@ -80,11 +80,11 @@ class Cutter :
 			uvuv = csurf.next_cut_bsplines( 
 				self.tocut[0].get_array_pts() ,
 				self.tocut[1].get_array_pts() ,
-				uvuv , trimming[-1] , delta , inv = True )
+				uvuv , trimming[0] , delta , inv = True )
 			self.tocut[0].prepend_trimming_uv( uvuv[0] , uvuv[1] )
 			self.tocut[1].prepend_trimming_uv( uvuv[2] , uvuv[3] )
 
-			trimming.append( csurf.bspline_surf( uvuv[0], uvuv[1], self.tocut[0].array_pts ) )
+			trimming.insert( 0 , csurf.bspline_surf( uvuv[0], uvuv[1], self.tocut[0].array_pts ) )
 
 		self.tocut[0].end_trimming()
 		self.tocut[1].end_trimming()

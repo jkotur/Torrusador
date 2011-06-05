@@ -107,6 +107,7 @@ class App(object):
 		self.tbut_cut = builder.get_object('tbut_cut_choose')
 		self.cbox_first  = builder.get_object('cbox_first')
 		self.cbox_second = builder.get_object('cbox_second')
+		self.sp_delta = builder.get_object('sp_cut_delta')
 
 		cell = gtk.CellRendererText()
 		self.cbox_first.pack_start(cell, True)
@@ -443,7 +444,7 @@ class App(object):
 		self.drawing_area.queue_draw()
 
 	def on_but_cut_clicked( self , widget , data=None ) :
-		A , B = self.scene.cut_current()
+		A , B = self.scene.cut_current( self.sp_delta.get_value() )
 		fm = self.cbox_first.get_model()
 		sm = self.cbox_second.get_model()
 		if A == None :

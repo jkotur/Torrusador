@@ -49,7 +49,9 @@ class Scene :
 		# craete planes
 		#
 
-		self.load_from_file(u'../data/młotek.gpt')
+#        self.load_from_file(u'../data/młotek.gpt')
+		self.load_from_file(u'../data/cut_test_01.gpt')
+		for c in self.curves : self.curves.cutter.add( c )
 
 		#
 		# Craete torus
@@ -298,8 +300,8 @@ class Scene :
 	def fill_gap( self , c ) :
 		self.curves.fill_gap( c )
 
-	def cut_current( self ) :
-		return self.curves.cut( self.cursor.get_pos() )
+	def cut_current( self , delta ) :
+		return self.curves.cut( self.cursor.get_pos() , delta )
 
 	def select_to_cut( self ) :
 		self.curves.select_to_cut( self.cursor.get_clipping_pos() , self.pdist2 )

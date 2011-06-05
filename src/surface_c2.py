@@ -11,7 +11,9 @@ from points import Points
 
 from geom.bezier import Bezier
 from geom.curve import Curve
-from geom.surface import Surface 
+from geom.surface import SurfaceTrimmed
+
+from trimming import *
 
 from copy import copy
 
@@ -32,7 +34,7 @@ class SurfaceC2( Points ) :
 		self.size = data[0]
 		self.dens = data[1]
 
-		gm = Surface()
+		gm = SurfaceTrimmed()
 
 		self.pts = pts if pts != None else []
 
@@ -42,7 +44,12 @@ class SurfaceC2( Points ) :
 		gm.set_visibility( Bezier.CURVE   , False )
 		gm.set_visibility( Bezier.POLYGON , False )
 
+		# trimming data
+		self.trimm_curr = None
+		self.reset_trimms() 
+
 		self.calc_size()
+		self.gen_ind()
 		self.allocate()
 
 		self.set_data( (self.pts,self.bezy) )
@@ -59,6 +66,7 @@ class SurfaceC2( Points ) :
 			self.generate()
 			self.get_geom().set_visibility( Bezier.CURVE , True )
 
+		# debug data
 		self.trim_p0 = None
 		self.trimming_curve = None
 
@@ -140,13 +148,42 @@ class SurfaceC2( Points ) :
 
 	def calc_size( self ) :
 		self.sized = (self.size[0]*self.dens[0]*3+1 , self.size[1]*self.dens[1]*3+1 )
-		self.get_geom().gen_ind(self.sized[0],self.sized[1])
+
+	def gen_ind( self ) :
+		self.get_geom().gen_ind(self.sized[0],self.sized[1],self.size[0],self.size[1],self.trimms)
 
 	def allocate( self ) :
 		self.bezx = np.zeros(3*self.sized[0]*self.sized[1] , np.float32 )
 		self.bezy = np.zeros(3*self.sized[0]*self.sized[1] , np.float32 )
 
 		self.array_pts = np.empty( (self.size[0]+3,self.size[1]+3,3) , np.double )
+
+	def reset_trimms( self ) :
+		self.trimms = [
+				TrimmingBorder( 0 , 0 , *self.size ) ,
+				TrimmingBorder( self.size[0] ,self.size[1] , *self.size ) ]
+
+	def begin_trimming_loop( self ) :
+		pass
+
+	def begin_trimming_curve( self ) :
+		self.trimm_curr = TrimmingCurve() 
+		self.trimm_curr.start()
+		self.trimms.insert( -1 , self.trimm_curr )
+
+	def append_trimming_uv( self , u , v ) :
+		if self.trimm_curr != None :
+			self.trimm_curr.add_back( u , v ) 
+
+	def prepend_trimming_uv( self , u , v ) :
+		if self.trimm_curr != None :
+			self.trimm_curr.add_front( u , v ) 
+
+	def end_trimming( self ) :
+		if self.trimm_curr != None :
+			self.trimm_curr.end()
+			self.trimms.sort( key = lambda t : t.min_uv )
+			self.gen_ind()
 
 	def generate( self ) :
 		self.bezx , self.bezy = csurf.gen_deboor( self.pts , self.bezx , self.bezy , self.size[0] , self.size[1] , self.sized[0] , self.sized[1] , self.dens[0] , self.dens[1] , self.base )
@@ -166,6 +203,7 @@ class SurfaceC2( Points ) :
 	def set_density( self , dens ) :
 		self.dens = dens 
 		self.calc_size()
+		self.gen_ind()
 		self.allocate()
 		self.set_data( (self.pts,self.bezy) )
 		self.generate()

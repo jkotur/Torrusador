@@ -117,6 +117,8 @@ class Curves( Node ) :
 	def point_move( self , v ) :
 		if self.selected :
 			self.selected.move_current( v )
+			if self.cutter.cuts( self.selected ) :
+				self.cutter.reset_trimms()
 
 	def toggle( self , which , what ) :
 		if which == Curve.BEZIER :
@@ -160,8 +162,8 @@ class Curves( Node ) :
 		if c != None and isinstance(c,SurfaceC2) :
 			self.cutter.add( c )
 
-	def cut( self , pos ) :
-		return self.cutter.cut()
+	def cut( self , pos , delta ) :
+		return self.cutter.cut( pos , delta )
 
 	def load( self , path ) :
 		with open(path,"r+") as f :

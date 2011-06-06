@@ -306,6 +306,9 @@ class Scene :
 	def select_to_cut( self ) :
 		self.curves.select_to_cut( self.cursor.get_clipping_pos() , self.pdist2 )
 
+	def clear_cut( self ) :
+		self.curves.clear_cut()
+
 	def set_surf_density( self , dens ) :
 		self.curves.set_surf_density( dens )
 

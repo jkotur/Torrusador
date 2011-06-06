@@ -459,6 +459,10 @@ class App(object):
 				sm.append((str(b),))
 		self.drawing_area.queue_draw()
 
+	def on_but_cut_clear_clicked( self , widget , data=None ) :
+		self.scene.clear_cut()
+		self.drawing_area.queue_draw()
+
 	def on_mitem_load_activate( self , widget , data=None ) :
 		if self.win_dia_load.run() == gtk.RESPONSE_OK :
 			self.save_file = self.win_dia_load.get_filename()

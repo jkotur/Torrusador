@@ -22,6 +22,10 @@ class Cutter :
 	def reset_trimms( self ) :
 		for s in self.tocut : s.reset_trimms()
 
+	def reset_ind( self ) :
+		for s in self.tocut : s.gen_ind()
+
+
 	def cut( self , pos , delta ) :
 		if len(self.tocut) < 2 :
 			return (None,None)
@@ -74,6 +78,8 @@ class Cutter :
 
 			trimming.append( csurf.bspline_surf( uvuv[0], uvuv[1], self.tocut[0].array_pts ) )
 
+		self._add_minmax( uvuv , maxuvuv )
+
 		uvuv = baseuvuv
 		while all( uvuv < maxuvuv ) and all( uvuv > np.zeros(4) ) :
 			print 'Newton rev (' , uvuv , ')' , '(' , maxuvuv , ')'
@@ -86,6 +92,18 @@ class Cutter :
 
 			trimming.insert( 0 , csurf.bspline_surf( uvuv[0], uvuv[1], self.tocut[0].array_pts ) )
 
+		self._add_minmax( uvuv , maxuvuv )
+
 		self.tocut[0].end_trimming()
 		self.tocut[1].end_trimming()
+
+	def _add_minmax( self , uvuv , maxuvuv ) :
+		if uvuv[0] <= 0          : self.tocut[0].add_v_min( uvuv[1] )
+		if uvuv[1] <= 0          : self.tocut[0].add_u_min( uvuv[0] )
+		if uvuv[2] <= 0          : self.tocut[1].add_v_min( uvuv[3] )
+		if uvuv[3] <= 0          : self.tocut[1].add_u_min( uvuv[2] )
+		if uvuv[0] >= maxuvuv[0] : self.tocut[0].add_v_max( uvuv[1] )
+		if uvuv[1] >= maxuvuv[1] : self.tocut[0].add_u_max( uvuv[0] )
+		if uvuv[2] >= maxuvuv[2] : self.tocut[1].add_v_max( uvuv[3] )
+		if uvuv[3] >= maxuvuv[3] : self.tocut[1].add_u_max( uvuv[2] )
 

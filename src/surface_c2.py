@@ -158,18 +158,35 @@ class SurfaceC2( Points ) :
 
 		self.array_pts = np.empty( (self.size[0]+3,self.size[1]+3,3) , np.double )
 
+	def add_u_min( self , u ) :
+		if self.trimm_curr != None :
+			self.trimm_curr.set_u_min( u )
+
+	def add_v_min( self , v ) :
+		if self.trimm_curr != None :
+			self.trimm_curr.set_v_min( v )
+
+	def add_u_max( self , u ) :
+		if self.trimm_curr != None :
+			self.trimm_curr.set_u_max( u )
+
+	def add_v_max( self , v ) :
+		if self.trimm_curr != None :
+			self.trimm_curr.set_v_max( v )
+
+	def set_loop( self ) :
+		if self.trimm_curr != None :
+			self.trimm_curr.loop = True
+
 	def reset_trimms( self ) :
 		self.trimms = [
 				TrimmingBorder( 0 , 0 , *self.size ) ,
 				TrimmingBorder( self.size[0] ,self.size[1] , *self.size ) ]
-
-	def begin_trimming_loop( self ) :
-		pass
+		self.fake_trimms = []
 
 	def begin_trimming_curve( self ) :
 		self.trimm_curr = TrimmingCurve() 
 		self.trimm_curr.start()
-		self.trimms.insert( -1 , self.trimm_curr )
 
 	def append_trimming_uv( self , u , v ) :
 		if self.trimm_curr != None :
@@ -182,8 +199,12 @@ class SurfaceC2( Points ) :
 	def end_trimming( self ) :
 		if self.trimm_curr != None :
 			self.trimm_curr.end()
-			self.trimms.sort( key = lambda t : t.min_uv )
+			if self.trimm_curr.fake :
+				self.fake_trimms.insert( -1 , self.trimm_curr )
+			else :
+				self.trimms.insert( -1 , self.trimm_curr )
 			self.gen_ind()
+			self.trimm_curr = None
 
 	def generate( self ) :
 		self.bezx , self.bezy = csurf.gen_deboor( self.pts , self.bezx , self.bezy , self.size[0] , self.size[1] , self.sized[0] , self.sized[1] , self.dens[0] , self.dens[1] , self.base )

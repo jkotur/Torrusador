@@ -33,6 +33,39 @@ class TrimmingCurve( TrimmingBorder ) :
 		self.l = None
 		self.minuv = None
 
+		self.minu = float('inf')
+		self.minv = float('inf')
+		self.maxu = float('-inf')
+		self.maxv = float('-inf')
+		
+		self.loop = False
+#        self.oneborder = False
+
+	@property
+	def fake( self ) :
+		i = 0
+		if m.isinf(self.minu) : i+=1
+		if m.isinf(self.maxu) : i+=1
+		if m.isinf(self.minv) : i+=1
+		if m.isinf(self.maxv) : i+=1
+		return not self.loop and i>2
+
+	def set_u_min( self , u ) :
+#        if not m.isinf(self.minu) : self.oneborder = True
+		if u < self.minu : self.minu = u
+
+	def set_v_min( self , v ) :
+#        if not m.isinf(self.minv) : self.oneborder = True
+		if v < self.minv : self.minv = v
+
+	def set_u_max( self , u ) :
+#        if not m.isinf(self.maxu) : self.oneborder = True
+		if u > self.maxu : self.maxu = u
+
+	def set_v_max( self , v ) :
+#        if not m.isinf(self.maxv) : self.oneborder = True
+		if v > self.maxv : self.maxv = v
+
 	def update_min( self , u , v ) :
 		if self.minuv == None or u+v < self.minuv :
 			self.minuv = u+v
@@ -83,7 +116,4 @@ class TrimmingCurve( TrimmingBorder ) :
 			bnu = int( m.ceil ( self.a[i+bui,0] / du ) )
 			for i in range(env+1-bnv) :
 				yield  (bnu+i)*du , (bnv+i)*dv
-
-class TrimmingLoop( TrimmingCurve ) :
-	pass
 

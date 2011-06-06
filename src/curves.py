@@ -165,6 +165,10 @@ class Curves( Node ) :
 	def cut( self , pos , delta ) :
 		return self.cutter.cut( pos , delta )
 
+	def clear_cut( self ) :
+		self.cutter.reset_trimms()
+		self.cutter.reset_ind()
+
 	def load( self , path ) :
 		with open(path,"r+") as f :
 			for k in xrange(int(f.readline())) :

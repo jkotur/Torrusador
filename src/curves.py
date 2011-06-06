@@ -169,6 +169,9 @@ class Curves( Node ) :
 		self.cutter.reset_trimms()
 		self.cutter.reset_ind()
 
+	def cut_select( self , i , k ) :
+		self.cutter.cut_select( i , k )
+
 	def load( self , path ) :
 		with open(path,"r+") as f :
 			for k in xrange(int(f.readline())) :

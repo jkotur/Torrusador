@@ -9,11 +9,35 @@ class TrimmingBorder :
 		self.maxu = maxu
 		self.maxv = maxv
 
+		self.offset = 0.0
+
 		self.minuv =  minu + minv
+
+	@property
+	def min_u( self ) : return self.minu
+	@property
+	def min_v( self ) : return self.minv
+	@property
+	def max_u( self ) : return self.maxu
+	@property
+	def max_v( self ) : return self.maxv
+
+	@property
+	def beg_u( self ) : return self.min_u + self.offset
+	@property
+	def end_u( self ) : return float('inf')
+	@property
+	def beg_v( self ) : return self.min_v + self.offset
+	@property
+	def end_v( self ) : return float('inf')
 
 	@property 
 	def min_uv( self ) :
 		return self.minuv
+
+	@property
+	def fake( self ) :
+		return False
 
 	def get_intersections_u( self , du ) :
 		u = 0 
@@ -37,9 +61,17 @@ class TrimmingCurve( TrimmingBorder ) :
 		self.minv = float('inf')
 		self.maxu = float('-inf')
 		self.maxv = float('-inf')
+
+		self.endu = float('inf')
+		self.endv = float('inf')
 		
 		self.loop = False
-#        self.oneborder = False
+		self.oneborder = False
+
+	@property
+	def beg_u( self ) : return self.min_u
+	@property
+	def beg_v( self ) : return self.min_v
 
 	@property
 	def fake( self ) :
@@ -48,22 +80,35 @@ class TrimmingCurve( TrimmingBorder ) :
 		if m.isinf(self.maxu) : i+=1
 		if m.isinf(self.minv) : i+=1
 		if m.isinf(self.maxv) : i+=1
-		return not self.loop and i>2
+		return not self.loop and not self.oneborder and i>2
+
+	@property
+	def end_u( self ) : return self.endu
+	@property
+	def end_v( self ) : return self.endv
 
 	def set_u_min( self , u ) :
-#        if not m.isinf(self.minu) : self.oneborder = True
-		if u < self.minu : self.minu = u
+		if not m.isinf(self.minu) : self.oneborder = True
+		if u < self.minu :
+			self.endu = self.minu
+			self.minu = u
+		else :
+			self.endu = u
 
 	def set_v_min( self , v ) :
-#        if not m.isinf(self.minv) : self.oneborder = True
-		if v < self.minv : self.minv = v
+		if not m.isinf(self.minv) : self.oneborder = True
+		if v < self.minv :
+			self.endv = self.minv
+			self.minv = v
+		else :
+			self.endv = v
 
 	def set_u_max( self , u ) :
-#        if not m.isinf(self.maxu) : self.oneborder = True
+		if not m.isinf(self.maxu) : self.oneborder = True
 		if u > self.maxu : self.maxu = u
 
 	def set_v_max( self , v ) :
-#        if not m.isinf(self.maxv) : self.oneborder = True
+		if not m.isinf(self.maxv) : self.oneborder = True
 		if v > self.maxv : self.maxv = v
 
 	def update_min( self , u , v ) :

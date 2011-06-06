@@ -25,10 +25,12 @@ class Cutter :
 	def reset_ind( self ) :
 		for s in self.tocut : s.gen_ind()
 
+	def cut_select( self , i , k ) :
+		self.tocut[i].set_select( k )
 
 	def cut( self , pos , delta ) :
 		if len(self.tocut) < 2 :
-			return (None,None)
+			return 0 , 0
 
 		u1 = self.tocut[0].size[0] / 2.0
 		v1 = self.tocut[0].size[1] / 2.0
@@ -37,9 +39,9 @@ class Cutter :
 
 		uvuv = self.find_first_uv( np.array((u1,v1,u2,v2)) )
 
-		self.find_trimming( uvuv , delta )
-
-		return (3,5)
+		res = self.find_trimming( uvuv , delta )
+		print res
+		return res
 
 	def find_first_uv( self , uvuv ) :
 		uvuv = csurf.cut_bsplines(
@@ -94,8 +96,10 @@ class Cutter :
 
 		self._add_minmax( uvuv , maxuvuv )
 
-		self.tocut[0].end_trimming()
-		self.tocut[1].end_trimming()
+		A = self.tocut[0].end_trimming()
+		B = self.tocut[1].end_trimming()
+
+		return A , B
 
 	def _add_minmax( self , uvuv , maxuvuv ) :
 		if uvuv[0] <= 0          : self.tocut[0].add_v_min( uvuv[1] )

@@ -146,11 +146,14 @@ class SurfaceC2( Points ) :
 			self.get_geom().set_visibility( Curve.CURVE   , curves )
 			self.get_geom().set_visibility( Curve.POLYGON , polys )
 
+	def set_select( self , k ) :
+		self.get_geom().set_select( k )
+
 	def calc_size( self ) :
 		self.sized = (self.size[0]*self.dens[0]*3+1 , self.size[1]*self.dens[1]*3+1 )
 
 	def gen_ind( self ) :
-		self.get_geom().gen_ind(self.sized[0],self.sized[1],self.size[0],self.size[1],self.trimms)
+		return self.get_geom().gen_ind(self.sized[0],self.sized[1],self.size[0],self.size[1],self.trimms)
 
 	def allocate( self ) :
 		self.bezx = np.zeros(3*self.sized[0]*self.sized[1] , np.float32 )
@@ -182,6 +185,7 @@ class SurfaceC2( Points ) :
 		self.trimms = [
 				TrimmingBorder( 0 , 0 , *self.size ) ,
 				TrimmingBorder( self.size[0] ,self.size[1] , *self.size ) ]
+		self.trimms[-1].offset += .1
 		self.fake_trimms = []
 
 	def begin_trimming_curve( self ) :
@@ -197,14 +201,17 @@ class SurfaceC2( Points ) :
 			self.trimm_curr.add_front( u , v ) 
 
 	def end_trimming( self ) :
-		if self.trimm_curr != None :
-			self.trimm_curr.end()
-			if self.trimm_curr.fake :
-				self.fake_trimms.insert( -1 , self.trimm_curr )
-			else :
-				self.trimms.insert( -1 , self.trimm_curr )
-			self.gen_ind()
-			self.trimm_curr = None
+		if self.trimm_curr == None :
+			return 0
+		self.trimm_curr.end()
+		if self.trimm_curr.fake :
+			print 'Inserting fake trimm' , self.trimm_curr
+			self.fake_trimms.insert( -1 , self.trimm_curr )
+		else :
+			print 'Inserting real trimm' , self.trimm_curr
+			self.trimms.insert( -1 , self.trimm_curr )
+		self.trimm_curr = None
+		return self.gen_ind()
 
 	def generate( self ) :
 		self.bezx , self.bezy = csurf.gen_deboor( self.pts , self.bezx , self.bezy , self.size[0] , self.size[1] , self.sized[0] , self.sized[1] , self.dens[0] , self.dens[1] , self.base )

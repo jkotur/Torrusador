@@ -50,7 +50,7 @@ class Scene :
 		#
 
 #        self.load_from_file(u'../data/młotek.gpt')
-		self.load_from_file(u'../data/cut_test_01.gpt')
+		self.load_from_file(u'../data/cut_test_08.gpt')
 		for c in self.curves : self.curves.cutter.add( c )
 
 		#
@@ -308,6 +308,9 @@ class Scene :
 
 	def clear_cut( self ) :
 		self.curves.clear_cut()
+
+	def cut_select( self , i , k ) :
+		self.curves.cut_select( i , k )
 
 	def set_surf_density( self , dens ) :
 		self.curves.set_surf_density( dens )

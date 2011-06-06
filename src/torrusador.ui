@@ -73,6 +73,7 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
   <object class="GtkAdjustment" id="adj_cut_delta">
     <property name="lower">0.01</property>
     <property name="upper">100</property>
+    <property name="value">0.01</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
   </object>
@@ -2000,6 +2001,7 @@ Gregory'ego</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
                                                 <property name="model">liststore1</property>
+                                                <signal name="changed" handler="on_cbox_first_changed" swapped="no"/>
                                               </object>
                                               <packing>
                                                 <property name="expand">True</property>
@@ -2012,6 +2014,7 @@ Gregory'ego</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
                                                 <property name="model">liststore2</property>
+                                                <signal name="changed" handler="on_cbox_second_changed" swapped="no"/>
                                               </object>
                                               <packing>
                                                 <property name="expand">True</property>

@@ -447,20 +447,30 @@ class App(object):
 		A , B = self.scene.cut_current( self.sp_delta.get_value() )
 		fm = self.cbox_first.get_model()
 		sm = self.cbox_second.get_model()
-		if A == None :
-			fm.clear()
-		else :
-			for a in range(A) :
-				fm.append((str(a),))
-		if B == None :
-			sm.clear()
-		else :
-			for b in range(B) :
-				sm.append((str(b),))
+		fm.clear()
+		for a in range(A) :
+			fm.append((str(a),))
+		sm.clear()
+		for b in range(B) :
+			sm.append((str(b),))
 		self.drawing_area.queue_draw()
 
 	def on_but_cut_clear_clicked( self , widget , data=None ) :
 		self.scene.clear_cut()
+		self.drawing_area.queue_draw()
+
+	def on_cbox_first_changed( self , widget , data=None ) :
+		txt = widget.get_active_text()
+		if txt == None : i = None
+		else : i = int(txt)
+		self.scene.cut_select( 0 , i ) 
+		self.drawing_area.queue_draw()
+
+	def on_cbox_second_changed( self , widget , data=None ) :
+		txt = widget.get_active_text()
+		if txt == None : i = None
+		else : i = int(txt)
+		self.scene.cut_select( 1 , i ) 
 		self.drawing_area.queue_draw()
 
 	def on_mitem_load_activate( self , widget , data=None ) :

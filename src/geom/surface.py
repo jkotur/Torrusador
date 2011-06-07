@@ -85,7 +85,7 @@ class SurfaceTrimmed( Surface ) :
 				print p
 				lu.append( round(p[0],4) )
 				lv.append( round(p[1],4) )
-				lt.append( t )
+				lt.append( id(t) )
 		uarr = np.array( lu ) 
 		varr = np.array( lv ) 
 
@@ -102,11 +102,14 @@ class SurfaceTrimmed( Surface ) :
 
 		self.indx = []
 		ends = []
-		i = 1
+		idstack = []
 		k = 0
 		kb= 0
 		eb= 0
 		l = 0
+		n = 0
+		i = 1
+		dk= 1
 		while i < len(ind) :
 			u  = uarr[ind[i-1]]
 			v  = varr[ind[i-1]]
@@ -115,10 +118,12 @@ class SurfaceTrimmed( Surface ) :
 #            print u , v , '|' , eu , ev
 			if v != ev :
 				i+=1
-				if k < eb :
+				if n < eb :
 					self.indx.insert(0,self.indx.pop())
 					kb+=1
-				k =kb
+				k = kb
+				n = k
+				dk=1
 				continue
 
 #            print v , k , l , len(self.indx)
@@ -150,11 +155,16 @@ class SurfaceTrimmed( Surface ) :
 #                print u , v , '->' , x , y
 				u += du
 			self.indx[k].pop()
-#            if m.isinf(lt[ind[i-1]].end_u) :
-#                k+=1
-#            else :
-#                k-=1
-			k+=1
+
+			if len(idstack) == 0 or lt[ind[i]] != idstack[-1] :
+				idstack.append( lt[ind[i]] )
+				k+=dk
+				dk=1
+			else :
+				idstack.pop()
+				dk+=1
+				k-=1
+			n+=1
 			i+=1
 #            print u , v , '--' , x , y
 		for i in range(len(self.indx)) :

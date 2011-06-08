@@ -74,243 +74,111 @@ class SurfaceTrimmed( Surface ) :
 		du = float(maxu) / (sx-1)
 		dv = float(maxv) / (sy-1)
 
-		#
-		# generate indices for const u
-		#
 		lu = []
 		lv = []
-		lt = []
-		# generate virtual curves for those which cut u=0 line
-		# this code assumes that first trimming curve is border 
-		# at min_u == 0
-		trimms.sort( key = lambda t : t.sort_v )
-		t = trimms[0]
-		assert( isinstance(t,TrimmingBorder) )
-		assert( t.min_u == 0 )
-		endv = 0
-		done = 2
-		tid = 0
-		tid0 = id(t)
-		for p in t.get_intersections_v(dv) :
-			if done < len(trimms) and p[1] > trimms[done].beg_v :
-				if trimms[done].oneborder or m.isinf(trimms[done].beg_u) :
-					tid = id(trimms[done])
-					endv = trimms[done].end_v
-				else :
-					tid  = tid0
-					tid0 = id(trimms[done])
-					endv = trimms[done].beg_v
-
-				l = len(lu)
-				inv = True
-				tu = []
-				tv = []
-				for p1 in trimms[done].get_intersections_v(dv) :
-					tu.append( round(p1[0],4) )
-					tv.append( round(p1[1],4) )
-					lt.append( tid0 )
-				if tv[0] < tv[-1] :
-					lu += tu
-					lv += tv
-				else :
-					lu += reversed(tu)
-					lv += reversed(tv)
-				done+=1
-			if p[1] < endv :
-				lu.insert(0,round(p[0],4))
-				lv.insert(0,round(p[1],4))
-				lt.insert(0,tid)
-			else :
-				lu.append( round(p[0],4) )
-				lv.append( round(p[1],4) )
-				lt.append( tid0 )
-
-		for t in trimms[done:] :
+		for t in trimms :
 			for p in t.get_intersections_v(dv) :
 				lu.append( round(p[0],4) )
 				lv.append( round(p[1],4) )
-				lt.append( id(t) )
+#                lu.append( p[0] )
+#                lv.append( p[1] )
 
-		tid = id(trimms[1])
-		for p in trimms[1].get_intersections_v(dv) :
-			lu.append( round(p[0],4) )
-			lv.append( round(p[1],4) )
-			lt.append( tid )
-
-		uarr = np.array( lu ) 
-		varr = np.array( lv ) 
-
-		n2l = np.lexsort( (uarr,varr) ) # normal to lexical order
-		l2n = np.argsort( n2l )    # lexical to normal order
-
-		print 'not sorted:'
-		for i in range(len(varr)) :
-			print i ,  uarr[i] , varr[i] , lt[i]
-		print 'eos'
-
-		print 'sorted:'
-		for i in n2l :
-			print i , uarr[i] , varr[i] , lt[i]
-		print 'eos'
-
-		self.indx = []
-
-		k  = 0 
-		nk = 1
-		while k < len(lt) :
-			while nk < len(lt) and lt[nk-1] == lt[nk] : nk += 1
-			if uarr[k] <= uarr[nk-1] :
-				active = [ ( k, 1) ] 
-			else :
-				active = [ (nk-1,-1) ]
-
-			self.indx.append([])
-			while len(active) > 0 :
-				#
-				# get active point
-				#
-				print '---'
-				for a in active :
-					print a
-				i , sv = active.pop(0)
-				sdv = np.sign(varr[i+sv] - varr[i])
-
-				while i >= 0 and i < len(uarr)-1 :
-					#
-					# get corespondent point 
-					#
-					j  = n2l[l2n[i]+1] 
-
-					u  = uarr[i]
-					v  = varr[i]
-					eu = uarr[j]
-					ev = varr[j]
-
-					#
-					# if corespondent point is not on the same 
-					# scanline continue loop (e.g. end of plane)
-					#
-					if v != ev :
-						i+=sv
-						continue
-
-					#
-					# check for new active point
-					#
-					prevvsin = nextvsin = None
-					nj = j 
-					xj = j
-					while nj-1 >= 0 and lt[nj-1] == lt[nj] :
-						prevvsin = np.sign( varr[nj  ] - varr[nj-1] )
-						if prevvsin != 0 : break
-						prevvsin = None
-						nj-=1
-					while xj+1 < len(varr) and lt[xj+1] == lt[xj] :
-						nextvsin = np.sign( varr[xj+1] - varr[xj  ] )
-						if nextvsin != 0 : break
-						nextvsin = None
-						xj+=1
-
-					if j != i+sv and prevvsin != None and nextvsin != None :
-						if prevvsin != nextvsin :
-							if uarr[nj] < uarr[xj] :
-								active.append( (xj,+1) )
-							else :
-								active.append( (nj,-1) )
-
-					print '.' , len(self.indx) 
-
-					#
-					# draw scanline
-					#
-					y = int(v / dv + .5)
-					x = int(m.ceil(u / du ))
-					self.indx[-1].append( x*sy+y )
-					u += du
-					while u <= eu :
-						x = int(m.ceil(u / du ))
-						self.indx[-1].append( x*sy+y )
-						self.indx[-1].append( x*sy+y )
-						u += du
-					self.indx[-1].pop()
-
-					#
-					# loop to next good direction of curve. Double break on:
-					# * next point is on another line 
-					# * line was drawn to next point of the same curve (dead end)
-					#
-#                    sdv = np.sign(varr[i+sv] - varr[i])
-					i+=sv
-					cont = True
-					while i >= 1 and i < len(lt) and \
-						  np.sign(varr[i]-varr[i-sv]) != sdv :
-						if lt[i] != lt[i-sv] or j == i :
-							cont = False
-							break
-						i+=sv
-					if not cont : break
-
-					#
-					# get next point 
-					#
-			k  = nk
-			nk+=1
-
-		for i in range(len(self.indx)) :
-			self.indx[i] = np.array( self.indx[i] , np.uint32 )
-		for i in range(len(self.indx)) :
-			print len(self.indx[i]) , '-->' , self.indx[i]
-
-		self.k = 0
-		return len(self.indx)
-
-		#
-		# generate indices for const u
-		#
+		vuarr = np.array( lu )
+		vvarr = np.array( lv )
 
 		lu = []
 		lv = []
-		lt = []
-		for i in range(beg,end+1) :
-#            print trimms[i]
-			for p in trimms[i].get_intersections_u(du) :
-#                print p
+		for t in trimms :
+			for p in t.get_intersections_u(du) :
 				lu.append( round(p[0],4) )
 				lv.append( round(p[1],4) )
-		uarr = np.array( lu ) 
-		varr = np.array( lv ) 
+#                lu.append( p[0] )
+#                lv.append( p[1] )
 
-		ind = np.lexsort( (varr,uarr) )
+		uuarr = np.array( lu )
+		uvarr = np.array( lv )
 
-		self.indy = []
-		i = 1
-		while i < len(ind) :
-			u  = uarr[ind[i-1]]
-			v  = varr[ind[i-1]]
-			eu = uarr[ind[i  ]]
-			ev = varr[ind[i  ]]
-#            print u , v , '|' , eu , ev
-#            assert( v == ev )
-			if u != eu :
-				i+=1
-				continue
-			y = int(v / dv + .5)
-			x = int(u / du + .5)
-			self.indy.append( x*sy+y )
-#            print u , v , '->' , x , y
-			v += dv
-			while v <= ev :
-				y = int(v / dv + .5)
-				self.indy.append( x*sy+y )
-				self.indy.append( x*sy+y )
-#                print u , v , '->' , x , y
-				v += dv
-			self.indy.append( x*sy+y )
-			i+=2
-#            print u , v , '--' , x , y
-		self.indy = np.array( self.indy , np.uint32 )
+#        du = round( du , 4 )
+#        dv = round( dv , 4 )
 
-		self.k = 0
+		print uuarr
+
+		inu = np.lexsort( (vuarr,vvarr) )
+		inv = np.lexsort( (uvarr,uuarr) )
+
+		print '--> u'
+		for i in inu : print vuarr[i] , vvarr[i] 
+		print '--> v'
+		for i in inv : print uuarr[i] , uvarr[i] 
+
+#        stack = [ (0,5,20 if len(inu)>20 else 0,0) ]
+		stack = [ (0,0,0,0) ]
+		done = np.zeros((sx,sy,4),np.bool)
+
+		self.indx = [[]]
+		self.indy = [[]]
+		while len(stack) > 0 :
+			x , y , iu , iv = stack.pop()
+
+			u = float(x) * du
+			v = float(y) * dv
+
+			print  x , y , '\t|\t', u , v , '\t|\t' , iu , iv , '\t|\t' , vuarr[inu[iu]] , vvarr[inu[iu]] , '\t|\t' , uuarr[inv[iv]] , uvarr[inv[iv]] 
+
+			if x+1 < sx and u+du < vuarr[inu[iu+1]] :
+				if not done[ x , y , 0 ] :
+					done[ x   , y   , 0 ] = True
+					done[ x+1 , y   , 1 ] = True
+					self.indx[0].append(  x   *sy+y )
+					self.indx[0].append( (x+1)*sy+y )
+					if not all(done[ x+1 , y   ]) :
+						niv = iv
+						while uuarr[inv[niv  ]] < u+du : niv+=1
+						while uvarr[inv[niv+1]] < v    : niv+=1
+						print '  ->',  x+1 , y
+						stack.append((x+1,y  , iu,niv))
+			if x-1 >=0  and u-du > vuarr[inu[iu  ]] :
+				if not done[ x , y , 1 ] :
+					done[ x   , y   , 1 ] = True
+					done[ x-1 , y   , 0 ] = True
+					self.indx[0].append(  x   *sy+y )
+					self.indx[0].append( (x-1)*sy+y )
+					if not all(done[ x-1 , y   ]) :
+						niv = iv
+						while uuarr[inv[niv  ]] > u-du : niv-=1
+						while uvarr[inv[niv  ]] > v    : niv-=1
+						print '  ->' , x-1 , y
+						stack.append((x-1,y  , iu,niv))
+			if y+1 < sy and v+dv < uvarr[inv[iv+1]] :
+				if not done[ x , y   , 2 ] :
+					done[ x , y   , 2 ] = True
+					done[ x , y+1 , 3 ] = True
+					self.indx[0].append(  x   *sy+y   )
+					self.indx[0].append(  x   *sy+y+1 )
+					if not all(done[ x   , y+1 ]) :
+						niu = iu
+						while vvarr[inu[niu  ]] < v+dv : niu+=1
+						while vuarr[inu[niu+1]] < u    : niu+=1
+						print '  ->' , x   , y+1
+						stack.append((x  ,y+1,niu, iv))
+			if y-1 >=0  and v-dv > uvarr[inv[iv  ]] :
+				if not done[ x , y , 3 ] :
+					done[ x , y   , 3 ] = True
+					done[ x , y-1 , 2 ] = True
+					self.indx[0].append(  x   *sy+y   )
+					self.indx[0].append(  x   *sy+y-1 )
+					if not all(done[ x   , y-1 ]) :
+						niu = iu
+						print '  ->' , x   , y-1
+						while vvarr[inu[niu  ]] > v-dv : niu-=1
+						while vuarr[inu[niu  ]] > u    : niu-=1
+						stack.append((x  ,y-1,niu, iv))
+
+		for i in range(len(self.indx)) :
+			self.indx[i] = np.array( self.indx[i] , np.uint32 )
+		for i in range(len(self.indy)) :
+			self.indy[i] = np.array( self.indy[i] , np.uint32 )
+
 		return len(self.indx)
 
 	def draw_self( self , data ) :

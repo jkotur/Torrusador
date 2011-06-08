@@ -50,7 +50,7 @@ class Scene :
 		#
 
 #        self.load_from_file(u'../data/młotek.gpt')
-		self.load_from_file(u'../data/cut_test_08.gpt')
+		self.load_from_file(u'../data/cut_test_10.gpt')
 		for c in self.curves : self.curves.cutter.add( c )
 
 		#

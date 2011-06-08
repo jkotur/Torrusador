@@ -131,10 +131,11 @@ class SurfaceTrimmed( Surface ) :
 				lv.append( round(p[1],4) )
 				lt.append( id(t) )
 
+		tid = id(trimms[1])
 		for p in trimms[1].get_intersections_v(dv) :
 			lu.append( round(p[0],4) )
 			lv.append( round(p[1],4) )
-			lt.append( id(t) )
+			lt.append( tid )
 
 		uarr = np.array( lu ) 
 		varr = np.array( lv ) 
@@ -144,26 +145,33 @@ class SurfaceTrimmed( Surface ) :
 
 		print 'not sorted:'
 		for i in range(len(varr)) :
-			print  uarr[i] , varr[i] , lt[i]
+			print i ,  uarr[i] , varr[i] , lt[i]
 		print 'eos'
 
 		print 'sorted:'
 		for i in n2l :
-			print uarr[i] , varr[i] , lt[i]
+			print i , uarr[i] , varr[i] , lt[i]
 		print 'eos'
 
 		self.indx = []
 
+		k  = 0 
+		nk = 1
+		while k < len(lt) :
+			while nk < len(lt) and lt[nk-1] == lt[nk] : nk += 1
+			if uarr[k] <= uarr[nk-1] :
+				active = [ ( k, 1) ] 
+			else :
+				active = [ (nk-1,-1) ]
 
-		for i in range(0,len(lt)) :
-			if i!=0 and lt[i-1] == lt[i] :
-				continue
-			active = [ (i,1) ] # FIXME: what if first dv is -1?
 			self.indx.append([])
 			while len(active) > 0 :
 				#
 				# get active point
 				#
+				print '---'
+				for a in active :
+					print a
 				i , sv = active.pop(0)
 				sdv = np.sign(varr[i+sv] - varr[i])
 
@@ -210,6 +218,8 @@ class SurfaceTrimmed( Surface ) :
 							else :
 								active.append( (nj,-1) )
 
+					print '.' , len(self.indx) 
+
 					#
 					# draw scanline
 					#
@@ -225,26 +235,31 @@ class SurfaceTrimmed( Surface ) :
 					self.indx[-1].pop()
 
 					#
-					# check for field end, break if:
-					# * line is going backward
+					# loop to next good direction of curve. Double break on:
 					# * next point is on another line 
 					# * line was drawn to next point of the same curve (dead end)
 					#
-					if np.sign(varr[i+sv]-varr[i]) != sdv or \
-					   lt[i] != lt[i+sv] or \
-					   j == i+sv :
-						break
-					sdv = np.sign(varr[i+sv] - varr[i])
+#                    sdv = np.sign(varr[i+sv] - varr[i])
+					i+=sv
+					cont = True
+					while i >= 1 and i < len(lt) and \
+						  np.sign(varr[i]-varr[i-sv]) != sdv :
+						if lt[i] != lt[i-sv] or j == i :
+							cont = False
+							break
+						i+=sv
+					if not cont : break
 
 					#
 					# get next point 
 					#
-					i+=sv
+			k  = nk
+			nk+=1
 
 		for i in range(len(self.indx)) :
 			self.indx[i] = np.array( self.indx[i] , np.uint32 )
 		for i in range(len(self.indx)) :
-			print '-->' , self.indx[i]
+			print len(self.indx[i]) , '-->' , self.indx[i]
 
 		self.k = 0
 		return len(self.indx)

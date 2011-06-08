@@ -74,7 +74,7 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
     <property name="lower">0.01</property>
     <property name="upper">100</property>
     <property name="value">0.01</property>
-    <property name="step_increment">0.010000000447034835</property>
+    <property name="step_increment">0.029999999999999999</property>
     <property name="page_increment">1</property>
   </object>
   <object class="GtkAdjustment" id="adj_draw_surf_x">

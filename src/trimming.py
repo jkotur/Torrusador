@@ -128,7 +128,6 @@ class TrimmingCurve( TrimmingBorder ) :
 
 	def end( self ) :
 		self.a = np.array( self.l )
-		print self.a
 
 	def get_intersections_u( self , du ) :
 		for i in range(1,len(self.a)) :
@@ -155,8 +154,8 @@ class TrimmingCurve( TrimmingBorder ) :
 			else :	bui , eui =   0 , -1
 			bnv = int( m.ceil ( self.a[i+bvi,1] / dv ) )
 			env = int( m.floor( self.a[i+evi,1] / dv ) )
-			print self.a[i+bvi,1] , self.a[i+evi,1] , bnv , env
-			print self.a[i+bui,0] , self.a[i+eui,0] 
+#            print self.a[i+bvi,1] , self.a[i+evi,1] , bnv , env
+#            print self.a[i+bui,0] , self.a[i+eui,0] 
 			du = ( self.a[i+bui,0] - self.a[i+eui,0] ) / float(env+1-bnv)
 			bnu = int( m.ceil ( self.a[i+bui,0] / du ) )
 			for i in range(env+1-bnv) :

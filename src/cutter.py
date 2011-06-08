@@ -32,10 +32,18 @@ class Cutter :
 		if len(self.tocut) < 2 :
 			return 0 , 0
 
-		u1 = self.tocut[0].size[0] / 2.0
-		v1 = self.tocut[0].size[1] / 2.0
-		u2 = self.tocut[1].size[0] / 2.0
-		v2 = self.tocut[1].size[1] / 2.0
+		pos = np.array(pos) 
+
+		if not all( pos > np.zeros(4) ) or not all( pos < np.array(self.tocut[0].size[0] , self.tocut[0].size[1] , self.tocut[1].size[0] , self.tocut[1].size[1] ) ) :
+			u1 = self.tocut[0].size[0] / 2.0
+			v1 = self.tocut[0].size[1] / 2.0
+			u2 = self.tocut[1].size[0] / 2.0
+			v2 = self.tocut[1].size[1] / 2.0
+		else :
+			u1 = pos[0]
+			v1 = pos[1]
+			u2 = pos[2]
+			v2 = pos[3]
 
 		uvuv = self.find_first_uv( np.array((u1,v1,u2,v2)) )
 

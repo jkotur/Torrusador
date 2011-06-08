@@ -108,6 +108,10 @@ class App(object):
 		self.cbox_first  = builder.get_object('cbox_first')
 		self.cbox_second = builder.get_object('cbox_second')
 		self.sp_delta = builder.get_object('sp_cut_delta')
+		self.sp_cut_u1 = builder.get_object('sp_cut_u1')
+		self.sp_cut_v1 = builder.get_object('sp_cut_v1')
+		self.sp_cut_u2 = builder.get_object('sp_cut_u2')
+		self.sp_cut_v2 = builder.get_object('sp_cut_v2')
 
 		cell = gtk.CellRendererText()
 		self.cbox_first.pack_start(cell, True)
@@ -444,7 +448,7 @@ class App(object):
 		self.drawing_area.queue_draw()
 
 	def on_but_cut_clicked( self , widget , data=None ) :
-		A , B = self.scene.cut_current( self.sp_delta.get_value() )
+		A , B = self.scene.cut_current( (self.sp_cut_u1.get_value() , self.sp_cut_v2.get_value(),self.sp_cut_u2.get_value() , self.sp_cut_v2.get_value()) , self.sp_delta.get_value() )
 		fm = self.cbox_first.get_model()
 		sm = self.cbox_second.get_model()
 		fm.clear()

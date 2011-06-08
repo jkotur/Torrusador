@@ -300,8 +300,9 @@ class Scene :
 	def fill_gap( self , c ) :
 		self.curves.fill_gap( c )
 
-	def cut_current( self , delta ) :
-		return self.curves.cut( self.cursor.get_pos() , delta )
+	def cut_current( self , pos , delta ) :
+#        return self.curves.cut( self.cursor.get_pos() , delta )
+		return self.curves.cut( pos , delta )
 
 	def select_to_cut( self ) :
 		self.curves.select_to_cut( self.cursor.get_clipping_pos() , self.pdist2 )

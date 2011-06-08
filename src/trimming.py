@@ -2,7 +2,25 @@
 import math as m
 import numpy as np
 
-class TrimmingBorder :
+class Trim :
+	def __init__( self ) :
+		self.minu = self.minv = self.maxu = self.maxv = None
+
+	@property
+	def sort_u( self ) : return self.minu
+	@property
+	def sort_v( self ) : return self.minv
+	@property
+	def min_u( self ) : return self.minu
+	@property
+	def min_v( self ) : return self.minv
+	@property
+	def max_u( self ) : return self.maxu
+	@property
+	def max_v( self ) : return self.maxv
+
+
+class TrimmingBorder( Trim ) :
 	def __init__( self , minu , minv , maxu , maxv ) :
 		self.minu = minu
 		self.minv = minv
@@ -14,14 +32,9 @@ class TrimmingBorder :
 		self.minuv =  minu + minv
 
 	@property
-	def min_u( self ) : return self.minu
+	def sort_u( self ) : return -1 + self.offset
 	@property
-	def min_v( self ) : return self.minv
-	@property
-	def max_u( self ) : return self.maxu
-	@property
-	def max_v( self ) : return self.maxv
-
+	def sort_v( self ) : return -1 + self.offset
 	@property
 	def beg_u( self ) : return self.min_u + self.offset
 	@property
@@ -51,7 +64,7 @@ class TrimmingBorder :
 			yield self.minu,v
 			v += dv
 
-class TrimmingCurve( TrimmingBorder ) :
+class TrimmingCurve( Trim ) :
 	def __init__( self ) :
 		self.a = None
 		self.l = None
@@ -72,6 +85,10 @@ class TrimmingCurve( TrimmingBorder ) :
 	def beg_u( self ) : return self.min_u
 	@property
 	def beg_v( self ) : return self.min_v
+	@property
+	def end_u( self ) : return self.endu
+	@property
+	def end_v( self ) : return self.endv
 
 	@property
 	def fake( self ) :
@@ -81,11 +98,6 @@ class TrimmingCurve( TrimmingBorder ) :
 		if m.isinf(self.minv) : i+=1
 		if m.isinf(self.maxv) : i+=1
 		return not self.loop and not self.oneborder and i>2
-
-	@property
-	def end_u( self ) : return self.endu
-	@property
-	def end_v( self ) : return self.endv
 
 	def set_u_min( self , u ) :
 		if not m.isinf(self.minu) : self.oneborder = True
@@ -154,8 +166,6 @@ class TrimmingCurve( TrimmingBorder ) :
 			else :	bui , eui =   0 , -1
 			bnv = int( m.ceil ( self.a[i+bvi,1] / dv ) )
 			env = int( m.floor( self.a[i+evi,1] / dv ) )
-#            print self.a[i+bvi,1] , self.a[i+evi,1] , bnv , env
-#            print self.a[i+bui,0] , self.a[i+eui,0] 
 			du = ( self.a[i+bui,0] - self.a[i+eui,0] ) / float(env+1-bnv)
 			bnu = int( m.ceil ( self.a[i+bui,0] / du ) )
 			for i in range(env+1-bnv) :

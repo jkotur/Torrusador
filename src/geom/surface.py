@@ -3,6 +3,8 @@ from OpenGL.GL import *
 import math as m
 import numpy as np
 
+from trimming import TrimmingBorder
+
 from curve import Curve
 
 class Surface( Curve ) :
@@ -75,17 +77,65 @@ class SurfaceTrimmed( Surface ) :
 		#
 		# generate indices for const u
 		#
-
 		lu = []
 		lv = []
 		lt = []
-		for t in trimms :
-			print t
+		# generate virtual curves for those which cut u=0 line
+		# this code assumes that first trimming curve is border 
+		# at min_u == 0
+		trimms.sort( key = lambda t : t.sort_v )
+		t = trimms[0]
+		assert( isinstance(t,TrimmingBorder) )
+		assert( t.min_u == 0 )
+		endv = 0
+		done = 2
+		tid = 0
+		tid0 = id(t)
+		for p in t.get_intersections_v(dv) :
+			if done < len(trimms) and p[1] > trimms[done].beg_v :
+				if trimms[done].oneborder or m.isinf(trimms[done].beg_u) :
+					tid = id(trimms[done])
+					endv = trimms[done].end_v
+				else :
+					tid  = tid0
+					tid0 = id(trimms[done])
+					endv = trimms[done].beg_v
+
+				l = len(lu)
+				inv = True
+				tu = []
+				tv = []
+				for p1 in trimms[done].get_intersections_v(dv) :
+					tu.append( round(p1[0],4) )
+					tv.append( round(p1[1],4) )
+					lt.append( tid0 )
+				if tv[0] < tv[-1] :
+					lu += tu
+					lv += tv
+				else :
+					lu += reversed(tu)
+					lv += reversed(tv)
+				done+=1
+			if p[1] < endv :
+				lu.insert(0,round(p[0],4))
+				lv.insert(0,round(p[1],4))
+				lt.insert(0,tid)
+			else :
+				lu.append( round(p[0],4) )
+				lv.append( round(p[1],4) )
+				lt.append( tid0 )
+
+		for t in trimms[done:] :
 			for p in t.get_intersections_v(dv) :
-				print p
 				lu.append( round(p[0],4) )
 				lv.append( round(p[1],4) )
 				lt.append( id(t) )
+
+		for p in trimms[1].get_intersections_v(dv) :
+			lu.append( round(p[0],4) )
+			lv.append( round(p[1],4) )
+			lt.append( id(t) )
+
 		uarr = np.array( lu ) 
 		varr = np.array( lv ) 
 
@@ -94,7 +144,7 @@ class SurfaceTrimmed( Surface ) :
 
 		print 'not sorted:'
 		for i in range(len(varr)) :
-			print  varr[i] , varr[i] , lt[i]
+			print  uarr[i] , varr[i] , lt[i]
 		print 'eos'
 
 		print 'sorted:'
@@ -102,100 +152,94 @@ class SurfaceTrimmed( Surface ) :
 			print uarr[i] , varr[i] , lt[i]
 		print 'eos'
 
-		trimms.sort( key = lambda t : t.min_v )
+		self.indx = []
 
-		for t in trimms : print t.min_v
 
-		self.indx = [[]]
-
-		active = [ (0,1) ] # FIXME: what if first dv is -1?
-		endv = None
-		k = 0
-		while len(active) > 0 :
-			print '--------'
-			for a in active :
-				print 'a' , varr[a[0]] , uarr[a[0]] , lt[a[0]] , a[1]
-
-			#
-			# get active point
-			#
-			i , sv = active.pop(0)
-			sdv = np.sign(varr[i+sv] - varr[i])
-
-			while i >= 0 and i < len(uarr)-1 :
+		for i in range(0,len(lt)) :
+			if i!=0 and lt[i-1] == lt[i] :
+				continue
+			active = [ (i,1) ] # FIXME: what if first dv is -1?
+			self.indx.append([])
+			while len(active) > 0 :
 				#
-				# get corespondent point 
+				# get active point
 				#
-				j  = n2l[l2n[i]+1] 
-
-				u  = uarr[i]
-				v  = varr[i]
-				eu = uarr[j]
-				ev = varr[j]
-
-				#
-				# if corespondent point is not on the same 
-				# scanline continue loop (fe. end of plane)
-				#
-				if v != ev :
-					i+=sv
-					continue
-
-				#
-				# check for new active point
-				#
-				prevvsin = nextvsin = None
-				nj = j 
-				xj = j
-				while nj-1 >= 0 and lt[nj-1] == lt[nj] :
-					prevvsin = np.sign( varr[nj  ] - varr[nj-1] )
-					if prevvsin != 0 : break
-					prevvsin = None
-					nj-=1
-				while xj+1 < len(varr) and lt[xj+1] == lt[xj] :
-					nextvsin = np.sign( varr[xj+1] - varr[xj  ] )
-					if nextvsin != 0 : break
-					nextvsin = None
-					xj+=1
-
-				if j != i+sv and prevvsin != None and nextvsin != None :
-					if prevvsin != nextvsin :
-						if uarr[nj] < uarr[xj] :
-							active.append( (xj,+1) )
-						else :
-							active.append( (nj,-1) )
-
-				#
-				# draw scanline
-				#
-				y = int(v / dv + .5)
-				x = int(m.ceil(u / du ))
-				self.indx[k].append( x*sy+y )
-				u += du
-				while u <= eu :
-					x = int(m.ceil(u / du ))
-					self.indx[k].append( x*sy+y )
-					self.indx[k].append( x*sy+y )
-					u += du
-				self.indx[k].pop()
-
-				#
-				# check for field end, break if:
-				# * line is going backward
-				# * next point is on another line 
-				# * line was drawn to next point of the same curve (dead end)
-				#
-				if np.sign(varr[i+sv]-varr[i]) != sdv or \
-				   lt[i] != lt[i+sv] or \
-				   j == i+sv :
-					break
+				i , sv = active.pop(0)
 				sdv = np.sign(varr[i+sv] - varr[i])
 
-				#
-				# get next point 
-				#
-				i+=sv
-		k += 1
+				while i >= 0 and i < len(uarr)-1 :
+					#
+					# get corespondent point 
+					#
+					j  = n2l[l2n[i]+1] 
+
+					u  = uarr[i]
+					v  = varr[i]
+					eu = uarr[j]
+					ev = varr[j]
+
+					#
+					# if corespondent point is not on the same 
+					# scanline continue loop (e.g. end of plane)
+					#
+					if v != ev :
+						i+=sv
+						continue
+
+					#
+					# check for new active point
+					#
+					prevvsin = nextvsin = None
+					nj = j 
+					xj = j
+					while nj-1 >= 0 and lt[nj-1] == lt[nj] :
+						prevvsin = np.sign( varr[nj  ] - varr[nj-1] )
+						if prevvsin != 0 : break
+						prevvsin = None
+						nj-=1
+					while xj+1 < len(varr) and lt[xj+1] == lt[xj] :
+						nextvsin = np.sign( varr[xj+1] - varr[xj  ] )
+						if nextvsin != 0 : break
+						nextvsin = None
+						xj+=1
+
+					if j != i+sv and prevvsin != None and nextvsin != None :
+						if prevvsin != nextvsin :
+							if uarr[nj] < uarr[xj] :
+								active.append( (xj,+1) )
+							else :
+								active.append( (nj,-1) )
+
+					#
+					# draw scanline
+					#
+					y = int(v / dv + .5)
+					x = int(m.ceil(u / du ))
+					self.indx[-1].append( x*sy+y )
+					u += du
+					while u <= eu :
+						x = int(m.ceil(u / du ))
+						self.indx[-1].append( x*sy+y )
+						self.indx[-1].append( x*sy+y )
+						u += du
+					self.indx[-1].pop()
+
+					#
+					# check for field end, break if:
+					# * line is going backward
+					# * next point is on another line 
+					# * line was drawn to next point of the same curve (dead end)
+					#
+					if np.sign(varr[i+sv]-varr[i]) != sdv or \
+					   lt[i] != lt[i+sv] or \
+					   j == i+sv :
+						break
+					sdv = np.sign(varr[i+sv] - varr[i])
+
+					#
+					# get next point 
+					#
+					i+=sv
 
 		for i in range(len(self.indx)) :
 			self.indx[i] = np.array( self.indx[i] , np.uint32 )

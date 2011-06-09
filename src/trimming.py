@@ -1,6 +1,7 @@
 
 import math as m
 import numpy as np
+import scipy.spatial.distance as dist
 
 class Trim :
 	def __init__( self ) :
@@ -54,13 +55,13 @@ class TrimmingBorder( Trim ) :
 
 	def get_intersections_u( self , du ) :
 		u = 0 
-		while u <= self.maxu :
+		while u <= self.maxu + .1 :
 			yield u,self.minv
 			u += du
 
 	def get_intersections_v( self , dv ) :
 		v = 0 
-		while v <= self.maxv :
+		while v <= self.maxv + .1 :
 			yield self.minu,v
 			v += dv
 
@@ -127,8 +128,9 @@ class TrimmingCurve( Trim ) :
 		if self.minuv == None or u+v < self.minuv :
 			self.minuv = u+v
 
-	def start( self ) :
+	def start( self , delta ) :
 		self.l = []
+		self.d = delta / 2.0
 
 	def add_back( self , u , v ) :
 		self.l.append( np.array((u,v)) )
@@ -140,7 +142,7 @@ class TrimmingCurve( Trim ) :
 
 	def end( self , loop = False ) :
 		self.a = np.array( self.l )
-		self.loop = loop
+		self.loop = self.check_loop()
 
 	def get_intersections_u( self , du ) :
 		for i in range(1,len(self.a)) :
@@ -171,4 +173,13 @@ class TrimmingCurve( Trim ) :
 			bnu = int( m.ceil ( self.a[i+bui,0] / du ) )
 			for i in range(env+1-bnv) :
 				yield  (bnu+i)*du , (bnv+i)*dv
+
+	def check_loop( self ) :
+		loop = False
+		for v in self.a :
+#            print self.a[-1] , v , dist.euclidean( self.a[-1],v)
+			if dist.euclidean( self.a[-1] , v ) < self.d :
+				loop = True
+				break
+		return loop
 

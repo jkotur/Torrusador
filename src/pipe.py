@@ -105,7 +105,7 @@ class Pipe( SurfaceC2 ) :
 			ind-= ind%sx
 			for i in range(ind,ind+sx-3) :
 				up , to = get_ortho( self.center , self.pts[i] , self.axis )
-				self.pts[i] += va
+				self.pts[i] += v
 				self.pts[i] += to * st
 
 		self.generate()

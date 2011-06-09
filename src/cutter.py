@@ -69,8 +69,8 @@ class Cutter :
 
 		baseuvuv = uvuv
 
-		self.tocut[0].begin_trimming_curve()
-		self.tocut[1].begin_trimming_curve()
+		self.tocut[0].begin_trimming_curve( delta )
+		self.tocut[1].begin_trimming_curve( delta )
 
 		self.tocut[0].append_trimming_uv( uvuv[0] , uvuv[1] )
 		self.tocut[1].append_trimming_uv( uvuv[2] , uvuv[3] )

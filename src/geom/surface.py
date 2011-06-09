@@ -104,6 +104,10 @@ class SurfaceTrimmed( Surface ) :
 		inu = np.lexsort( (vuarr,vvarr) )
 		inv = np.lexsort( (uvarr,uuarr) )
 
+		print '--> u'
+		for i in inu : print vuarr[i] , vvarr[i] 
+		print '--> v'
+		for i in inv : print uuarr[i] , uvarr[i] 
 		done = np.zeros((sx,sy,4),np.bool)
 
 		self.indx = []
@@ -114,14 +118,11 @@ class SurfaceTrimmed( Surface ) :
 				niu = 0
 				niv = 0
 
-				print '--' , ix, iy 
-				print self.indx
-				print done[ix,iy]
-				while round( vvarr[inu[niu]] / dv ) < iy+1 :
-#                    print niu
+				print '---'
+				while niu < len(inu) and round( vvarr[inu[niu]] / dv ) < iy+1 :
 					niu+=1
 				while vuarr[inu[niu+1]] < ix * du    : niu+=1
-				while round( uuarr[inv[niv]] / du ) < ix+1 : niv+=1
+				while niv < len(inv) and round( uuarr[inv[niv]] / du ) < ix+1 : niv+=1
 				while uvarr[inv[niv+1]] < iy * dv    : niv+=1
 
 				stack = [ (ix,iy,niu,niv) ]

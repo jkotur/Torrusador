@@ -49,8 +49,8 @@ class Scene :
 		# craete planes
 		#
 
-#        self.load_from_file(u'../data/młotek.gpt')
-		self.load_from_file(u'../data/cut_test_10.gpt')
+		self.load_from_file(u'../data/młotek.gpt')
+#        self.load_from_file(u'../data/cut_test_13.gpt')
 		for c in self.curves : self.curves.cutter.add( c )
 
 		#

@@ -188,9 +188,9 @@ class SurfaceC2( Points ) :
 		self.trimms[-1].offset += .1
 		self.fake_trimms = []
 
-	def begin_trimming_curve( self ) :
-		self.trimm_curr = TrimmingCurve() 
-		self.trimm_curr.start()
+	def begin_trimming_curve( self , delta ) :
+		self.trimm_curr = TrimmingCurve()
+		self.trimm_curr.start( delta )
 
 	def append_trimming_uv( self , u , v ) :
 		if self.trimm_curr != None :

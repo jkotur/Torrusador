@@ -48,11 +48,13 @@ class SurfaceC2( Points ) :
 		self.trimm_curr = None
 		self.reset_trimms() 
 
-		self.calc_size()
-		self.gen_ind()
-		self.allocate()
+		self.bezy = None
 
-		self.set_data( (self.pts,self.bezy) )
+		self.calc_size()
+		self.allocate()
+		self.gen_ind()
+
+		self.set_data( (self.pts,self.bezy,self.addpts) )
 
 		i=0
 		self.base = []
@@ -153,7 +155,13 @@ class SurfaceC2( Points ) :
 		self.sized = (self.size[0]*self.dens[0]*3+1 , self.size[1]*self.dens[1]*3+1 )
 
 	def gen_ind( self ) :
-		return self.get_geom().gen_ind(self.sized[0],self.sized[1],self.size[0],self.size[1],self.trimms)
+		self.addnum , self.addind , self.adduv = self.get_geom().gen_ind(self.sized[0],self.sized[1],self.size[0],self.size[1],self.trimms)
+		self.addpts = []
+		for k in range(self.addnum) :
+			self.addpts.append(np.zeros( (len(self.addind[k]),2,3), np.float32))
+		self.make_add()
+		self.set_data( (self.pts,self.bezy,self.addpts) )
+		return self.addnum
 
 	def allocate( self ) :
 		self.bezx = np.zeros(3*self.sized[0]*self.sized[1] , np.float32 )
@@ -216,6 +224,19 @@ class SurfaceC2( Points ) :
 	def generate( self ) :
 		self.bezx , self.bezy = csurf.gen_deboor( self.pts , self.bezx , self.bezy , self.size[0] , self.size[1] , self.sized[0] , self.sized[1] , self.dens[0] , self.dens[1] , self.base )
 		self.get_array_pts()
+		self.make_add()
+
+	def make_add( self ) :
+		arrpts = self.array_pts
+
+#        print self.addind
+		for k in range(len(self.addind)) :
+			for i in range(len(self.addind[k])) :
+#                print k , self.addpts.shape , len(self.addind)
+				self.addpts[k][i,0,0] = self.bezy[ self.addind[k][i] *3    ]
+				self.addpts[k][i,0,1] = self.bezy[ self.addind[k][i] *3 +1 ]
+				self.addpts[k][i,0,2] = self.bezy[ self.addind[k][i] *3 +2 ]
+				self.addpts[k][i,1] = csurf.bspline_surf( self.adduv[k][i][0], self.adduv[k][i][1], arrpts )
 
 	def make_pts( self , corners ) :
 		dx = (corners[1] - corners[0]) / (self.size[0]+3-1)
@@ -231,9 +252,9 @@ class SurfaceC2( Points ) :
 	def set_density( self , dens ) :
 		self.dens = dens 
 		self.calc_size()
-		self.gen_ind()
 		self.allocate()
-		self.set_data( (self.pts,self.bezy) )
+		self.gen_ind()
+		self.set_data( (self.pts,self.bezy,self.addpts) )
 		self.generate()
 
 	def new( self , pos , which ) :

@@ -191,8 +191,8 @@ class SurfaceC2( Points ) :
 
 	def reset_trimms( self ) :
 		self.trimms = [
-				TrimmingBorder( -.2 , -.2 , *self.size ) ,
-				TrimmingBorder( self.size[0]+.2 ,self.size[1]+.2 , *self.size ) ]
+				TrimmingBorder( -.1 , -.1 , *self.size ) ,
+				TrimmingBorder( self.size[0]+.1 ,self.size[1]+.1 , *self.size ) ]
 		self.trimms[-1].offset += .1
 		self.fake_trimms = []
 

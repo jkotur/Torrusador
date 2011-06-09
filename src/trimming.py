@@ -146,33 +146,35 @@ class TrimmingCurve( Trim ) :
 
 	def get_intersections_u( self , du ) :
 		for i in range(1,len(self.a)) :
+#            print i , self.a[i]
 			if self.a[i,0] - self.a[i-1,0] > 0 :
 					bui , eui =  -1 ,  0
 			else :	bui , eui =   0 , -1
-			if self.a[i,1] - self.a[i-1,1] > 0 :
-					bvi , evi =  -1 ,  0
-			else :	bvi , evi =   0 , -1
 			bnu = int( m.ceil ( self.a[i+bui,0] / du ) )
 			enu = int( m.floor( self.a[i+eui,0] / du ) )
-			dv = ( self.a[i+bvi,1] - self.a[i+evi,1] ) / float(enu+1-bnu)
-			bnv = int( m.ceil ( self.a[i+bvi,1] / dv ) )
+			vpu = ( self.a[i+eui,1] - self.a[i+bui,1] ) /\
+			      ( self.a[i+eui,0] - self.a[i+bui,0] )
+			bv = self.a[i+bui,1] + (bnu*du - self.a[i+bui,0]) * vpu
+			dv = vpu * du
+			print self.a[i+bui,0] , self.a[i+bui,1], \
+				  '\t|\t' , self.a[i+eui,0] , self.a[i+eui,1]
 			for i in range(enu+1-bnu) :
-				yield  (bnu+i)*du , (bnv+i)*dv
+				print ' - ' , (bnu+i)*du , bv + i*dv , du , dv 
+				yield  (bnu+i)*du , bv + i*dv
 
 	def get_intersections_v( self , dv ) :
 		for i in range(1,len(self.a)) :
 			if self.a[i,1] - self.a[i-1,1] > 0 :
 					bvi , evi =  -1 ,  0
 			else :	bvi , evi =   0 , -1
-			if self.a[i,0] - self.a[i-1,0] > 0 :
-					bui , eui =  -1 ,  0
-			else :	bui , eui =   0 , -1
 			bnv = int( m.ceil ( self.a[i+bvi,1] / dv ) )
 			env = int( m.floor( self.a[i+evi,1] / dv ) )
-			du = ( self.a[i+bui,0] - self.a[i+eui,0] ) / float(env+1-bnv)
-			bnu = int( m.ceil ( self.a[i+bui,0] / du ) )
+			upv = ( self.a[i+evi,0] - self.a[i+bvi,0] ) /\
+			      ( self.a[i+evi,1] - self.a[i+bvi,1] )
+			bu = self.a[i+bvi,0] + (bnv*dv - self.a[i+bvi,1]) * upv
+			du = upv * dv
 			for i in range(env+1-bnv) :
-				yield  (bnu+i)*du , (bnv+i)*dv
+				yield  bu+i*du , (bnv+i)*dv
 
 	def check_loop( self ) :
 		loop = False

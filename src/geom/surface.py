@@ -119,9 +119,9 @@ class SurfaceTrimmed( Surface ) :
 				niu = 0
 				niv = 0
 
-				while niu < len(inu) and round( vvarr[inu[niu]] / dv ) < iy+1 : niu+=1
+				while round( vvarr[inu[niu]] / dv ) < iy+1 : niu+=1
 				while vuarr[inu[niu+1]] < ix * du    : niu+=1
-				while niv < len(inv) and round( uuarr[inv[niv]] / du ) < ix+1 : niv+=1
+				while round( uuarr[inv[niv]] / du ) < ix+1 : niv+=1
 				while uvarr[inv[niv+1]] < iy * dv    : niv+=1
 
 				stack = [ (ix,iy,niu,niv) ]
@@ -134,7 +134,7 @@ class SurfaceTrimmed( Surface ) :
 					u = float(x) * du
 					v = float(y) * dv
 
-					if x+1 < sx and u+du < vuarr[inu[iu+1]] - .1 :
+					if x+1 < sx and u+du < vuarr[inu[iu+1]] :
 						if not done[ x , y , 0 ] :
 							done[ x   , y   , 0 ] = True
 							done[ x+1 , y   , 1 ] = True
@@ -149,7 +149,7 @@ class SurfaceTrimmed( Surface ) :
 						addind[0].append( x*sy+y )
 						adduv[0].append( np.array( (vuarr[inu[iu+1]], v )))
 
-					if x-1 >=0  and u-du > vuarr[inu[iu  ]] + .1 :
+					if x-1 >=0  and u-du > vuarr[inu[iu  ]] :
 						if not done[ x , y , 1 ] :
 							done[ x   , y   , 1 ] = True
 							done[ x-1 , y   , 0 ] = True
@@ -164,7 +164,7 @@ class SurfaceTrimmed( Surface ) :
 						addind[0].append( x*sy+y )
 						adduv[0].append( np.array( (vuarr[inu[iu  ]], v )))
 
-					if y+1 < sy and v+dv < uvarr[inv[iv+1]] - .1 :
+					if y+1 < sy and v+dv < uvarr[inv[iv+1]] :
 						if not done[ x , y   , 2 ] :
 							done[ x , y   , 2 ] = True
 							done[ x , y+1 , 3 ] = True
@@ -179,7 +179,7 @@ class SurfaceTrimmed( Surface ) :
 						addind[0].append( x*sy+y )
 						adduv[0].append( np.array( (u, uvarr[inv[iv+1]] )))
 
-					if y-1 >=0  and v-dv > uvarr[inv[iv  ]] + .1 :
+					if y-1 >=0  and v-dv > uvarr[inv[iv  ]] :
 						if not done[ x , y , 3 ] :
 							done[ x , y   , 3 ] = True
 							done[ x , y-1 , 2 ] = True

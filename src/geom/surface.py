@@ -125,7 +125,7 @@ class SurfaceTrimmed( Surface ) :
 
 			print  x , y , '\t|\t', u , v , '\t|\t' , iu , iv , '\t|\t' , vuarr[inu[iu]] , vvarr[inu[iu]] , '\t|\t' , uuarr[inv[iv]] , uvarr[inv[iv]] 
 
-			if x+1 < sx and u+du < vuarr[inu[iu+1]] :
+			if x+1 < sx and u+du < vuarr[inu[iu+1]] - .1 :
 				if not done[ x , y , 0 ] :
 					done[ x   , y   , 0 ] = True
 					done[ x+1 , y   , 1 ] = True
@@ -133,11 +133,11 @@ class SurfaceTrimmed( Surface ) :
 					self.indx[0].append( (x+1)*sy+y )
 					if not all(done[ x+1 , y   ]) :
 						niv = iv
-						while uuarr[inv[niv  ]] < u+du : niv+=1
+						while round( uuarr[inv[niv  ]] / du ) < x+1 : niv+=1
 						while uvarr[inv[niv+1]] < v    : niv+=1
 						print '  ->',  x+1 , y
 						stack.append((x+1,y  , iu,niv))
-			if x-1 >=0  and u-du > vuarr[inu[iu  ]] :
+			if x-1 >=0  and u-du > vuarr[inu[iu  ]] + .1 :
 				if not done[ x , y , 1 ] :
 					done[ x   , y   , 1 ] = True
 					done[ x-1 , y   , 0 ] = True
@@ -145,11 +145,11 @@ class SurfaceTrimmed( Surface ) :
 					self.indx[0].append( (x-1)*sy+y )
 					if not all(done[ x-1 , y   ]) :
 						niv = iv
-						while uuarr[inv[niv  ]] > u-du : niv-=1
+						while round( uuarr[inv[niv  ]] / du ) > x-1 : niv-=1
 						while uvarr[inv[niv  ]] > v    : niv-=1
 						print '  ->' , x-1 , y
 						stack.append((x-1,y  , iu,niv))
-			if y+1 < sy and v+dv < uvarr[inv[iv+1]] :
+			if y+1 < sy and v+dv < uvarr[inv[iv+1]] - .1 :
 				if not done[ x , y   , 2 ] :
 					done[ x , y   , 2 ] = True
 					done[ x , y+1 , 3 ] = True
@@ -157,11 +157,11 @@ class SurfaceTrimmed( Surface ) :
 					self.indx[0].append(  x   *sy+y+1 )
 					if not all(done[ x   , y+1 ]) :
 						niu = iu
-						while vvarr[inu[niu  ]] < v+dv : niu+=1
+						while round( vvarr[inu[niu  ]] / dv ) < y+1 : niu+=1
 						while vuarr[inu[niu+1]] < u    : niu+=1
 						print '  ->' , x   , y+1
 						stack.append((x  ,y+1,niu, iv))
-			if y-1 >=0  and v-dv > uvarr[inv[iv  ]] :
+			if y-1 >=0  and v-dv > uvarr[inv[iv  ]] + .1 :
 				if not done[ x , y , 3 ] :
 					done[ x , y   , 3 ] = True
 					done[ x , y-1 , 2 ] = True
@@ -170,8 +170,8 @@ class SurfaceTrimmed( Surface ) :
 					if not all(done[ x   , y-1 ]) :
 						niu = iu
 						print '  ->' , x   , y-1
-						while vvarr[inu[niu  ]] > v-dv : niu-=1
-						while vuarr[inu[niu  ]] > u    : niu-=1
+						while round( vvarr[inu[niu  ]] / dv ) > y-1 : niu-=1
+						while vuarr[inu[niu  ]] > u     : niu-=1
 						stack.append((x  ,y-1,niu, iv))
 
 		for i in range(len(self.indx)) :

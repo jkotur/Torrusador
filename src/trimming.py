@@ -138,8 +138,9 @@ class TrimmingCurve( Trim ) :
 		self.l.insert( 0 , np.array((u,v)) )
 		self.update_min(u,v)
 
-	def end( self ) :
+	def end( self , loop = False ) :
 		self.a = np.array( self.l )
+		self.loop = loop
 
 	def get_intersections_u( self , du ) :
 		for i in range(1,len(self.a)) :

@@ -101,83 +101,84 @@ class SurfaceTrimmed( Surface ) :
 #        du = round( du , 4 )
 #        dv = round( dv , 4 )
 
-		print uuarr
-
 		inu = np.lexsort( (vuarr,vvarr) )
 		inv = np.lexsort( (uvarr,uuarr) )
 
-		print '--> u'
-		for i in inu : print vuarr[i] , vvarr[i] 
-		print '--> v'
-		for i in inv : print uuarr[i] , uvarr[i] 
-
-#        stack = [ (0,5,20 if len(inu)>20 else 0,0) ]
-		stack = [ (0,0,0,0) ]
 		done = np.zeros((sx,sy,4),np.bool)
 
-		self.indx = [[]]
-		self.indy = [[]]
-		while len(stack) > 0 :
-			x , y , iu , iv = stack.pop()
+		self.indx = []
+		for ix in range(sx-1) :
+			for iy in range(sy-1) :
+				if any(done[ix,iy]) :
+					continue
+				niu = 0
+				niv = 0
 
-			u = float(x) * du
-			v = float(y) * dv
+				print '--' , ix, iy 
+				print self.indx
+				print done[ix,iy]
+				while round( vvarr[inu[niu]] / dv ) < iy+1 :
+#                    print niu
+					niu+=1
+				while vuarr[inu[niu+1]] < ix * du    : niu+=1
+				while round( uuarr[inv[niv]] / du ) < ix+1 : niv+=1
+				while uvarr[inv[niv+1]] < iy * dv    : niv+=1
 
-			print  x , y , '\t|\t', u , v , '\t|\t' , iu , iv , '\t|\t' , vuarr[inu[iu]] , vvarr[inu[iu]] , '\t|\t' , uuarr[inv[iv]] , uvarr[inv[iv]] 
+				stack = [ (ix,iy,niu,niv) ]
+				self.indx.insert(0,[])
+				while len(stack) > 0 :
+					x , y , iu , iv = stack.pop()
 
-			if x+1 < sx and u+du < vuarr[inu[iu+1]] - .1 :
-				if not done[ x , y , 0 ] :
-					done[ x   , y   , 0 ] = True
-					done[ x+1 , y   , 1 ] = True
-					self.indx[0].append(  x   *sy+y )
-					self.indx[0].append( (x+1)*sy+y )
-					if not all(done[ x+1 , y   ]) :
-						niv = iv
-						while round( uuarr[inv[niv  ]] / du ) < x+1 : niv+=1
-						while uvarr[inv[niv+1]] < v    : niv+=1
-						print '  ->',  x+1 , y
-						stack.append((x+1,y  , iu,niv))
-			if x-1 >=0  and u-du > vuarr[inu[iu  ]] + .1 :
-				if not done[ x , y , 1 ] :
-					done[ x   , y   , 1 ] = True
-					done[ x-1 , y   , 0 ] = True
-					self.indx[0].append(  x   *sy+y )
-					self.indx[0].append( (x-1)*sy+y )
-					if not all(done[ x-1 , y   ]) :
-						niv = iv
-						while round( uuarr[inv[niv  ]] / du ) > x-1 : niv-=1
-						while uvarr[inv[niv  ]] > v    : niv-=1
-						print '  ->' , x-1 , y
-						stack.append((x-1,y  , iu,niv))
-			if y+1 < sy and v+dv < uvarr[inv[iv+1]] - .1 :
-				if not done[ x , y   , 2 ] :
-					done[ x , y   , 2 ] = True
-					done[ x , y+1 , 3 ] = True
-					self.indx[0].append(  x   *sy+y   )
-					self.indx[0].append(  x   *sy+y+1 )
-					if not all(done[ x   , y+1 ]) :
-						niu = iu
-						while round( vvarr[inu[niu  ]] / dv ) < y+1 : niu+=1
-						while vuarr[inu[niu+1]] < u    : niu+=1
-						print '  ->' , x   , y+1
-						stack.append((x  ,y+1,niu, iv))
-			if y-1 >=0  and v-dv > uvarr[inv[iv  ]] + .1 :
-				if not done[ x , y , 3 ] :
-					done[ x , y   , 3 ] = True
-					done[ x , y-1 , 2 ] = True
-					self.indx[0].append(  x   *sy+y   )
-					self.indx[0].append(  x   *sy+y-1 )
-					if not all(done[ x   , y-1 ]) :
-						niu = iu
-						print '  ->' , x   , y-1
-						while round( vvarr[inu[niu  ]] / dv ) > y-1 : niu-=1
-						while vuarr[inu[niu  ]] > u     : niu-=1
-						stack.append((x  ,y-1,niu, iv))
+					u = float(x) * du
+					v = float(y) * dv
+
+					if x+1 < sx and u+du < vuarr[inu[iu+1]] - .1 :
+						if not done[ x , y , 0 ] :
+							done[ x   , y   , 0 ] = True
+							done[ x+1 , y   , 1 ] = True
+							self.indx[0].append(  x   *sy+y )
+							self.indx[0].append( (x+1)*sy+y )
+							if not all(done[ x+1 , y   ]) :
+								niv = iv
+								while round( uuarr[inv[niv  ]] / du ) < x+1 : niv+=1
+								while uvarr[inv[niv+1]] < v    : niv+=1
+								stack.append((x+1,y  , iu,niv))
+					if x-1 >=0  and u-du > vuarr[inu[iu  ]] + .1 :
+						if not done[ x , y , 1 ] :
+							done[ x   , y   , 1 ] = True
+							done[ x-1 , y   , 0 ] = True
+							self.indx[0].append(  x   *sy+y )
+							self.indx[0].append( (x-1)*sy+y )
+							if not all(done[ x-1 , y   ]) :
+								niv = iv
+								while round( uuarr[inv[niv  ]] / du ) > x-1 : niv-=1
+								while uvarr[inv[niv  ]] > v    : niv-=1
+								stack.append((x-1,y  , iu,niv))
+					if y+1 < sy and v+dv < uvarr[inv[iv+1]] - .1 :
+						if not done[ x , y   , 2 ] :
+							done[ x , y   , 2 ] = True
+							done[ x , y+1 , 3 ] = True
+							self.indx[0].append(  x   *sy+y   )
+							self.indx[0].append(  x   *sy+y+1 )
+							if not all(done[ x   , y+1 ]) :
+								niu = iu
+								while round( vvarr[inu[niu  ]] / dv ) < y+1 : niu+=1
+								while vuarr[inu[niu+1]] < u    : niu+=1
+								stack.append((x  ,y+1,niu, iv))
+					if y-1 >=0  and v-dv > uvarr[inv[iv  ]] + .1 :
+						if not done[ x , y , 3 ] :
+							done[ x , y   , 3 ] = True
+							done[ x , y-1 , 2 ] = True
+							self.indx[0].append(  x   *sy+y   )
+							self.indx[0].append(  x   *sy+y-1 )
+							if not all(done[ x   , y-1 ]) :
+								niu = iu
+								while round( vvarr[inu[niu  ]] / dv ) > y-1 : niu-=1
+								while vuarr[inu[niu  ]] > u     : niu-=1
+								stack.append((x  ,y-1,niu, iv))
 
 		for i in range(len(self.indx)) :
 			self.indx[i] = np.array( self.indx[i] , np.uint32 )
-		for i in range(len(self.indy)) :
-			self.indy[i] = np.array( self.indy[i] , np.uint32 )
 
 		return len(self.indx)
 

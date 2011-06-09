@@ -183,8 +183,8 @@ class SurfaceC2( Points ) :
 
 	def reset_trimms( self ) :
 		self.trimms = [
-				TrimmingBorder( 0 , 0 , *self.size ) ,
-				TrimmingBorder( self.size[0] ,self.size[1] , *self.size ) ]
+				TrimmingBorder( -.2 , -.2 , *self.size ) ,
+				TrimmingBorder( self.size[0]+.2 ,self.size[1]+.2 , *self.size ) ]
 		self.trimms[-1].offset += .1
 		self.fake_trimms = []
 
@@ -200,10 +200,10 @@ class SurfaceC2( Points ) :
 		if self.trimm_curr != None :
 			self.trimm_curr.add_front( u , v ) 
 
-	def end_trimming( self ) :
+	def end_trimming( self , loop = False ) :
 		if self.trimm_curr == None :
 			return 0
-		self.trimm_curr.end()
+		self.trimm_curr.end( loop )
 		if self.trimm_curr.fake :
 			print 'Inserting fake trimm' , self.trimm_curr
 			self.fake_trimms.insert( -1 , self.trimm_curr )

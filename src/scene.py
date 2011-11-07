@@ -18,6 +18,8 @@ from geom.cross import Cross
 from curves import Curves 
 from geom.curve import Curve
 
+from milling_paths import Miller
+
 STARTLOOK = ( (0,0,0) , (0,0,-1) , (0,1,0) )
 
 class Scene :
@@ -49,9 +51,12 @@ class Scene :
 		# craete planes
 		#
 
-		self.load_from_file(u'../data/młotek.gpt')
+#        self.load_from_file(u'../data/młotek.gpt')
+		self.load_from_file(u'../data/głowica.gpt')
 #        self.load_from_file(u'../data/cut_test_10.gpt')
 		for c in self.curves : self.curves.cutter.add( c )
+
+		self.miller = Miller( self.curves )
 
 		#
 		# Craete torus
@@ -66,8 +71,9 @@ class Scene :
 		self.cursor = Cursor( Cross( self.pdist ) )
 
 		self.node.add_child( tn )
-		self.node.add_child( self.cursor  )
+		self.node.add_child( self.cursor )
 		self.node.add_child( self.curves )
+		self.node.add_child( self.miller )
 
 		#
 		# Craete normal scene

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <requires lib="gtk+" version="2.16"/>
-  <!-- interface-naming-policy project-wide -->
   <object class="GtkAboutDialog" id="aboutdialog1">
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
@@ -31,12 +30,12 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
     <signal name="delete-event" handler="on_hide" swapped="no"/>
     <signal name="response" handler="on_hide" swapped="no"/>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox1">
+      <object class="GtkBox" id="dialog-vbox1">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area1">
+          <object class="GtkButtonBox" id="dialog-action_area1">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
@@ -212,12 +211,12 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
     <property name="type_hint">dialog</property>
     <property name="skip_taskbar_hint">True</property>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox3">
+      <object class="GtkBox" id="dialog-vbox3">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area3">
+          <object class="GtkButtonBox" id="dialog-action_area3">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
@@ -250,12 +249,12 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
     <property name="action">save</property>
     <property name="do_overwrite_confirmation">True</property>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox2">
+      <object class="GtkBox" id="dialog-vbox2">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area2">
+          <object class="GtkButtonBox" id="dialog-action_area2">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
@@ -308,9 +307,9 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
             <property name="can_focus">False</property>
             <child>
               <object class="GtkMenuItem" id="menuitem1">
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="use_action_appearance">False</property>
                 <property name="label" translatable="yes">_Plik</property>
                 <property name="use_underline">True</property>
                 <child type="submenu">
@@ -320,9 +319,9 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                     <child>
                       <object class="GtkImageMenuItem" id="mitem_new">
                         <property name="label">gtk-new</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <signal name="activate" handler="on_mitem_new_activate" swapped="no"/>
@@ -331,9 +330,9 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                     <child>
                       <object class="GtkImageMenuItem" id="mitem_open">
                         <property name="label">gtk-open</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <signal name="activate" handler="on_mitem_load_activate" swapped="no"/>
@@ -342,9 +341,9 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                     <child>
                       <object class="GtkImageMenuItem" id="mitem_save">
                         <property name="label">gtk-save</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <signal name="activate" handler="on_mitem_save_activate" swapped="no"/>
@@ -353,9 +352,9 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                     <child>
                       <object class="GtkImageMenuItem" id="mitem_saveas">
                         <property name="label">gtk-save-as</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <signal name="activate" handler="on_mitem_saveas_activate" swapped="no"/>
@@ -363,17 +362,17 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                     </child>
                     <child>
                       <object class="GtkSeparatorMenuItem" id="separatormenuitem1">
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="use_action_appearance">False</property>
                       </object>
                     </child>
                     <child>
                       <object class="GtkImageMenuItem" id="imagemenuitem5">
                         <property name="label">gtk-quit</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <signal name="activate" handler="on_but_quit_clicked" swapped="no"/>
@@ -385,9 +384,9 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
             </child>
             <child>
               <object class="GtkMenuItem" id="menuitem3">
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="use_action_appearance">False</property>
                 <property name="label" translatable="yes">_Widok</property>
                 <property name="use_underline">True</property>
                 <child type="submenu">
@@ -396,9 +395,9 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                     <property name="can_focus">False</property>
                     <child>
                       <object class="GtkCheckMenuItem" id="chbut_3d">
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">3D view</property>
                         <property name="use_underline">True</property>
                         <signal name="toggled" handler="on_chbut_3d_toggled" swapped="no"/>
@@ -410,9 +409,9 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
             </child>
             <child>
               <object class="GtkMenuItem" id="menuitem4">
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="use_action_appearance">False</property>
                 <property name="label" translatable="yes">Pomo_c</property>
                 <property name="use_underline">True</property>
                 <child type="submenu">
@@ -422,9 +421,9 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                     <child>
                       <object class="GtkImageMenuItem" id="imagemenuitem10">
                         <property name="label">gtk-about</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <signal name="activate" handler="on_show" object="aboutdialog1" swapped="yes"/>
@@ -498,8 +497,6 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                             <property name="invisible_char_set">True</property>
                             <property name="primary_icon_activatable">False</property>
                             <property name="secondary_icon_activatable">False</property>
-                            <property name="primary_icon_sensitive">True</property>
-                            <property name="secondary_icon_sensitive">True</property>
                             <property name="adjustment">adj_pos_x</property>
                             <property name="numeric">True</property>
                           </object>
@@ -517,8 +514,6 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                             <property name="invisible_char_set">True</property>
                             <property name="primary_icon_activatable">False</property>
                             <property name="secondary_icon_activatable">False</property>
-                            <property name="primary_icon_sensitive">True</property>
-                            <property name="secondary_icon_sensitive">True</property>
                             <property name="adjustment">adj_pos_y</property>
                             <property name="numeric">True</property>
                           </object>
@@ -536,8 +531,6 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                             <property name="invisible_char_set">True</property>
                             <property name="primary_icon_activatable">False</property>
                             <property name="secondary_icon_activatable">False</property>
-                            <property name="primary_icon_sensitive">True</property>
-                            <property name="secondary_icon_sensitive">True</property>
                             <property name="adjustment">adj_pos_z</property>
                             <property name="numeric">True</property>
                           </object>
@@ -555,8 +548,6 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                             <property name="invisible_char_set">True</property>
                             <property name="primary_icon_activatable">False</property>
                             <property name="secondary_icon_activatable">False</property>
-                            <property name="primary_icon_sensitive">True</property>
-                            <property name="secondary_icon_sensitive">True</property>
                             <property name="adjustment">adj_look_x</property>
                             <property name="snap_to_ticks">True</property>
                             <property name="numeric">True</property>
@@ -577,8 +568,6 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                             <property name="invisible_char_set">True</property>
                             <property name="primary_icon_activatable">False</property>
                             <property name="secondary_icon_activatable">False</property>
-                            <property name="primary_icon_sensitive">True</property>
-                            <property name="secondary_icon_sensitive">True</property>
                             <property name="adjustment">adj_look_y</property>
                             <property name="snap_to_ticks">True</property>
                             <property name="numeric">True</property>
@@ -599,8 +588,6 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                             <property name="invisible_char_set">True</property>
                             <property name="primary_icon_activatable">False</property>
                             <property name="secondary_icon_activatable">False</property>
-                            <property name="primary_icon_sensitive">True</property>
-                            <property name="secondary_icon_sensitive">True</property>
                             <property name="adjustment">adj_look_z</property>
                             <property name="snap_to_ticks">True</property>
                             <property name="numeric">True</property>
@@ -626,6 +613,7 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                         <child>
                           <object class="GtkButton" id="but_pos_appyly">
                             <property name="label">gtk-apply</property>
+                            <property name="use_action_appearance">False</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -674,6 +662,7 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                     <child>
                       <object class="GtkRadioButton" id="rbut_xy">
                         <property name="label" translatable="yes">x y</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
@@ -690,6 +679,7 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                     <child>
                       <object class="GtkRadioButton" id="rbut_xz">
                         <property name="label" translatable="yes">x z</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
@@ -706,6 +696,7 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                     <child>
                       <object class="GtkRadioButton" id="rbut_yz">
                         <property name="label" translatable="yes">y z</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
@@ -744,6 +735,7 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                     <child>
                       <object class="GtkRadioButton" id="rbut_none">
                         <property name="label" translatable="yes">none</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
@@ -761,6 +753,7 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                     <child>
                       <object class="GtkRadioButton" id="rbut_cursor">
                         <property name="label" translatable="yes">cursor</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
@@ -778,6 +771,7 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                     <child>
                       <object class="GtkRadioButton" id="rbut_camera">
                         <property name="label" translatable="yes">camera</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
@@ -796,6 +790,7 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                     <child>
                       <object class="GtkRadioButton" id="rbut_scale">
                         <property name="label" translatable="yes">scale</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
@@ -813,6 +808,7 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                     <child>
                       <object class="GtkRadioButton" id="rbut_isoscale">
                         <property name="label" translatable="yes">isoscale</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
@@ -830,6 +826,7 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                     <child>
                       <object class="GtkRadioButton" id="rbut_trans">
                         <property name="label" translatable="yes">translate</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
@@ -847,6 +844,7 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                     <child>
                       <object class="GtkRadioButton" id="rbut_rotate">
                         <property name="label" translatable="yes">rotate</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
@@ -899,8 +897,6 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                         <property name="invisible_char">●</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">adj_fov</property>
                         <property name="numeric">True</property>
                         <signal name="value-changed" handler="on_sp_fov_value_changed" swapped="no"/>
@@ -928,8 +924,6 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                         <property name="invisible_char">●</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                         <property name="adjustment">adj_near</property>
                         <property name="digits">1</property>
                         <property name="numeric">True</property>
@@ -966,7 +960,6 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="hscrollbar_policy">never</property>
-                    <property name="vscrollbar_policy">automatic</property>
                     <child>
                       <object class="GtkViewport" id="viewport1">
                         <property name="visible">True</property>
@@ -1000,6 +993,7 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                                             <child>
                                               <object class="GtkRadioButton" id="rbut_pnt_add_bezier">
                                                 <property name="label">Bezier</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">False</property>
@@ -1019,6 +1013,7 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                                             <child>
                                               <object class="GtkRadioButton" id="rbut_pnt_add_bspline">
                                                 <property name="label" translatable="yes">Bspline</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">False</property>
@@ -1036,6 +1031,7 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                                             <child>
                                               <object class="GtkRadioButton" id="rbut_pnt_del">
                                                 <property name="label">gtk-remove</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">False</property>
@@ -1054,6 +1050,7 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                                             <child>
                                               <object class="GtkRadioButton" id="rbut_pnt_edit">
                                                 <property name="label">gtk-edit</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">False</property>
@@ -1105,6 +1102,7 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                                             <child>
                                               <object class="GtkRadioButton" id="rbut_edit_point">
                                                 <property name="label" translatable="yes">Punktu</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">False</property>
@@ -1122,6 +1120,7 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                                             <child>
                                               <object class="GtkRadioButton" id="rbut_edit_row">
                                                 <property name="label" translatable="yes">Rzędu</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">False</property>
@@ -1140,6 +1139,7 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                                             <child>
                                               <object class="GtkRadioButton" id="rbut_edit_column">
                                                 <property name="label" translatable="yes">Kolumny</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">False</property>
@@ -1158,6 +1158,7 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                                             <child>
                                               <object class="GtkRadioButton" id="rbut_edit_symetric">
                                                 <property name="label" translatable="yes">Symetria</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">False</property>
@@ -1211,6 +1212,7 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                                             <child>
                                               <object class="GtkToggleButton" id="tbut_add_c0">
                                                 <property name="label">Dodaj C0</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
@@ -1226,6 +1228,7 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                                             <child>
                                               <object class="GtkToggleButton" id="tbut_add_c2">
                                                 <property name="label" translatable="yes">Dodaj C2</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
@@ -1240,6 +1243,7 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</pro
                                             </child>
                                             <child>
                                               <object class="GtkToggleButton" id="tbut_add_interpolation">
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
@@ -1319,8 +1323,6 @@ Interpolacje</property>
                                                     <property name="invisible_char">●</property>
                                                     <property name="primary_icon_activatable">False</property>
                                                     <property name="secondary_icon_activatable">False</property>
-                                                    <property name="primary_icon_sensitive">True</property>
-                                                    <property name="secondary_icon_sensitive">True</property>
                                                     <property name="adjustment">adj_surf_x</property>
                                                   </object>
                                                   <packing>
@@ -1359,8 +1361,6 @@ Interpolacje</property>
                                                     <property name="invisible_char">●</property>
                                                     <property name="primary_icon_activatable">False</property>
                                                     <property name="secondary_icon_activatable">False</property>
-                                                    <property name="primary_icon_sensitive">True</property>
-                                                    <property name="secondary_icon_sensitive">True</property>
                                                     <property name="adjustment">adj_surf_y</property>
                                                   </object>
                                                   <packing>
@@ -1379,6 +1379,7 @@ Interpolacje</property>
                                             <child>
                                               <object class="GtkToggleButton" id="tbut_add_surf_c0">
                                                 <property name="label" translatable="yes">Dodaj C0</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
@@ -1394,6 +1395,7 @@ Interpolacje</property>
                                             <child>
                                               <object class="GtkToggleButton" id="tbut_add_surf_c2">
                                                 <property name="label" translatable="yes">Dodaj C2</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
@@ -1409,6 +1411,7 @@ Interpolacje</property>
                                             <child>
                                               <object class="GtkToggleButton" id="tbut_add_pipe">
                                                 <property name="label" translatable="yes">Dodaj Rurę</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
@@ -1423,6 +1426,7 @@ Interpolacje</property>
                                             </child>
                                             <child>
                                               <object class="GtkToggleButton" id="tbut_add_gregory">
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
@@ -1482,6 +1486,7 @@ Gregory'ego</property>
                                             <child>
                                               <object class="GtkToggleButton" id="tbut_del_curve">
                                                 <property name="label">gtk-remove</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
@@ -1498,6 +1503,7 @@ Gregory'ego</property>
                                             <child>
                                               <object class="GtkToggleButton" id="tbut_sel_curve">
                                                 <property name="label">gtk-edit</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
@@ -1584,8 +1590,6 @@ Gregory'ego</property>
                                                         <property name="invisible_char">●</property>
                                                         <property name="primary_icon_activatable">False</property>
                                                         <property name="secondary_icon_activatable">False</property>
-                                                        <property name="primary_icon_sensitive">True</property>
-                                                        <property name="secondary_icon_sensitive">True</property>
                                                         <property name="adjustment">adj_draw_surf_x</property>
                                                         <signal name="value-changed" handler="on_sp_draw_surf_value_changed" swapped="no"/>
                                                       </object>
@@ -1601,8 +1605,6 @@ Gregory'ego</property>
                                                         <property name="invisible_char">●</property>
                                                         <property name="primary_icon_activatable">False</property>
                                                         <property name="secondary_icon_activatable">False</property>
-                                                        <property name="primary_icon_sensitive">True</property>
-                                                        <property name="secondary_icon_sensitive">True</property>
                                                         <property name="adjustment">adj_draw_surf_y</property>
                                                         <signal name="value-changed" handler="on_sp_draw_surf_value_changed" swapped="no"/>
                                                       </object>
@@ -1643,6 +1645,7 @@ Gregory'ego</property>
                                                     <child>
                                                       <object class="GtkCheckButton" id="jk">
                                                         <property name="label" translatable="yes">Punkty</property>
+                                                        <property name="use_action_appearance">False</property>
                                                         <property name="can_focus">True</property>
                                                         <property name="receives_default">False</property>
                                                         <property name="use_action_appearance">False</property>
@@ -1659,6 +1662,7 @@ Gregory'ego</property>
                                                     <child>
                                                       <object class="GtkCheckButton" id="cbut_draw_bezier_curves">
                                                         <property name="label" translatable="yes">Krzywe</property>
+                                                        <property name="use_action_appearance">False</property>
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
                                                         <property name="receives_default">False</property>
@@ -1676,6 +1680,7 @@ Gregory'ego</property>
                                                     <child>
                                                       <object class="GtkCheckButton" id="cbut_draw_bezier_polygons">
                                                         <property name="label" translatable="yes">Wielokąty</property>
+                                                        <property name="use_action_appearance">False</property>
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
                                                         <property name="receives_default">False</property>
@@ -1720,6 +1725,7 @@ Gregory'ego</property>
                                                     <child>
                                                       <object class="GtkCheckButton" id="cbut_draw_bspline_pts">
                                                         <property name="label" translatable="yes">Punkty</property>
+                                                        <property name="use_action_appearance">False</property>
                                                         <property name="can_focus">True</property>
                                                         <property name="receives_default">False</property>
                                                         <property name="use_action_appearance">False</property>
@@ -1736,6 +1742,7 @@ Gregory'ego</property>
                                                     <child>
                                                       <object class="GtkCheckButton" id="cbut_draw_bspline_curves">
                                                         <property name="label" translatable="yes">Krzywe</property>
+                                                        <property name="use_action_appearance">False</property>
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
                                                         <property name="receives_default">False</property>
@@ -1752,6 +1759,7 @@ Gregory'ego</property>
                                                     <child>
                                                       <object class="GtkCheckButton" id="cbut_draw_bspline_polygons">
                                                         <property name="label" translatable="yes">Wielokąty</property>
+                                                        <property name="use_action_appearance">False</property>
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
                                                         <property name="receives_default">False</property>
@@ -1821,6 +1829,7 @@ Gregory'ego</property>
                                             <child>
                                               <object class="GtkRadioButton" id="rbut_gap">
                                                 <property name="label" translatable="yes">Dziura</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">False</property>
@@ -1838,6 +1847,7 @@ Gregory'ego</property>
                                             <child>
                                               <object class="GtkRadioButton" id="rbut_gap_c0">
                                                 <property name="label" translatable="yes">Wypełnij C0</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">False</property>
@@ -1856,6 +1866,7 @@ Gregory'ego</property>
                                             <child>
                                               <object class="GtkRadioButton" id="rbut_gap_c1">
                                                 <property name="label" translatable="yes">Wypełnij C1</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">False</property>
@@ -1874,6 +1885,7 @@ Gregory'ego</property>
                                             <child>
                                               <object class="GtkRadioButton" id="rbut_gap_c2">
                                                 <property name="label" translatable="yes">Wypełnij C2</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">False</property>
@@ -1938,8 +1950,6 @@ Gregory'ego</property>
                                                     <property name="invisible_char_set">True</property>
                                                     <property name="primary_icon_activatable">False</property>
                                                     <property name="secondary_icon_activatable">False</property>
-                                                    <property name="primary_icon_sensitive">True</property>
-                                                    <property name="secondary_icon_sensitive">True</property>
                                                     <property name="adjustment">adj_cut_delta</property>
                                                     <property name="digits">3</property>
                                                   </object>
@@ -1984,8 +1994,6 @@ Gregory'ego</property>
                                                     <property name="invisible_char">●</property>
                                                     <property name="primary_icon_activatable">False</property>
                                                     <property name="secondary_icon_activatable">False</property>
-                                                    <property name="primary_icon_sensitive">True</property>
-                                                    <property name="secondary_icon_sensitive">True</property>
                                                     <property name="adjustment">adj_cut_u</property>
                                                     <property name="digits">3</property>
                                                   </object>
@@ -2003,8 +2011,6 @@ Gregory'ego</property>
                                                     <property name="invisible_char">●</property>
                                                     <property name="primary_icon_activatable">False</property>
                                                     <property name="secondary_icon_activatable">False</property>
-                                                    <property name="primary_icon_sensitive">True</property>
-                                                    <property name="secondary_icon_sensitive">True</property>
                                                     <property name="adjustment">adj_cut_v</property>
                                                     <property name="digits">3</property>
                                                   </object>
@@ -2044,8 +2050,6 @@ Gregory'ego</property>
                                                     <property name="invisible_char">●</property>
                                                     <property name="primary_icon_activatable">False</property>
                                                     <property name="secondary_icon_activatable">False</property>
-                                                    <property name="primary_icon_sensitive">True</property>
-                                                    <property name="secondary_icon_sensitive">True</property>
                                                     <property name="adjustment">adj_cut_u2</property>
                                                     <property name="digits">3</property>
                                                   </object>
@@ -2063,8 +2067,6 @@ Gregory'ego</property>
                                                     <property name="invisible_char">●</property>
                                                     <property name="primary_icon_activatable">False</property>
                                                     <property name="secondary_icon_activatable">False</property>
-                                                    <property name="primary_icon_sensitive">True</property>
-                                                    <property name="secondary_icon_sensitive">True</property>
                                                     <property name="adjustment">adj_cut_v2</property>
                                                     <property name="digits">3</property>
                                                   </object>
@@ -2085,6 +2087,7 @@ Gregory'ego</property>
                                             <child>
                                               <object class="GtkToggleButton" id="tbut_cut_choose">
                                                 <property name="label" translatable="yes">Wybierz</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
@@ -2100,6 +2103,7 @@ Gregory'ego</property>
                                             <child>
                                               <object class="GtkButton" id="but_cut">
                                                 <property name="label">gtk-cut</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
@@ -2116,6 +2120,7 @@ Gregory'ego</property>
                                             <child>
                                               <object class="GtkButton" id="but_cut_clear">
                                                 <property name="label">gtk-clear</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
@@ -2298,8 +2303,6 @@ Gregory'ego</property>
                                         <property name="invisible_char">●</property>
                                         <property name="primary_icon_activatable">False</property>
                                         <property name="secondary_icon_activatable">False</property>
-                                        <property name="primary_icon_sensitive">True</property>
-                                        <property name="secondary_icon_sensitive">True</property>
                                         <property name="adjustment">adj_R</property>
                                         <property name="climb_rate">1</property>
                                         <property name="digits">2</property>
@@ -2317,8 +2320,6 @@ Gregory'ego</property>
                                         <property name="invisible_char">●</property>
                                         <property name="primary_icon_activatable">False</property>
                                         <property name="secondary_icon_activatable">False</property>
-                                        <property name="primary_icon_sensitive">True</property>
-                                        <property name="secondary_icon_sensitive">True</property>
                                         <property name="adjustment">adj_r</property>
                                         <property name="climb_rate">1</property>
                                         <property name="digits">2</property>
@@ -2338,8 +2339,6 @@ Gregory'ego</property>
                                         <property name="invisible_char">●</property>
                                         <property name="primary_icon_activatable">False</property>
                                         <property name="secondary_icon_activatable">False</property>
-                                        <property name="primary_icon_sensitive">True</property>
-                                        <property name="secondary_icon_sensitive">True</property>
                                         <property name="adjustment">adj_N</property>
                                         <property name="climb_rate">1</property>
                                         <property name="snap_to_ticks">True</property>
@@ -2359,8 +2358,6 @@ Gregory'ego</property>
                                         <property name="invisible_char">●</property>
                                         <property name="primary_icon_activatable">False</property>
                                         <property name="secondary_icon_activatable">False</property>
-                                        <property name="primary_icon_sensitive">True</property>
-                                        <property name="secondary_icon_sensitive">True</property>
                                         <property name="adjustment">adj_n</property>
                                         <property name="climb_rate">1</property>
                                         <property name="snap_to_ticks">True</property>
@@ -2450,6 +2447,7 @@ Gregory'ego</property>
                     </child>
                     <child>
                       <object class="GtkColorButton" id="colbut_right">
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -2467,6 +2465,7 @@ Gregory'ego</property>
                     </child>
                     <child>
                       <object class="GtkColorButton" id="colbut_left">
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>

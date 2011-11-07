@@ -132,10 +132,12 @@ class SurfaceC2( Points ) :
 	def get_pts( self ) :
 		return self.pts
 
-	def get_array_pts( self ) :
+	def gen_array_pts( self ) :
 		for y in range(self.size[1]+3) :
 			for x in range(self.size[0]+3):
 				self.array_pts[x,y] = np.array( self.pts[ x + y*(self.size[0]+3) ] , np.double )
+	
+	def get_array_pts( self ) :
 		return self.array_pts 
 
 	def iter_pts( self ) :
@@ -223,7 +225,7 @@ class SurfaceC2( Points ) :
 
 	def generate( self ) :
 		self.bezx , self.bezy = csurf.gen_deboor( self.pts , self.bezx , self.bezy , self.size[0] , self.size[1] , self.sized[0] , self.sized[1] , self.dens[0] , self.dens[1] , self.base )
-		self.get_array_pts()
+		self.gen_array_pts()
 		self.make_add()
 
 	def make_add( self ) :

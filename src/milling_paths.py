@@ -1,4 +1,6 @@
+import sys
 
+import math as m
 import numpy as np
 
 import csurf
@@ -61,71 +63,134 @@ class Miller( Node ) :
 		pass
 
 	def gen_border( self ) :
-		for curve in self.curves :
-			path = []
-			u , v , pts = self.get_curve_data( curve )
+		head = self.curves.getat(0)
+		hand = self.curves.getat(1)
 
-			for iv in np.linspace(0,v,64) :
-				p = csurf.bspline_surf        ( 6.0, iv , pts )
-				dv= csurf.bspline_surf_prime_v( 6.0, iv , pts )
-				du= csurf.bspline_surf_prime_u( 6.0, iv , pts )
-				n = np.cross( du , dv )
-				n = n / np.linalg.norm( n )
-				path.append( np.array( p + n * self.flat_r ) )
+		path = []
+		u , v , pts = self.get_curve_data( head )
 
-			for iv in np.linspace(v,0,64) :
-				p = csurf.bspline_surf        (13.0, iv , pts )
-				dv= csurf.bspline_surf_prime_v(13.0, iv , pts )
-				du= csurf.bspline_surf_prime_u(13.0, iv , pts )
-				n = np.cross( du , dv )
-				n = n / np.linalg.norm( n )
-				path.append( np.array( p + n * self.flat_r ) )
+		trimming = head.trimms[1]
 
-			path.append( path[0] )
+		for iv in np.linspace(0,v,64) :
+			if iv > trimming.minimal_v and iv < trimming.maximal_v :
+				continue
+			p = csurf.bspline_surf        ( 6.0, iv , pts )
+			dv= csurf.bspline_surf_prime_v( 6.0, iv , pts )
+			du= csurf.bspline_surf_prime_u( 6.0, iv , pts )
+			n = np.cross( du , dv )
+			n = n / np.linalg.norm( n )
+			path.append( np.array( p + n * self.flat_r ) )
 
-			self.paths.append( np.array( path ) )
+		for iv in np.linspace(v,0,64) :
+			if iv > trimming.minimal_v and iv < trimming.maximal_v :
+				continue
+			p = csurf.bspline_surf        (13.0, iv , pts )
+			dv= csurf.bspline_surf_prime_v(13.0, iv , pts )
+			du= csurf.bspline_surf_prime_u(13.0, iv , pts )
+			n = np.cross( du , dv )
+			n = n / np.linalg.norm( n )
+			path.append( np.array( p + n * self.flat_r ) )
+
+		path.append( path[0] )
+
+		self.paths.append( np.array( path ) )
 
 	def gen_exact( self ) :
-		for curve in self.curves :
-			path = []
-			u , v , pts = self.get_curve_data( curve )
+		head = self.curves.getat(0)
+		hand = self.curves.getat(1)
 
-			bu = 6.0
-			eu = 13.0
-			nu = 256
-			nv = 128
+		path = []
+		u , v , pts = self.get_curve_data( head )
 
-			for iv in np.linspace(0,v,nv) :
-				pn = None # previous normal
-				cn = None # current normal
-				odu = None
-				for iu in np.linspace(bu,eu,nu) :
-					p = csurf.bspline_surf        ( iu, iv, pts )
-					dv= csurf.bspline_surf_prime_v( iu, iv, pts )
-					du= csurf.bspline_surf_prime_u( iu, iv, pts )
-					n = np.cross( du , dv )
-					nlen = np.linalg.norm( n )
-					dlen = np.linalg.norm( du )
-					ndu  = du / dlen
-					if odu != None and np.allclose(ndu,odu,atol=0.001) :
-						continue
-					if dlen > 0.01 :
-						n = n / nlen
-						if cn == None and pn != None : # C0 edge
-							cn = n
-							tn = (pn+cn)
-							tn = tn / np.linalg.norm(tn)
-							path.append( np.array( p + tn*self.exac_r ) )
-						else :
-							pn = cn
-							cn = n
-							path.append( np.array( p + cn * self.exac_r ) )
-					else : # normal is undefined
-						cn = None
+		trm = head.trimms[1]
+		vid = trm.minimal_v_id
 
-					odu = ndu
+		bu = 6.0
+		eu = 13.0
+		nu = 64
+		nv = 128
+		dv = v / float(nv)
+		iv = 0.0
 
-				bu , eu = eu , bu
+		while iv <= v :
+			while vid-2 >= 0 and trm.l[vid-1][1] < iv : vid-=1
+			if iv < trm.l[vid-1][1] and iv > trm.l[vid][1] :
+				teu = trm.l[vid-1][0]
+			else :
+				teu = eu
 
-			self.paths.append( np.array( path ) )
+			self.gen_line_u( pts , path , iv , bu , teu , nu )
 
+			iv += dv
+
+			while vid-2 >= 0 and trm.l[vid-1][1] < iv : vid-=1
+			if iv < trm.l[vid-1][1] and iv > trm.l[vid][1] :
+				teu = trm.l[vid-1][0]
+			else :
+				teu = eu
+
+			self.gen_line_u( pts , path , iv , teu , bu , nu )
+
+			iv += dv
+
+		path.append( path[-1] + np.array((-.2,0,0 )) )
+		path.append( path[-1] + np.array((0,-3.5,0)) )
+		path.append( path[-1] + np.array((2,0,0)) )
+
+		u , v , pts = self.get_curve_data( hand )
+
+		trm = hand.trimms[1]
+
+		v = trm.minimal_v
+
+		bu = 3.0
+		eu = 7.0
+		nu = 64
+		nv = 128
+		dv = v / float(nv)
+		iv = 0.0
+
+
+		while iv <= v :
+			self.gen_line_u( pts , path , iv , bu , eu , nu )
+			iv += dv
+			self.gen_line_u( pts , path , iv , eu , bu , nu )
+			iv += dv
+
+		self.paths.append( np.array( path ) )
+
+	def gen_line_u( self , pts , path , v , bu , eu , nu ) :
+		odu = None
+		cn = None # current normal
+		pn = None # previous normal
+
+		for iu in np.linspace(bu,eu,nu) :
+			sys.stdout.write('.')
+
+			uv = np.array((iu,v))
+
+			p = csurf.bspline_surf        ( iu, v, pts )
+			dv= csurf.bspline_surf_prime_v( iu, v, pts )
+			du= csurf.bspline_surf_prime_u( iu, v, pts )
+			n = np.cross( du , dv )
+			nlen = np.linalg.norm( n )
+			dlen = np.linalg.norm( du )
+			ndu  = du / dlen
+			# paths count optimization
+			if odu != None and np.allclose(ndu,odu,atol=0.001) :
+				continue
+			if dlen > 0.01 :
+				n = n / nlen
+				if cn == None and pn != None : # C0 edge
+					cn = n
+					tn = (pn+cn)
+					tn = tn / np.linalg.norm(tn)
+					path.append( np.array( p + tn*self.exac_r ) )
+				else : # normal is well defined
+					pn = cn
+					cn = n
+					path.append( np.array( p + cn * self.exac_r ) )
+			else : # normal is undefined
+				cn = None
+
+			odu = ndu

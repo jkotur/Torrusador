@@ -69,7 +69,12 @@ class TrimmingCurve( Trim ) :
 	def __init__( self ) :
 		self.a = None
 		self.l = None
+
 		self.minuv = None
+		self.maximal_u = None
+		self.minimal_u = None # minimal u in list l
+		self.maximal_v = None
+		self.minimal_v = None # minimal v in list l
 
 		self.minu = float('inf')
 		self.minv = float('inf')
@@ -125,8 +130,27 @@ class TrimmingCurve( Trim ) :
 		if v > self.maxv : self.maxv = v
 
 	def update_min( self , u , v ) :
+		if self.minimal_u == None or u < self.minimal_u :
+			self.minimal_u = u
+		if self.minimal_v == None or v < self.minimal_v :
+			self.minimal_v = v
+		if self.maximal_u == None or u > self.maximal_u :
+			self.maximal_u = u
+		if self.maximal_v == None or v > self.maximal_v :
+			self.maximal_v = v
 		if self.minuv == None or u+v < self.minuv :
 			self.minuv = u+v
+
+	def find_min_ids( self ) :
+		for i in range(len(self.l)) :
+			if self.l[i][0] == self.minimal_u :
+				self.minimal_u_id = i
+			if self.l[i][0] == self.maximal_u :
+				self.maximal_u_id = i
+			if self.l[i][1] == self.minimal_v :
+				self.minimal_v_id = i
+			if self.l[i][1] == self.maximal_v :
+				self.maximal_v_id = i
 
 	def start( self , delta ) :
 		self.l = []
@@ -141,6 +165,7 @@ class TrimmingCurve( Trim ) :
 		self.update_min(u,v)
 
 	def end( self , loop = False ) :
+		self.find_min_ids()
 		self.a = np.array( self.l )
 		self.loop = self.check_loop()
 

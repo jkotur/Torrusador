@@ -51,11 +51,13 @@ class Scene :
 		# craete planes
 		#
 
-#        self.load_from_file(u'../data/młotek.gpt')
-		self.load_from_file(u'../data/głowica.gpt')
+		self.load_from_file(u'../data/młotek.gpt')
+#        self.load_from_file(u'../data/głowica.gpt')
 #        self.load_from_file(u'../data/cut_test_10.gpt')
 		for c in self.curves : self.curves.cutter.add( c )
-
+		print 'cut'
+		self.curves.cut( (0,0,0,0) , 0.01 )
+		print 'mil'
 		self.miller = Miller( self.curves )
 
 		#

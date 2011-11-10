@@ -19,6 +19,9 @@ class Node( list ) :
 
 		self.draw_data = None
 
+	def getat( self , i ) :
+		return list.__getitem__( self , i )
+
 	def set_screen_size( self , w , h ) :
 		if self.geom :
 			self.geom.set_screen_size( w , h )

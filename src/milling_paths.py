@@ -95,12 +95,77 @@ class Miller( Node ) :
 
 		self.paths.append( np.array( path ) )
 
+	def lerp( self , x , bx , ex , by , ey ) :
+		return x * (ey-by) / (ex-bx)
+
+#            iu = self.lerp( iv , trm.l[vid][1] , trm.l[vid-1][1] , 
+#                                 trm.l[vid][0] , trm.l[vid-1][0] )
+
+	#
+	# checking if p is below or above plane based on point p0 and normal n
+	#
+	def check_pass( self , p , p0 , n ) :
+		return np.dot( p - p0 , n ) > 0 
+
+	#
+	# trimming curve in object space
+	#
+	def find_trimming( self , head , hand ) :
+		hand_trm = hand.trimms[1]
+		head_trm = head.trimms[1]
+
+		bi  = min( head_trm.minimal_v_id , head_trm.maximal_v_id )
+		ei  = max( head_trm.minimal_v_id , head_trm.maximal_v_id )
+		nv = 32
+		di = (ei - bi) / float(nv)
+
+		path = []
+		head_derv = []
+		hand_derv = []
+
+		fi = float(bi)
+		while fi <= ei :
+			i = int(fi)
+			p = csurf.bspline_surf( head_trm.l[i][0] , head_trm.l[i][1] , head_pts )
+
+			du = csurf.bspline_surf_prime_u( hand_trm.l[i][0] , hand_trm.l[i][1] , hand_pts )
+			dv = csurf.bspline_surf_prime_v( hand_trm.l[i][0] , hand_trm.l[i][1] , hand_pts )
+			hand_n = np.cross( du , dv )
+			hand_n = hand_n / np.linalg.norm( hand_n )
+
+			hand_derv.append( (du,dv) )
+
+			du = csurf.bspline_surf_prime_u( head_trm.l[i][0] , head_trm.l[i][1] , head_pts )
+			dv = csurf.bspline_surf_prime_v( head_trm.l[i][0] , head_trm.l[i][1] , head_pts )
+			head_n = np.cross( du , dv )
+			head_n = head_n / np.linalg.norm( head_n )
+
+			head_derv.append( (du,dv) )
+
+			n = head_n + hand_n
+			n = n / np.linalg.norm( n )
+
+			ln = m.sqrt(2) * self.exac_r / m.sqrt( 1 + np.dot( head_n , hand_n ) )
+
+			path.append( p + n * ln )
+
+
+			fi += di
+
+		return path , head_derv , hand_derv
+
 	def gen_exact( self ) :
 		head = self.curves.getat(0)
 		hand = self.curves.getat(1)
 
+		trimming , tdhead , tdhand = find_trimming( head , hand )
+
 		path = []
-		u , v , pts = self.get_curve_data( head )
+
+		#
+		# head
+		#
+		u , v , head_pts = self.get_curve_data( head )
 
 		trm = head.trimms[1]
 		vid = trm.minimal_v_id
@@ -119,7 +184,7 @@ class Miller( Node ) :
 			else :
 				teu = eu
 
-			self.gen_line_u( pts , path , iv , bu , teu , nu )
+			self.gen_line_u( head_pts , path , iv , bu , teu , nu )
 
 			iv += dv
 
@@ -129,7 +194,7 @@ class Miller( Node ) :
 			else :
 				teu = eu
 
-			self.gen_line_u( pts , path , iv , teu , bu , nu )
+			self.gen_line_u( head_pts , path , iv , teu , bu , nu )
 
 			iv += dv
 
@@ -137,7 +202,14 @@ class Miller( Node ) :
 		path.append( path[-1] + np.array((0,-3.5,0)) )
 		path.append( path[-1] + np.array((2,0,0)) )
 
-		u , v , pts = self.get_curve_data( hand )
+		u , v , hand_pts = self.get_curve_data( hand )
+
+
+		#
+		# hand
+		#
+		tn = np.cross( trimming[-1] - trimming[0] , np.array((0,0,1)) )
+		tp = trimming[0]
 
 		trm = hand.trimms[1]
 
@@ -150,22 +222,31 @@ class Miller( Node ) :
 		dv = v / float(nv)
 		iv = 0.0
 
-
 		while iv <= v :
-			self.gen_line_u( pts , path , iv , bu , eu , nu )
+			p0 = csurf.bspline_surf( eu , iv , hand_pts )
+			if self.check_pass( p0 , tp , tn ) :
+				self.gen_line_u( hand_pts , path , iv , bu , eu , nu )
 			iv += dv
-			self.gen_line_u( pts , path , iv , eu , bu , nu )
+			p1 = csurf.bspline_surf( eu , iv , hand_pts )
+			if self.check_pass( p1 , tp , tn ) :
+				self.gen_line_u( hand_pts , path , iv , eu , bu , nu )
 			iv += dv
+
+		path += reversed( trimming )
+
+		print 
 
 		self.paths.append( np.array( path ) )
 
 	def gen_line_u( self , pts , path , v , bu , eu , nu ) :
+		sys.stdout.write('.')
+		sys.stdout.flush()
+
 		odu = None
 		cn = None # current normal
 		pn = None # previous normal
 
 		for iu in np.linspace(bu,eu,nu) :
-			sys.stdout.write('.')
 
 			uv = np.array((iu,v))
 

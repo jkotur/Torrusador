@@ -9,9 +9,17 @@ from look.node import Node
 
 from geom.lines import Lines
 
-BLOCK_X = (-2,2)
-BLOCK_Y = (-2,2)
-BLOCK_H = 2
+DRILL_0 = (0,0)
+BLOCK_X = (-1.5,1.9)
+BLOCK_Y = (-1.6,1.8)
+BLOCK_H =-1.0
+
+FLAT_DRILL = 12.0
+SMALL_DRILL = 8.0
+HUGE_DRILL = 16.0
+
+TRANS = np.array(( -0.2 , -0.1 , 0 ))
+SCALE = 150.0 / float(BLOCK_X[1] - BLOCK_X[0])
 
 class Miller( Node ) :
 	def __init__( self , curves ) :
@@ -20,16 +28,16 @@ class Miller( Node ) :
 		self.curves = curves
 		self.paths = []
 
-		self.init_r = 0.08
-		self.flat_r = 0.05
-		self.exac_r = 0.04
+		self.init_r = HUGE_DRILL / 2.0 / SCALE
+		self.flat_r = FLAT_DRILL / 2.0 / SCALE
+		self.exac_r = SMALL_DRILL / 2.0 / SCALE 
 
 		self.gen_paths()
 
 		print len(self.paths)
 		self.save(0,'border.f10')
 		self.save(1,'flat.f10')
-#        self.save(2,'exact.k8')
+		self.save(2,'exact.k8')
 
 		self.set_data( self.paths )
 
@@ -39,7 +47,7 @@ class Miller( Node ) :
 		with open(filename,'w+') as f :
 			i = 0
 			for p in self.paths[num] :
-				p = p*100
+				p = (p + TRANS)*SCALE
 				f.write( 'N%dG01X%fY%fZ%f\n' % ( i , p[0] , p[1] ,-p[2] ) )
 				i+=1
 
@@ -52,10 +60,10 @@ class Miller( Node ) :
 		self.gen_initial()
 		print "Generating border path..."
 		self.gen_border()
-		print "Generating paths for flat surface path..."
+		print "Generating paths for flat surface..."
 		self.gen_flat()
-#        print "Generating exact path..."
-#        self.gen_exact()
+		print "Generating exact path..."
+		self.gen_exact()
 		print "All paths generated"
 
 	def gen_configuration( self ) :
@@ -73,11 +81,9 @@ class Miller( Node ) :
 
 		path = []
 
-		bx = -2
-		ex =  2
+		bx , ex = BLOCK_X
 		nx = 128
-		by = -2
-		ey =  2
+		by , ey = BLOCK_Y
 		ny = 128
 
 		dy = 2.0*(ey-by)/float(ny)
@@ -102,50 +108,32 @@ class Miller( Node ) :
 				if within( y , border[i][1] , border[i+1][1] ) :
 					cut.append(i)
 
-			cut = sorted( cut , key = lambda i :-border[i][0] )
+			sc = m.copysign( 1 , ex - bx )
+			cut = sorted( cut , key = lambda i : sc * border[i][0] )
 
-			np.set_printoptions(suppress=True)
-
-			if len(cut) :
-				prev = cut[0]
-				p0 = border[cut[0]  ]
-				p1 = border[cut[0]+1]
+			path.append( np.array((bx,y,0)) )
+			
+			for i in range(0,len(cut),2) :
+				p0 = border[cut[i]  ]
+				p1 = border[cut[i]+1]
 				tx = self.lerp( y , p0[1] , p1[1] , p0[0] , p1[0] )
-			else :
-				prev = None
-				tx = bx
+
+				path.append( np.array((tx,y,0)) )
+				path.append( np.array((tx,y,BLOCK_H)) )
+
+				i+=1
+
+				p0 = border[cut[i]  ]
+				p1 = border[cut[i]+1]
+				tx = self.lerp( y , p0[1] , p1[1] , p0[0] , p1[0] )
+
+				path.append( np.array((tx,y,BLOCK_H)) )
+				path.append( np.array((tx,y,0)) )
+
 
 			path.append( np.array((ex,y,0)) )
-			path.append( np.array((tx,y,0)) )
-			y += dy
 
-			cut = []
-			for i in range(len(border)-1) :
-				if within( y , border[i][1] , border[i+1][1] ) :
-					cut.append(i)
-
-			cut = sorted( cut , key = lambda i :-border[i][0] )
-
-			if len(cut) :
-				next = cut[0]
-				p0 = border[cut[0]  ]
-				p1 = border[cut[0]+1]
-				tx = self.lerp( y , p0[1] , p1[1] , p0[0] , p1[0] ) 
-			else :
-				next = None
-				tx = bx
-
-			if not prev and next :
-				prev = minyid
-			if prev and not next :
-				next = maxyid
-
-			if prev and next :
-				for i in range( prev , next , 1 if prev < next else -1 ) :
-					path.append( border[i] )
-
-			path.append( np.array((tx,y,0)) )
-			path.append( np.array((ex,y,0)) )
+			bx , ex = ex , bx
 			y += dy
 
 		self.paths.append( np.array(path) )
@@ -224,6 +212,8 @@ class Miller( Node ) :
 		path.append( csurf.bspline_surf(13.0, vhead , phead ) + np.array((-self.flat_r,0,0)))
 
 		path.append( path[0] )
+
+		for v in path : v[2] = 0.0
 
 		self.paths.append( np.array( path ) )
 

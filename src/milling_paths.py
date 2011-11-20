@@ -35,9 +35,10 @@ class Miller( Node ) :
 		self.gen_paths()
 
 		print len(self.paths)
-		self.save(0,'border.f10')
-		self.save(1,'flat.f10')
-		self.save(2,'exact.k8')
+		self.save(0,'init.k16')
+		self.save(1,'border.f10')
+		self.save(2,'flat.f10')
+		self.save(3,'exact.k8')
 
 		self.set_data( self.paths )
 
@@ -55,16 +56,25 @@ class Miller( Node ) :
 
 		self.gen_configuration()
 		print "Generating trimming curve..."
-		self.find_trimming()
+		self.trm_init = self.find_trimming( self.init_r )
+		self.trm_flat = self.find_trimming( self.flat_r )
+		self.trm_exact= self.find_trimming( self.exac_r )
+
 		print "Generating initial path..."
-		self.gen_initial()
+		init_border = self.gen_border( *self.trm_init )
+		self.paths.append( self.gen_flat( -self.init_r , 96 , 96 , init_border ) )
 		print "Generating border path..."
-		self.gen_border()
+		flat_border = self.gen_border( *self.trm_flat )
+		self.paths.append( flat_border )
 		print "Generating paths for flat surface..."
-		self.gen_flat()
+		self.paths.append( self.gen_flat( 0 , 128 , 128 , flat_border ) )
 		print "Generating exact path..."
-		self.gen_exact()
+		self.paths.append( self.gen_exact( *self.trm_exact ) )
 		print "All paths generated"
+
+		self.paths.append( np.array(self.trm_init[0]) )
+		self.paths.append( np.array(self.trm_flat[0]) )
+		self.paths.append( np.array(self.trm_exact[0]) )
 
 	def gen_configuration( self ) :
 		self.head = self.curves.getat(0)
@@ -74,17 +84,13 @@ class Miller( Node ) :
 		return curve.size[0] , curve.size[1] , curve.array_pts
 
 	def gen_initial( self ) :
-		pass
+		return np.array( [] )
 
-	def gen_flat( self ) :
-		border = self.paths[-1]
-
+	def gen_flat( self , z , nx , ny , border ) :
 		path = []
 
 		bx , ex = BLOCK_X
-		nx = 128
 		by , ey = BLOCK_Y
-		ny = 128
 
 		dy = 2.0*(ey-by)/float(ny)
 
@@ -111,14 +117,14 @@ class Miller( Node ) :
 			sc = m.copysign( 1 , ex - bx )
 			cut = sorted( cut , key = lambda i : sc * border[i][0] )
 
-			path.append( np.array((bx,y,0)) )
+			path.append( np.array((bx,y,z)) )
 			
 			for i in range(0,len(cut),2) :
 				p0 = border[cut[i]  ]
 				p1 = border[cut[i]+1]
 				tx = self.lerp( y , p0[1] , p1[1] , p0[0] , p1[0] )
 
-				path.append( np.array((tx,y,0)) )
+				path.append( np.array((tx,y,z)) )
 				path.append( np.array((tx,y,BLOCK_H)) )
 
 				i+=1
@@ -128,17 +134,25 @@ class Miller( Node ) :
 				tx = self.lerp( y , p0[1] , p1[1] , p0[0] , p1[0] )
 
 				path.append( np.array((tx,y,BLOCK_H)) )
-				path.append( np.array((tx,y,0)) )
+				path.append( np.array((tx,y,z)) )
 
 
-			path.append( np.array((ex,y,0)) )
+			path.append( np.array((ex,y,z)) )
 
 			bx , ex = ex , bx
 			y += dy
 
-		self.paths.append( np.array(path) )
+		return np.array(path)
 
-	def gen_border( self ) :
+	def gen_bspline_point( self , u , v , r , pts ) :
+		p = csurf.bspline_surf        ( u , v , pts )
+		dv= csurf.bspline_surf_prime_v( u , v , pts )
+		du= csurf.bspline_surf_prime_u( u , v , pts )
+		n = np.cross( du , dv )
+		n = n / np.linalg.norm( n )
+		return p + n * r
+
+	def gen_border( self , trm , tdhead , tdhand ) :
 		path = []
 		uhead , vhead , phead = self.get_curve_data( self.head )
 		uhand , vhand , phand = self.get_curve_data( self.hand )
@@ -148,66 +162,39 @@ class Miller( Node ) :
 		path.append( csurf.bspline_surf( 6.0, vhead , phead ) + np.array((-self.flat_r,0,0)))
 
 		for iv in np.linspace(vhead,0,nv) :
-			p = csurf.bspline_surf        ( 6.0, iv , phead )
-			dv= csurf.bspline_surf_prime_v( 6.0, iv , phead )
-			du= csurf.bspline_surf_prime_u( 6.0, iv , phead )
-			n = np.cross( du , dv )
-			n = n / np.linalg.norm( n )
-			path.append( np.array( p + n * self.flat_r ) )
+			path.append( self.gen_bspline_point( 6.0 , iv , self.flat_r , phead ) )
 
 		path.append( csurf.bspline_surf( 6.0, 0 , phead ) + np.array((self.flat_r,0,0)))
 		path.append( csurf.bspline_surf(13.0, 0 , phead ) + np.array((self.flat_r,0,0)))
 
 		for iv in np.linspace(0,vhead,nv) :
-			p = csurf.bspline_surf        (13.0, iv , phead )
-
-			if self.check_pass( p , self.trm[-1] , self.tdhead[-1][1] ) :
+			p = self.gen_bspline_point( 13.0 , iv , self.flat_r , phead )
+			if self.check_pass( p , trm[-1] , tdhead[-1][1] ) :
+#                path.append( trm[-1] )
 				break
-
-			dv= csurf.bspline_surf_prime_v(13.0, iv , phead )
-			du= csurf.bspline_surf_prime_u(13.0, iv , phead )
-			n = np.cross( du , dv )
-			n = n / np.linalg.norm( n )
-			path.append( np.array( p + n * self.flat_r ) )
+			path.append( p )
 
 		for iv in np.linspace(vhand,0,nv) :
-			p = csurf.bspline_surf        ( 3.0, iv , phand )
-
-			if self.check_pass( p , self.trm[-1] , self.tdhand[-1][1] ) :
+			p = self.gen_bspline_point( 3.0 , iv , self.flat_r , phand )
+			if self.check_pass( p , trm[-1] , tdhand[-1][1] ) :
 				continue
-
-			dv= csurf.bspline_surf_prime_v( 3.0, iv , phand )
-			du= csurf.bspline_surf_prime_u( 3.0, iv , phand )
-			n = np.cross( du , dv )
-			n = n / np.linalg.norm( n )
-			path.append( np.array( p + n * self.flat_r ) )
+			path.append( np.array( p ) )
 
 		path.append( csurf.bspline_surf( 3.0, 0 , phand ) + np.array((0,-self.flat_r,0)))
 		path.append( csurf.bspline_surf( 7.0, 0 , phand ) + np.array((0,-self.flat_r,0)))
 
 		for iv in np.linspace(0,vhand,nv) :
-			p = csurf.bspline_surf        ( 7.0, iv , phand )
-
-			if self.check_pass( p , self.trm[0] , self.tdhand[0][1] ) :
+			p = self.gen_bspline_point( 7.0 , iv , self.flat_r , phand )
+			if self.check_pass( p , trm[0] , tdhand[0][1] ) :
+#                path.append( trm[0] )
 				break
-
-			dv= csurf.bspline_surf_prime_v( 7.0, iv , phand )
-			du= csurf.bspline_surf_prime_u( 7.0, iv , phand )
-			n = np.cross( du , dv )
-			n = n / np.linalg.norm( n )
-			path.append( np.array( p + n * self.flat_r ) )
+			path.append( p )
 
 		for iv in np.linspace(0,vhead,nv) :
-			p = csurf.bspline_surf        (13.0, iv , phead )
-
-			if not self.check_pass( p , self.trm[0] , self.tdhead[0][1] ) :
+			p = self.gen_bspline_point( 13.0 , iv , self.flat_r , phead )
+			if not self.check_pass( p , trm[0] , tdhead[0][1] ) :
 				continue
-
-			dv= csurf.bspline_surf_prime_v(13.0, iv , phead )
-			du= csurf.bspline_surf_prime_u(13.0, iv , phead )
-			n = np.cross( du , dv )
-			n = n / np.linalg.norm( n )
-			path.append( np.array( p + n * self.flat_r ) )
+			path.append( p )
 
 		path.append( csurf.bspline_surf(13.0, vhead , phead ) + np.array((-self.flat_r,0,0)))
 
@@ -215,7 +202,7 @@ class Miller( Node ) :
 
 		for v in path : v[2] = 0.0
 
-		self.paths.append( np.array( path ) )
+		return np.array( path )
 
 	def lerp( self , x , bx , ex , by , ey ) :
 		return (x-bx) / (ex-bx) * (ey-by) + by 
@@ -229,7 +216,7 @@ class Miller( Node ) :
 	#
 	# trimming curve in object space
 	#
-	def find_trimming( self ) :
+	def find_trimming( self , r ) :
 		u , v , head_pts = self.get_curve_data( self.head )
 		u , v , hand_pts = self.get_curve_data( self.hand )
 
@@ -267,18 +254,16 @@ class Miller( Node ) :
 			n = head_n + hand_n
 			n = n / np.linalg.norm( n )
 
-			ln = m.sqrt(2) * self.exac_r / m.sqrt( 1 + np.dot( head_n , hand_n ) )
+			ln = m.sqrt(2) * r / m.sqrt( 1 + np.dot( head_n , hand_n ) )
 
 			path.append( p + n * ln )
 
 
 			fi += di
 
-		self.trm    = path
-		self.tdhead = head_derv
-		self.tdhand = hand_derv
+		return path , head_derv , hand_derv
 
-	def gen_exact( self ) :
+	def gen_exact( self , trm , tdhead , tdhand ) :
 		path = []
 
 		#
@@ -294,11 +279,11 @@ class Miller( Node ) :
 		iv = 0.0
 
 		while iv <= v :
-			self.gen_line_u_with_trimming( iv , bu , eu , nu , head_pts , self.trm , self.tdhead , path )
+			self.gen_line_u_with_trimming( iv , bu , eu , nu , head_pts , trm , tdhead , path )
 
 			iv += dv
 
-			self.gen_line_u_with_trimming( iv , eu , bu , nu , head_pts , self.trm , self.tdhead , path )
+			self.gen_line_u_with_trimming( iv , eu , bu , nu , head_pts , trm , tdhead , path )
 
 			iv += dv
 
@@ -311,8 +296,8 @@ class Miller( Node ) :
 		#
 		# hand
 		#
-		tn = np.cross( self.trm[-1] - self.trm[0] , np.array((0,0,1)) )
-		tp = self.trm[0]
+		tn = np.cross( trm[-1] - trm[0] , np.array((0,0,1)) )
+		tp = trm[0]
 
 		bu = 3.0
 		eu = 7.0
@@ -324,18 +309,18 @@ class Miller( Node ) :
 		while iv <= v :
 			p = csurf.bspline_surf( eu , iv , hand_pts )
 			if self.check_pass( p , tp , tn ) :
-				self.gen_line_u_with_trimming( iv , bu , eu , nu , hand_pts , self.trm , self.tdhand , path )
+				self.gen_line_u_with_trimming( iv , bu , eu , nu , hand_pts , trm , tdhand , path )
 			iv += dv
 			p = csurf.bspline_surf( eu , iv , hand_pts )
 			if self.check_pass( p , tp , tn ) :
-				self.gen_line_u_with_trimming( iv , eu , bu , nu , hand_pts , self.trm , self.tdhand , path )
+				self.gen_line_u_with_trimming( iv , eu , bu , nu , hand_pts , trm , tdhand , path )
 			iv += dv
 
-		path += reversed( self.trm )
+		path += reversed( trm )
 
 		print 
 
-		self.paths.append( np.array( path ) )
+		return np.array( path )
 
 	def gen_line_u( self , pts , path , v , bu , eu , nu ) :
 		sys.stdout.write('.')

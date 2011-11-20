@@ -56,28 +56,38 @@ class Miller( Node ) :
 				f.write( 'N%dG01X%fY%fZ%f\n' % ( i , p[0] , p[1] ,-p[2] ) )
 				i+=1
 
+	def safe_goto( self , a , e ) :
+		b = a[-1]
+		return np.concatenate( (a , np.array( [ np.array((b[0],b[1],BLOCK_H)) , np.array((e[0],e[1],BLOCK_H)) , e ] )))
+
 	def gen_paths( self ) :
 		self.gen_configuration()
 		print "Generating trimming curve..."
-		self.trm_init = self.find_trimming( self.init_r )
-		self.trm_flat = self.find_trimming( self.flat_r )
 		self.trm_exact= self.find_trimming( self.exac_r )
 		print "Generating initial path..."
 		init_z0 = -self.init_r+self.exac_r
-		init_border = self.gen_border( self.init_r, init_z0, *self.trm_init )
-		self.paths.append( self.gen_flat( init_z0,  96,  96, init_border ) )
-#        self.paths.append( init_border )
+		init_border = self.gen_border( self.init_r, init_z0, *self.trm_exact )
+		self.remove_self_cuts( init_border )
+		init_path = self.gen_flat( init_z0,  96,  96, init_border )
+		self.paths.append( self.safe_goto( init_path
+			, np.array((BLOCK_X[0],BLOCK_Y[1],0))))
 		print "Generating border path..."
 		flat_z0 = self.exac_r
-		flat_border = self.gen_border( self.flat_r * .88 , flat_z0, *self.trm_flat )
-		self.paths.append( flat_border )
+		flat_border = self.gen_border( self.flat_r * .88 , flat_z0, *self.trm_exact )
+		self.remove_self_cuts( flat_border )
+		self.paths.append( self.safe_goto( flat_border
+			, np.array((BLOCK_X[0],BLOCK_Y[0],0))))
 		print "Generating paths for flat surface..."
-		self.paths.append( self.gen_flat( flat_z0, 128, 128, flat_border ) )
+		flat_path = self.gen_flat( flat_z0, 128, 128, flat_border )
+		self.paths.append( self.safe_goto( flat_path
+			, np.array((BLOCK_X[1],BLOCK_Y[0],0))))
 		print "Generating exact path..."
-		self.paths.append( self.gen_exact( 0 , *self.trm_exact ) )
+		exact_path = self.gen_exact( 0 , *self.trm_exact )
+		self.paths.append( self.safe_goto( exact_path
+			, np.array((BLOCK_X[0],BLOCK_Y[0],0))))
 		print "All paths generated"
 
-		self.paths.append( init_border )
+		self.paths.append( np.array(init_border))
 
 	def gen_configuration( self ) :
 		self.head = self.curves.getat(0)
@@ -160,7 +170,7 @@ class Miller( Node ) :
 		uhead , vhead , phead = self.get_curve_data( self.head )
 		uhand , vhand , phand = self.get_curve_data( self.hand )
 
-		nv = 64
+		nv = 128
 
 		path.append( csurf.bspline_surf( 6.0, vhead , phead ) + np.array((-r,0,0)))
 
@@ -205,7 +215,7 @@ class Miller( Node ) :
 
 		for v in path : v[2] = z0
 
-		return np.array( path )
+		return path
 
 	def lerp( self , x , bx , ex , by , ey ) :
 		return (x-bx) / (ex-bx) * (ey-by) + by 
@@ -270,35 +280,10 @@ class Miller( Node ) :
 		path = []
 
 		#
-		# head
-		#
-		u , v , head_pts = self.get_curve_data( self.head )
-
-		bu = 6.0
-		eu = 13.0
-		nu = 64
-		nv = 128
-		dv = v / float(nv)
-		iv = 0.0
-
-		while iv <= v :
-			self.gen_line_u_with_trimming( iv , bu , eu , nu , z0 , head_pts , trm , tdhead , path )
-
-			iv += dv
-
-			self.gen_line_u_with_trimming( iv , eu , bu , nu , z0 , head_pts , trm , tdhead , path )
-
-			iv += dv
-
-		path.append( path[-1] + np.array((-.2,0,0 )) )
-		path.append( path[-1] + np.array((0,-3.5,0)) )
-		path.append( path[-1] + np.array((2,0,0)) )
-
-		u , v , hand_pts = self.get_curve_data( self.hand )
-
-		#
 		# hand
 		#
+		u , v , hand_pts = self.get_curve_data( self.hand )
+
 		tn = np.cross( trm[-1] - trm[0] , np.array((0,0,1)) )
 		tp = trm[0]
 
@@ -319,7 +304,33 @@ class Miller( Node ) :
 				self.gen_line_u_with_trimming( iv , eu , bu , nu , z0 , hand_pts , trm , tdhand , path )
 			iv += dv
 
-		path += reversed( trm )
+		path += reversed(trm)
+
+		path.append( path[-1] + np.array((0,0,-1.2)) )
+		path.append( path[-1] + np.array((2.4,0,0)) )
+		path.append( path[-1] + np.array((0,.9,0)) )
+		path.append( path[-1] + np.array((0,0,1.2)) )
+
+		#
+		# head
+		#
+		u , v , head_pts = self.get_curve_data( self.head )
+
+		bu = 6.0
+		eu = 13.0
+		nu = 64
+		nv = 128
+		dv = v / float(nv)
+		iv = 0.0
+
+		while iv <= v :
+			self.gen_line_u_with_trimming( iv , bu , eu , nu , z0 , head_pts , trm , tdhead , path )
+
+			iv += dv
+
+			self.gen_line_u_with_trimming( iv , eu , bu , nu , z0 , head_pts , trm , tdhead , path )
+
+			iv += dv
 
 		print 
 
@@ -414,3 +425,36 @@ class Miller( Node ) :
 				cn = None
 
 			odu = ndu
+
+	def remove_self_cuts( self , l ) :
+		def ccw( a , b , c ) :
+			return (c[1]-a[1])*(b[0]-a[0]) > (b[1]-a[1])*(c[0]-a[0])
+
+		def nx( x1 , x2 , x3 , x4 , y1 , y2 , y3 , y4 ) :
+			return ((x1*y2-y1*x2)*(x3-x4)-(x1-x2)*(x3*y4-y3*x4)) / \
+			             ((x1-x2)*(y3-y4)-(y1-y2)*(x3-x4))
+		def ny( x1 , x2 , x3 , x4 , y1 , y2 , y3 , y4 ) :
+			return ((x1*y2-y1*x2)*(y3-y4)-(y1-y2)*(x3*y4-y3*x4)) / \
+			             ((x1-x2)*(y3-y4)-(y1-y2)*(x3-x4))
+
+		i = 0
+		while i < len(l)-1 :
+			j = i+1
+			while j < len(l)-1 :
+				a0 = l[i  ]
+				a1 = l[i+1]
+				b0 = l[j  ]
+				b1 = l[j+1]
+
+				if ccw( a0 , b0 , b1 ) != ccw(a1,b0,b1) and \
+				   ccw( a0 , a1 , b0 ) != ccw(a0,a1,b1) :
+					x = nx( a0[0] , a1[0] , b0[0] , b1[0] , a0[1] , a1[1] , b0[1] , b1[1] )
+					y = ny( a0[0] , a1[0] , b0[0] , b1[0] , a0[1] , a1[1] , b0[1] , b1[1] )
+					l[j+1][0] = x
+					l[j+1][1] = y
+					del l[i+1:j+1]
+					j = i+1
+				j+=1
+			i+=1
+
+

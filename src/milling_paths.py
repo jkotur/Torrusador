@@ -38,11 +38,15 @@ class Miller( Node ) :
 
 		self.gen_paths()
 
-		print len(self.paths)
-		self.save(0,'init.k16')
-		self.save(1,'border.f10')
-		self.save(2,'flat.f10')
-		self.save(3,'exact.k8')
+		self.save(0,'01_init.k16')
+		self.save(1,'02_border.f10')
+		self.save(2,'03_flat.f10')
+		self.save(3,'04_exact.k8')
+
+		self.save_commpressed(0,'11_init_small.k16')
+		self.save_commpressed(1,'12_border_small.f10')
+		self.save_commpressed(2,'13_flat_small.f10')
+		self.save_commpressed(3,'14_exact_small.k8')
 
 		self.set_data( self.paths )
 
@@ -54,6 +58,23 @@ class Miller( Node ) :
 			for p in self.paths[num] :
 				p = (p + TRANS)*SCALE
 				f.write( 'N%dG01X%fY%fZ%f\n' % ( i , p[0] , p[1] ,-p[2] ) )
+				i+=1
+
+	def save_commpressed( self , num , filename ) :
+		pp = None
+		with open(filename,'w+') as f :
+			i = 0
+			for p in self.paths[num] :
+				p = (p + TRANS)*SCALE
+				f.write( 'N%dG01' % i )
+				if pp != None and m.fabs( pp[0] - p[0] ) > 1.0 :
+					f.write( 'X%f' % p[0] )
+				if pp != None and m.fabs( pp[1] - p[1] ) > 1.0 :
+					f.write( 'Y%f' % p[1] )
+				if pp != None and m.fabs( pp[2] - p[2] ) > 1.0 :
+					f.write( 'Z%f' % -p[2] )
+				f.write('\n')
+				pp = p
 				i+=1
 
 	def safe_goto( self , a , e ) :

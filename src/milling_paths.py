@@ -84,7 +84,7 @@ class Miller( Node ) :
 	def gen_paths( self ) :
 		self.gen_configuration()
 		print "Generating trimming curve..."
-		self.trm_exact= self.find_trimming( self.exac_r )
+		self.trm_exact = self.find_trimming( self.exac_r )
 		print "Generating initial path..."
 		init_z0 = -self.init_r+self.exac_r
 		init_border = self.gen_border( self.init_r, init_z0, *self.trm_exact )
@@ -97,7 +97,7 @@ class Miller( Node ) :
 		flat_border = self.gen_border( self.flat_r * .88 , flat_z0, *self.trm_exact )
 		self.remove_self_cuts( flat_border )
 		self.paths.append( self.safe_goto( flat_border
-			, np.array((BLOCK_X[0],BLOCK_Y[0],0))))
+			, np.array((BLOCK_X[1],BLOCK_Y[0],0))))
 		print "Generating paths for flat surface..."
 		flat_path = self.gen_flat( flat_z0, 128, 128, flat_border )
 		self.paths.append( self.safe_goto( flat_path
@@ -114,6 +114,9 @@ class Miller( Node ) :
 		self.head = self.curves.getat(0)
 		self.hand = self.curves.getat(1)
 
+		self.trm_uv_head = self.head.trimms[1]
+		self.trm_uv_hand = self.hand.trimms[1]
+
 	def get_curve_data( self , curve ) :
 		return curve.size[0] , curve.size[1] , curve.array_pts
 
@@ -121,6 +124,95 @@ class Miller( Node ) :
 		return np.array( [] )
 
 	def gen_flat( self , z , nx , ny , border ) :
+		bx , ex = BLOCK_X
+		by , ey = BLOCK_Y
+
+		a = self.gen_zigzag( bx , ex , by , ey , z , nx , ny , border ) 
+		border = np.roll( border , -50 , 0 )
+		a = self.safe_goto( a , (bx,ey,z) )
+		b = self.gen_zigzag( ex , bx , ey , by , z , nx , ny , border )
+
+		return np.concatenate(( a , b ))
+
+	def gen_zigzag( self , bx , ex , by , ey , z , nx , ny , border ) :
+		path = []
+
+		dy = 2.0*(ey-by)/float(ny)
+
+		minyid = None
+		maxyid = None
+		for i in range(len(border)) :
+			if minyid == None or border[i][1] < border[minyid][1] :
+				minyid = i
+			if maxyid == None or border[i][1] > border[maxyid][1] :
+				maxyid = i
+
+		def within( y , y0 , y1 ) :
+			return (y>y0 and y<y1) or (y>y1 and y<y0)
+
+		np.set_printoptions(suppress=True)
+
+		s = m.copysign( 1 , ey - by )
+		y = by
+		while s*y <= s*ey :
+			cut = []
+			for i in range(len(border)) :
+				if within( y , border[i][1] , border[(i+1)%len(border)][1] ) :
+					cut.append(i)
+
+			sc = m.copysign( 1 , bx - ex )
+			cut = sorted( cut , key = lambda i : sc * border[i][0] )
+
+			np.set_printoptions(suppress=True)
+
+			if len(cut) :
+				prev = cut[0]
+				p0 = border[cut[0]  ]
+				p1 = border[(cut[0]+1)%len(border)]
+				tx = self.lerp( y , p0[1] , p1[1] , p0[0] , p1[0] )
+			else :
+				prev = None
+				tx = bx
+
+			path.append( np.array((ex,y,z)) )
+			path.append( np.array((tx,y,z)) )
+			y += dy
+
+			cut = []
+			for i in range(len(border)) :
+				if within( y , border[i][1] , border[(i+1)%len(border)][1] ) :
+					cut.append(i)
+
+			sc = m.copysign( 1 , bx - ex )
+			cut = sorted( cut , key = lambda i : sc * border[i][0] )
+
+			if len(cut) :
+				next = cut[0]
+				p0 = border[cut[0]  ]
+				p1 = border[(cut[0]+1)%len(border)]
+				tx = self.lerp( y , p0[1] , p1[1] , p0[0] , p1[0] ) 
+			else :
+				next = None
+				tx = bx
+
+			if not prev and next :
+				prev = minyid
+			if prev and not next :
+				next = maxyid
+
+			if prev and next :
+				for i in range( prev , next , 1 if prev < next else -1 ) :
+					if s * (y-1.7*dy) <= s * border[i][1] :
+						path.append( border[i] )
+
+			path.append( np.array((tx,y,z)) )
+			path.append( np.array((ex,y,z)) )
+
+			y += dy
+
+		return np.array(path)
+
+	def gen_flat_old( self , z , nx , ny , border ) :
 		path = []
 
 		bx , ex = BLOCK_X
@@ -191,7 +283,7 @@ class Miller( Node ) :
 		uhead , vhead , phead = self.get_curve_data( self.head )
 		uhand , vhand , phand = self.get_curve_data( self.hand )
 
-		nv = 128
+		nv = 127
 
 		path.append( csurf.bspline_surf( 6.0, vhead , phead ) + np.array((-r,0,0)))
 
@@ -254,8 +346,8 @@ class Miller( Node ) :
 		u , v , head_pts = self.get_curve_data( self.head )
 		u , v , hand_pts = self.get_curve_data( self.hand )
 
-		head_trm = self.head.trimms[1]
-		hand_trm = self.hand.trimms[1]
+		head_trm = self.trm_uv_head
+		hand_trm = self.trm_uv_hand
 
 		bi  = min( head_trm.minimal_v_id , head_trm.maximal_v_id )
 		ei  = max( head_trm.minimal_v_id , head_trm.maximal_v_id )
@@ -288,7 +380,7 @@ class Miller( Node ) :
 			n = head_n + hand_n
 			n = n / np.linalg.norm( n )
 
-			ln = m.sqrt(2) * r / m.sqrt( 1 + np.dot( head_n , hand_n ) )
+			ln = m.sqrt(2) * r / m.sqrt( 1 + np.dot( head_n , hand_n ) ) * 1.08
 
 			path.append( p + n * ln )
 
@@ -314,22 +406,40 @@ class Miller( Node ) :
 		nv = 128
 		dv = v / float(nv)
 		iv = 0.0
+		ev = iv
 
 		while iv <= v :
 			p = csurf.bspline_surf( eu , iv , hand_pts )
 			if self.check_pass( p , tp , tn ) :
 				self.gen_line_u_with_trimming( iv , bu , eu , nu , z0 , hand_pts , trm , tdhand , path )
+				ev = iv
 			iv += dv
 			p = csurf.bspline_surf( eu , iv , hand_pts )
 			if self.check_pass( p , tp , tn ) :
 				self.gen_line_u_with_trimming( iv , eu , bu , nu , z0 , hand_pts , trm , tdhand , path )
+				ev = iv
 			iv += dv
+
+		trmuv = self.trm_uv_hand.l
+		i = 1
+		for a in np.linspace(0,1,5) :
+			for uv in trmuv if i%2 else reversed(trmuv) :
+				if uv[0] > 3.0 and uv[0] < 7.0 :
+					v = a*(uv[1] - 0.6) + (1-a)*ev
+					p = csurf.bspline_surf        ( uv[0] , v , hand_pts )
+					dv= csurf.bspline_surf_prime_v( uv[0] , v , hand_pts )
+					du= csurf.bspline_surf_prime_u( uv[0] , v , hand_pts )
+
+					n = np.cross( du , dv )
+					n = n / np.linalg.norm( n )
+
+					path.append( np.array( p + n * self.exac_r ) )
+			i += 1
 
 		path += reversed(trm)
 
 		path.append( path[-1] + np.array((0,0,-1.2)) )
-		path.append( path[-1] + np.array((2.4,0,0)) )
-		path.append( path[-1] + np.array((0,.9,0)) )
+		path.append( path[-1] + np.array((2.4,.9,0)) )
 		path.append( path[-1] + np.array((0,0,1.2)) )
 
 		#
@@ -420,6 +530,8 @@ class Miller( Node ) :
 			  ((self.check_pass( p, trm[fi], dtrm[fi][0] )) or \
 			  ( self.check_pass( p, trm[ri], dtrm[ri][0] ))) :
 				continue
+
+#            if ri == -1 and fi == 0 : continue
 
 #            if not self.check_pass( p , np.array((0,0,z0)) , np.array((0,0,-1)) ) :
 #                continue

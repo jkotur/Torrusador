@@ -499,6 +499,12 @@ class App(object):
 			self.save_file = self.win_dia_save.get_filename() 
 			self.scene.dump_to_file( self.save_file )
 		self.win_dia_save.hide()
+
+	def on_but_gen_clicked( self , widge , data=None ) :
+		self.scene.gen_paths()
+		
+	def on_but_dump_clicked( self , widge , data=None ) :
+		self.scene.dump_sign()
 		
 	def on_show( self , widget , data=None ):
 		widget.show_all()

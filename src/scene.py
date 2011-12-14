@@ -18,7 +18,9 @@ from geom.cross import Cross
 from curves import Curves 
 from geom.curve import Curve
 
-from milling_paths import Miller
+import milling_paths
+
+import saver
 
 STARTLOOK = ( (0,0,0) , (0,0,-1) , (0,1,0) )
 
@@ -54,11 +56,6 @@ class Scene :
 		self.load_from_file(u'../data/młotek.gpt')
 #        self.load_from_file(u'../data/głowica.gpt')
 #        self.load_from_file(u'../data/cut_test_10.gpt')
-		for c in self.curves : self.curves.cutter.add( c )
-		print 'cut'
-		self.curves.cut( (0,0,0,0) , 0.01 )
-		print 'mil'
-		self.miller = Miller( self.curves )
 
 		#
 		# Craete torus
@@ -75,7 +72,6 @@ class Scene :
 		self.node.add_child( tn )
 		self.node.add_child( self.cursor )
 		self.node.add_child( self.curves )
-		self.node.add_child( self.miller )
 
 		#
 		# Craete normal scene
@@ -329,4 +325,27 @@ class Scene :
 
 	def dump_to_file( self , path ) :
 		self.curves.dump( path )
+
+	def gen_paths( self ) :
+		self.clear()
+
+		self.load_from_file(u'../data/młotek.gpt')
+		for c in self.curves : self.curves.cutter.add( c )
+		print 'cut'
+		self.curves.cut( (0,0,0,0) , 0.01 )
+		print 'mil'
+		self.miller = milling_paths.Miller( self.curves )
+		self.node.add_child( self.miller )
+
+	def dump_sign( self ) :
+		curv = self.curves.selected
+		if curv == None : return
+		path = []
+		for u in np.linspace(0,len(curv)-1,len(curv)*16) :
+			path.append( curv.get_ptn( u ) )
+		trans = np.resize( milling_paths.TRANS , 4 )
+		trans[3] = 0
+		scale = milling_paths.SCALE
+		proc = lambda p : (p + trans)*scale
+		saver.save(-1,'05_sign.k4',path, pre = proc )
 

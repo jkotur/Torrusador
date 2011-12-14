@@ -40,6 +40,9 @@ class Interpolation( Points ) :
 
 		self.pow2bern() 
 
+	def get_ptn( self , u ) :
+		return self.bz.get_point( u , self.bezier )
+
 	def new( self , pos , data = None ) :
 		Points.new( self , pos , data )
 

@@ -3,6 +3,8 @@ from curve import *
 
 import sys
 
+from copy import copy
+
 import numpy as np
 import math as m
 
@@ -13,6 +15,15 @@ from OpenGL.GL.EXT import *
 import shaders as sh
 
 from numpy.linalg import linalg as la
+
+def decasteljau( pts , t ) :
+        if len(pts) <= 0 :
+                return 0
+
+        for k in reversed(range(0,len(pts))) :
+                for i in xrange(0,k) :
+                        pts[i] = pts[i]*(1.0-t) + pts[i+1]*t
+        return pts[0]
 
 class Bezier( Curve ) :
 
@@ -30,6 +41,11 @@ class Bezier( Curve ) :
 		location = glGetUniformLocation(prog,loc)
 		if location in (None,-1): raise ValueError ('No uniform: ' + loc)
 		return location                 
+
+	def get_point( self , u , pts ) :
+		i  = int(u)
+		u -= i
+		return decasteljau( copy(pts[i*3:i*3+4]) , u )
 
 	def gfx_init( self ) :
 		if self.is_inited : return
@@ -59,7 +75,7 @@ class Bezier( Curve ) :
 		if len(data) == 0 : return
 
 		self.geom = []
-		for p in data[0] :
+		for p in data :
 			self.geom.append(p[0])
 			self.geom.append(p[1])
 			self.geom.append(p[2])

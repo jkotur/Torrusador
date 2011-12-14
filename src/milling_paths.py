@@ -9,6 +9,8 @@ from look.node import Node
 
 from geom.lines import Lines
 
+from saver import save , save_commpressed
+
 DRILL_0 = (0,0)
 BLOCK_X = (-1.5,1.9)
 BLOCK_Y = (-1.6,1.8)
@@ -38,44 +40,22 @@ class Miller( Node ) :
 
 		self.gen_paths()
 
-		self.save(0,'01_init.k16')
-		self.save(1,'02_border.f10')
-		self.save(2,'03_flat.f10')
-		self.save(3,'04_exact.k8')
+		proc = lambda p : (p + TRANS)*SCALE
 
-		self.save_commpressed(0,'11_init_small.k16')
-		self.save_commpressed(1,'12_border_small.f10')
-		self.save_commpressed(2,'13_flat_small.f10')
-		self.save_commpressed(3,'14_exact_small.k8')
+		save(0,'01_init.k16'   , self.paths , pre = proc )
+		save(1,'02_border.f10' , self.paths , pre = proc )
+		save(2,'03_flat.f10'   , self.paths , pre = proc )
+		save(3,'04_exact.k8'   , self.paths , pre = proc )
+
+		save_commpressed(0,'11_init_small.k16'   ,  self.paths ,pre = proc )
+		save_commpressed(1,'12_border_small.f10' ,  self.paths ,pre = proc )
+		save_commpressed(2,'13_flat_small.f10'   ,  self.paths ,pre = proc )
+		save_commpressed(3,'14_exact_small.k8'   ,  self.paths ,pre = proc )
 
 		self.set_data( self.paths )
 
 		np.set_printoptions(suppress=True)
 
-	def save( self , num , filename ) :
-		with open(filename,'w+') as f :
-			i = 0
-			for p in self.paths[num] :
-				p = (p + TRANS)*SCALE
-				f.write( 'N%dG01X%fY%fZ%f\n' % ( i , p[0] , p[1] ,-p[2] ) )
-				i+=1
-
-	def save_commpressed( self , num , filename ) :
-		pp = None
-		with open(filename,'w+') as f :
-			i = 0
-			for p in self.paths[num] :
-				p = (p + TRANS)*SCALE
-				f.write( 'N%dG01' % i )
-				if pp != None and m.fabs( pp[0] - p[0] ) > 1.0 :
-					f.write( 'X%f' % p[0] )
-				if pp != None and m.fabs( pp[1] - p[1] ) > 1.0 :
-					f.write( 'Y%f' % p[1] )
-				if pp != None and m.fabs( pp[2] - p[2] ) > 1.0 :
-					f.write( 'Z%f' % -p[2] )
-				f.write('\n')
-				pp = p
-				i+=1
 
 	def safe_goto( self , a , e ) :
 		b = a[-1]

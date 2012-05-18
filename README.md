@@ -15,7 +15,7 @@ Not related raycasting project <http://github.com/jkotur/ellipsoid>.
 
 Stereoscopy view of all object on scene. Currently only torus, but should work with future objects.
 
-![stereoscopy](http://raw.github.com/jkotur/Torrusador/master/screens/stereoscopy.png)
+<img src="https://github.com/jkotur/Torrusador/raw/master/screens/stereoscopy.png" alt="stereoscopy" width="600" />
 
 ## week 4
 
@@ -33,7 +33,7 @@ Stereoscopy view of all object on scene. Currently only torus, but should work w
   * adding Bezier curves chain with C2 class
   * drawing in both Bezier and De Boore basis
 
-![bezier](http://raw.github.com/jkotur/Torrusador/master/screens/bezier.png)
+<img src="https://github.com/jkotur/Torrusador/raw/master/screens/bezier.png" alt="bezier" width="600" />
 
 ## week 7
 
@@ -47,7 +47,7 @@ Stereoscopy view of all object on scene. Currently only torus, but should work w
   * visualisation with lines of constant parameter
   * adaptive mesh drawing
 
-![surface](http://raw.github.com/jkotur/Torrusador/master/screens/surface.png)
+<img src="https://github.com/jkotur/Torrusador/raw/master/screens/surface.png" alt="surface" width="600" />
 
 ## week 9
 
@@ -62,7 +62,7 @@ Stereoscopy view of all object on scene. Currently only torus, but should work w
   * model must have edge with C0 class
   * saving/loading model
 
-![hammer](http://raw.github.com/jkotur/Torrusador/master/screens/hammer.png)
+<img src="https://github.com/jkotur/Torrusador/raw/master/screens/hammer.png" alt="hammer" width="600" />
 
 ## week 12
 
@@ -70,7 +70,7 @@ Stereoscopy view of all object on scene. Currently only torus, but should work w
   * patch should match with C1 and G2 class
   * optionally matching with C2 class
 
-![gregory_patch](http://raw.github.com/jkotur/Torrusador/master/screens/gregory_patch.png)
+<img src="https://github.com/jkotur/Torrusador/raw/master/screens/gregory_patch.png" alt="gregory_patch" width="600" />
 
 ## week 13, 14
 
@@ -80,10 +80,10 @@ Trimming bspline surfaces. User can choose two surfaces and trim one with other.
   2. find intersection curve with at least Newtons method
   3. find and show surfaces sections
 
-![trimming1](http://raw.github.com/jkotur/Torrusador/master/screens/trim_test.png)
-![trimming2](http://raw.github.com/jkotur/Torrusador/master/screens/trim_hammer.png)
+<img src="https://github.com/jkotur/Torrusador/raw/master/screens/trim_test.png" alt="trimming1" width="400" />
+<img src="https://github.com/jkotur/Torrusador/raw/master/screens/trim_hammer.png" alt="trimming2" width="400" />
 
 ## Effect
 
-![effect](http://raw.github.com/jkotur/Torrusador/master/screens/effect.png)
+<img src="https://github.com/jkotur/Torrusador/raw/master/screens/effect.png" alt="effect" width="600" />
 
